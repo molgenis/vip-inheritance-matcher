@@ -16,7 +16,7 @@
   <version>0.0.3-SNAPSHOT</version>
 
   <name>vip-inheritance-matcher</name>
-  <description>Annotates VCF samples with denovo and possible compound flags and matching inheritance modes</description>
+  <description>Annotates VCF samples with mendelian violation and possible compound flags and matching inheritance modes</description>
 
   <licenses>
     <license>
@@ -27,14 +27,14 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git://github.com/molgenis/vip-decision-tree.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/molgenis/vip-decision-tree.git</developerConnection>
-    <url>https://github.com/molgenis/vip-decision-tree</url>
+    <connection>scm:git:git://github.com/molgenis/vip-inheritance-matcher.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/molgenis/vip-inheritance-matcher.git</developerConnection>
+    <url>https://github.com/molgenis/vip-inheritance-matcher</url>
   </scm>
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/molgenis/vip-decision-tree/issues</url>
+    <url>https://github.com/molgenis/vip-inheritance-matcher/issues</url>
   </issueManagement>
 
   <properties>
@@ -111,6 +111,11 @@
     <dependency>
       <groupId>com.github.samtools</groupId>
       <artifactId>htsjdk</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>de.charite.compbio</groupId>
+      <artifactId>jannovar-htsjdk</artifactId>
+      <version>0.35-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

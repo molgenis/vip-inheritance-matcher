@@ -1,0 +1,64 @@
+##fileformat=VCFv4.2
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Depth">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=IHM,Number=1,Type=String,Description="Inheritance mode and compound information for this sample in the format: GENE1|MODE|COMPOUND,GENE2|MODE|COMPOUND">
+##FORMAT=<ID=MV,Number=1,Type=Integer,Description="Indication if the variant is a mendelian violation for this sample.">
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|GENE">
+##VIP_inheritance=Inheritance annotations based on ped files: pedigree_mf_unaff.ped
+##contig=<ID=1,length=249250621,assembly=b37>
+##contig=<ID=2,length=243199373,assembly=b37>
+##contig=<ID=3,length=198022430,assembly=b37>
+##contig=<ID=4,length=191154276,assembly=b37>
+##contig=<ID=5,length=180915260>
+##contig=<ID=6,length=171115067,assembly=b37>
+##contig=<ID=7,length=159138663,assembly=b37>
+##contig=<ID=8,assembly=b37,length=146364022>
+##contig=<ID=9,length=141213431,assembly=b37>
+##contig=<ID=10,length=135534747,assembly=b37>
+##contig=<ID=11,length=135006516,assembly=b37>
+##contig=<ID=12,length=133851895,assembly=b37>
+##contig=<ID=13,assembly=b37,length=115169878>
+##contig=<ID=14,length=107349540,assembly=b37>
+##contig=<ID=15,length=102531392,assembly=b37>
+##contig=<ID=16,assembly=b37,length=90354753>
+##contig=<ID=17,length=81195210,assembly=b37>
+##contig=<ID=18,length=78077248,assembly=b37>
+##contig=<ID=19,length=59128983,assembly=b37>
+##contig=<ID=20,length=63025520,assembly=b37>
+##contig=<ID=21,length=48129895,assembly=b37>
+##contig=<ID=22,length=51304566,assembly=b37>
+##contig=<ID=X,length=155270560,assembly=b37>
+##contig=<ID=Y,length=59373566,assembly=b37>
+##contig=<ID=MT,length=16569,assembly=b37>
+##fileDate=20200320
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Patient	Mother	Father
+1	1	.	C	T	.	PASS	CSQ=C|stop_gained||GENE1.1|	GT:DP:IHM:MV	0/1:99:GENE1.1|AD|:1	0/0:99	0/0:99
+1	2	.	C	T	.	PASS	CSQ=C|stop_gained||GENE1.2|	GT:DP:MV	0/1:99:0	0/0:99	0/1:99
+1	3	.	C	T	.	PASS	CSQ=C|stop_gained||GENE1.3|	GT:DP:MV	0/1:99:0	0/0:99	1/1:99
+2	1	.	C	T	.	PASS	CSQ=C|stop_gained||GENE2.1|	GT:DP:MV	1/1:99:1	0/0:99	0/0:99
+2	2	.	C	T	.	PASS	CSQ=C|stop_gained||GENE2.2|	GT:DP:MV	1/1:99:1	0/0:99	0/1:99
+2	3	.	C	T	.	PASS	CSQ=C|stop_gained||GENE2.3|	GT:DP:MV	1/1:99:1	0/0:99	1/1:99
+2	4	.	C	T	.	PASS	CSQ=C|stop_gained||GENE2.1b|	GT:DP:MV	1/1:99:1	0/0:99	0/0:99
+2	5	.	C	T	.	PASS	CSQ=C|stop_gained||GENE2.2b|	GT:DP:MV	1/1:99:1	0/0:99	0/1:99
+2	6	.	C	T	.	PASS	CSQ=C|stop_gained||GENE2.3b|	GT:DP:MV	1/1:99:1	0/0:99	1/1:99
+3	1	.	C	T	.	PASS	CSQ=C|stop_gained||GENE3.1|	GT:DP:MV	0/0:99:0	0/0:99	0/0:99
+3	2	.	C	T	.	PASS	CSQ=C|stop_gained||GENE3.2|	GT:DP:MV	0/0:99:0	0/0:99	0/1:99
+3	3	.	C	T	.	PASS	CSQ=C|stop_gained||GENE3.3|	GT:DP:MV	0/0:99:1	0/0:99	1/1:99
+5	2	.	C	T	.	PASS	CSQ=C|stop_gained||GENE5|	GT:DP:IHM:MV	0/1:99:GENE5|AR|1:0	0/0:99	0/1:99
+5	4	.	C	T	.	PASS	CSQ=C|stop_gained||GENE5|	GT:DP:IHM:MV	0/1:99:GENE5|AR|1:0	0/1:99	0/0:99
+5	11	.	C	T	.	PASS	CSQ=C|stop_gained||GENE5|	GT:DP:MV	1/1:99:1	0/0:99	0/1:99
+5	13	.	C	T	.	PASS	CSQ=C|stop_gained||GENE5|	GT:DP:MV	1/1:99:1	0/1:99	0/0:99
+5	14	.	C	T	.	PASS	CSQ=C|stop_gained||GENE5|	GT:DP:IHM:MV	1/1:99:GENE5|AR|0:0	0/1:99	0/1:99
+5	15	.	C	T	.	PASS	CSQ=C|stop_gained||GENE5|	GT:DP:MV	1/1:99:0	0/1:99	1/1:99
+5	16	.	C	T	.	PASS	CSQ=C|stop_gained||GENE5|	GT:DP:MV	1/1:99:1	1/1:99	0/0:99
+X	1	.	C	T	.	PASS	CSQ=C|stop_gained||GENEX.1|	GT:DP:IHM:MV	0/1:99:GENEX.1|XR,XD|0:1	0/0:99	0/0:99
+X	2	.	C	T	.	PASS	CSQ=C|stop_gained||GENEX.2|	GT:DP:MV	0/1:99:0	0/0:99	0/1:99
+X	3	.	C	T	.	PASS	CSQ=C|stop_gained||GENEX.3|	GT:DP:MV	0/1:99:0	0/0:99	1/1:99
+X	4	.	C	T	.	PASS	CSQ=C|stop_gained||GENEX.4c|	GT:DP:IHM:MV	1/1:99:GENEX.4c|XR|0:1	0/1:99	0/0:99
+X	5	.	C	T	.	PASS	CSQ=C|stop_gained||GENEX.5c|	GT:DP:MV	1/1:99:0	0/1:99	0/1:99
+MT	1	.	C	T	.	PASS	CSQ=C|stop_gained||GENEMT.1|	GT:DP:IHM:MV	0/1:99:GENEMT.1|MT|:1	0/0:99	0/0:99
+MT	2	.	C	T	.	PASS	CSQ=C|stop_gained||GENEMT.2|	GT:DP:IHM:MV	0/1:99:GENEMT.2|MT|:1	0/0:99	0/1:99
+MT	3	.	C	T	.	PASS	CSQ=C|stop_gained||GENEMT.3|	GT:DP:MV	0/1:99:1	0/0:99	1/1:99
+MT	4	.	C	T	.	PASS	CSQ=C|stop_gained||GENEMT.1c|	GT:DP:MV	1/1:99:1	0/0:99	0/0:99
+MT	5	.	C	T	.	PASS	CSQ=C|stop_gained||GENEMT.2c|	GT:DP:MV	1/1:99:1	0/0:99	0/1:99
+MT	6	.	C	T	.	PASS	CSQ=C|stop_gained||GENEMT.3c|	GT:DP:MV	1/1:99:1	0/0:99	1/1:99
