@@ -1,0 +1,23 @@
+os: linux
+dist: bionic
+language: java
+jdk: openjdk11
+cache:
+  directories:
+  - "$HOME/.m2"
+addons:
+  sonarcloud:
+    organization: molgenis
+    token:
+      secure: B8j40t3XBkCA3hruTtZH1AP1H2QhZFYKHrpvwpfo9cYihP4h6ynXeelyEhPbjao4flAnCtiNzUXq7/qAb7di1SPA+607Ip12EGxPwLGosoQlNEHY1js06mpzSqUh80cZDz1SAzJpvkGQjUHPUud2Namx4cQhdng++t5D5SlI7GZbqqC66/34UGI/qIy2CynNA2BFZRZ7u8HuU8wGenAGcXWP4aFZrVPc9Jr0hzSEYQTg5KizWdqiZ5aCEm8Z7ikJtyyTx2ILIJHOk0ybofwpo9X+gz0MxVhTR1F44WM/sducG2dfdFfstneVDP9qWuxdmV7k2d/YjwtLUlPLLmNxXWcsL/8qGP3vo5793o6+MA2yqSfriTm5ahOdgDiewQYZf/MtR6muRVj58WGITCCz4ITJQpg9ouZBgaae6spGC7yQkHfvy3AiVGXzrIJOav7g0e2ZZ0ctYqQHvqosy94JT1pSsTcwyzyAGsWz0CS9fECG4V4RAoWDP3owR5wyHFvbQjZHHRAeVrI4yfw/BGxVDnX+rhEbdRlEbhGTHkmgHuQDf2dGYvPVLEoYT6H73vL2HyAGFhzW0bqY2wNqBwXC9xn4rZ9vvpIS/nqdyBA7ZYNi9oHERf6YkhLfObSiobdtGzgyY+InsMH85DOL9//rWOwOVccruA8GGG2f0wA6YKc=
+script:
+- mvn clean install sonar:sonar -Pcoverage -Dsonar.projectKey=molgenis_vip-inheritance
+deploy:
+  provider: releases
+  api_key:
+    secure: hGekKX/bMcJUYxyPBXAsDaDahizpEweQ78dIWxtJr5crfBWadsqGaBD2b6IZHWSY+XlyIBqDvJ7Daow1sqUTMBh8KdlDTeRJlz1gxjynAyX7O7SuvhYRqQxmYwlqoJmwX0sRba9Qyz1II9Hch4koRDnWMt+0JytVut1A1sDguL7vuR+GUdJfdCYn8V7XFXah+KGW6UFt2RxZiZsu2tTpFlke3Eii4Ik26P3rnnkQwtWWI0ttqcwvdmv2a78Ahy2ty9ej/HKgOobh6nHozTBaU2qfyiELJ4qSe6Yv+N7Yx3BXEcFqi5R+NJWLV5SL8UOUex9JONZeDthZ0NIb5JxdMtefUhWM3Zbx1Q04XLUFLyY5m0M7YlbQwE2cGDt6XXFMdnBswXxWtqJFYYVAazp4kVlgcHHiEMVdkYUMPXEZRj00IFHqbeEasB+UNe7W2RnqoOinwhrvbl6I5tQx2CLwawXnd+Q6SOsqod04KWG0Q7o34LcblSSqF5i1F/r6bdmayfN85tMN1RFi4i/oFEpn65yvvhZrVoBTP0xcPuvxfslbyo9JAXUlq/XzieMlNl2kl9xanL3oLKuOUE3z9IGZT7Giqwd6pE9MVRXCTEFlO1q6dakS7de5scDIBb7AcspfPmP8REz4qVIxI7SbATZ4TUeEhB1cuQFPtzwIZZntx3Y=
+  file: vip-inheritance-matcher.jar
+  prerelease: true
+  on:
+    tags: true
+  edge: true # opt in to dpl v2
