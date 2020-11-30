@@ -2,8 +2,10 @@ package org.molgenis.vcf.inheritance.matcher;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
@@ -17,7 +19,7 @@ public class GenmodInheritanceMapper {
 
   private static final String INHERITANCE_INFO_FIELD = "GeneticModels";
 
-  private static void mapInheritance(List<Annotation> annotations, String inheritanceValue) {
+  private static void mapInheritance(Map<String, Annotation> annotations, String inheritanceValue) {
     List<MappedInheritanceMode> mappedInheritanceModes = new ArrayList<>();
     String[] inheritanceSplit = inheritanceValue.split(":");
     if (inheritanceSplit.length == 2) {
@@ -34,8 +36,8 @@ public class GenmodInheritanceMapper {
         }
         inheritanceModeSet.add(mappedInheritanceMode.getInheritanceMode());
       }
-      annotations.add(
-          Annotation.builder().familyID(family).inheritanceMode(inheritanceModeSet)
+      annotations.put(family,
+          Annotation.builder().inheritanceModes(inheritanceModeSet)
               .denovo(denovo)
               .build());
     } else {
@@ -47,8 +49,8 @@ public class GenmodInheritanceMapper {
     return vc.hasAttribute(INHERITANCE_INFO_FIELD);
   }
 
-  List<Annotation> mapInheritance(VariantContext vc) {
-    List<Annotation> annotations = new ArrayList<>();
+  Map<String,Annotation> mapInheritance(VariantContext vc) {
+    Map<String,Annotation> annotations = new HashMap<>();
     if (isSampleInheritanceAnnotated(vc)) {
       List<String> inheritanceValues = vc.getAttributeAsStringList(INHERITANCE_INFO_FIELD, "");
       for (String inheritanceValue : inheritanceValues) {

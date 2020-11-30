@@ -14,6 +14,10 @@ class AppCommandLineOptions {
   static final String OPT_INPUT_LONG = "input";
   static final String OPT_OUTPUT = "o";
   static final String OPT_OUTPUT_LONG = "output";
+  static final String OPT_PED = "pd";
+  static final String OPT_PED_LONG = "pedigree";
+  static final String OPT_PROBANDS = "pb";
+  static final String OPT_PROBANDS_LONG = "probands";
   static final String OPT_FORCE = "f";
   static final String OPT_FORCE_LONG = "force";
   static final String OPT_DEBUG = "d";
@@ -26,17 +30,30 @@ class AppCommandLineOptions {
   static {
     Options appOptions = new Options();
     appOptions.addOption(
-        Option.builder(OPT_INPUT)
-            .hasArg(true)
-            .required()
-            .longOpt(OPT_INPUT_LONG)
-            .desc("Input VCF file (.vcf or .vcf.gz).")
-            .build());
+            Option.builder(OPT_INPUT)
+                .hasArg(true)
+                .required()
+                .longOpt(OPT_INPUT_LONG)
+                .desc("Input VCF file (.vcf or .vcf.gz).")
+                .build());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
             .hasArg(true)
             .longOpt(OPT_OUTPUT_LONG)
             .desc("Output VCF file (.vcf or .vcf.gz).")
+            .build());
+    appOptions.addOption(
+        Option.builder(OPT_PED)
+            .hasArg(true)
+            .required()
+            .longOpt(OPT_PED_LONG)
+            .desc("Comma-separated list of pedigree files (.ped).")
+            .build());
+    appOptions.addOption(
+        Option.builder(OPT_PROBANDS)
+            .hasArg(true)
+            .longOpt(OPT_PROBANDS_LONG)
+            .desc("Comma-separated list of proband sample identifiers.")
             .build());
     appOptions.addOption(
         Option.builder(OPT_FORCE)

@@ -61,23 +61,27 @@ public class InheritanceMatcher {
     VepMapper vepMapper = new VepMapper(fileReader);
     Map<String, Set<String>> variantGeneList = genmodCompoundMapper
         .createVariantGeneList(fileReader, vepMapper);
+    Map<String, String> familyMap = PedUtils.map(settings.getInputPedPaths(), settings.getProbands());
+
     for (VariantContext vc : fileReader) {
-      List<Annotation> annotations = matchInheritance(vc, vepMapper, variantGeneList);
-      vc = annotator.annotate(vc, annotations);
+      Map<String, Annotation> annotations = matchInheritance(vc, vepMapper, variantGeneList);
+      vc = annotator.annotate(vc, annotations, familyMap);
       writer.add(vc);
     }
     writer.close();
   }
 
-  List<Annotation> matchInheritance(VariantContext vc,
+  Map<String, Annotation> matchInheritance(VariantContext vc,
       VepMapper vepMapper,
       Map<String, Set<String>> variantGeneList) {
-    List<Annotation> annotations = genmodInheritanceMapper.mapInheritance(vc);
+    Map<String, Annotation> annotations = genmodInheritanceMapper.mapInheritance(vc);
     Map<String, Set<InheritanceModeEnum>> geneInheritanceMap = vepMapper.getGeneInheritanceMap(vc);
-    for (Annotation annotation : annotations) {
+    for (Entry<String, Annotation> annotationEntry : annotations.entrySet()) {
+      Annotation annotation = annotationEntry.getValue();
+      String familyId = annotationEntry.getKey();
       List<String> result = new ArrayList<>();
       for (Entry<String, Set<InheritanceModeEnum>> entry : geneInheritanceMap.entrySet()) {
-        if (matchInheritanceMode(entry, annotation, vc, variantGeneList)) {
+        if (matchInheritanceMode(entry, annotation, familyId, vc, variantGeneList)) {
           result.add(entry.getKey());
         }
       }
@@ -88,13 +92,13 @@ public class InheritanceMatcher {
 
   private boolean matchInheritanceMode(
       Entry<String, Set<InheritanceModeEnum>> inheritanceModesForGene,
-      Annotation annotation,
+      Annotation annotation, String familyId,
       VariantContext vc, Map<String, Set<String>> variantGeneList) {
     boolean result = false;
-    for (InheritanceMode inheritanceMode : annotation.getInheritanceMode()) {
+    for (InheritanceMode inheritanceMode : annotation.getInheritanceModes()) {
       if (inheritanceModesForGene.getValue().contains(inheritanceMode.getInheritanceModeEnum())) {
         if (inheritanceMode.getSubInheritanceMode() == SubInheritanceMode.COMP) {
-          if (matchCompound(inheritanceModesForGene, annotation, vc, variantGeneList)) {
+          if (matchCompound(inheritanceModesForGene, familyId, vc, variantGeneList)) {
             result = true;
           }
         } else {
@@ -106,10 +110,10 @@ public class InheritanceMatcher {
   }
 
   private boolean matchCompound(Entry<String, Set<InheritanceModeEnum>> inheritanceModesForGene,
-      Annotation annotation, VariantContext vc, Map<String, Set<String>> variantGeneList) {
+      String familyId, VariantContext vc, Map<String, Set<String>> variantGeneList) {
     String gene = inheritanceModesForGene.getKey();
     Map<String, String[]> compounds = genmodCompoundMapper.mapCompounds(vc);
-    for (String compound : compounds.get(annotation.getFamilyID())) {
+    for (String compound : compounds.get(familyId)) {
       if (variantGeneList.containsKey(compound)) {
         if (variantGeneList.get(compound).contains(gene)) {
           return true;

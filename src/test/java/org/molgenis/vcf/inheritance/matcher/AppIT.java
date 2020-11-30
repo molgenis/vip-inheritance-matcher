@@ -18,14 +18,32 @@ class AppIT {
   @Test
   void test() throws IOException {
     String inputFile = ResourceUtils.getFile("classpath:integration.vcf").toString();
+    String pedigree = ResourceUtils.getFile("classpath:pedigree_complex.ped").toString();
     String outputFile = sharedTempDir.resolve("actual.vcf").toString();
 
-    String[] args = {"-i", inputFile, "-o", outputFile};
+    String[] args = {"-i", inputFile, "-o", outputFile, "-pd", pedigree};
     SpringApplication.run(App.class, args);
 
     String outputVcf = Files.readString(Path.of(outputFile));
 
     Path expectedOutputFile = ResourceUtils.getFile("classpath:expected.vcf").toPath();
+    String expectedOutputVcf = Files.readString(expectedOutputFile).replaceAll("\\R", "\n");
+
+    assertEquals(expectedOutputVcf, outputVcf);
+  }
+
+  @Test
+  void testProband() throws IOException {
+    String inputFile = ResourceUtils.getFile("classpath:integration.vcf").toString();
+    String pedigree = ResourceUtils.getFile("classpath:pedigree_complex.ped").toString();
+    String outputFile = sharedTempDir.resolve("actual.vcf").toString();
+
+    String[] args = {"-i", inputFile, "-o", outputFile, "-pd", pedigree, "-pb", "Mother,Patient2"};
+    SpringApplication.run(App.class, args);
+
+    String outputVcf = Files.readString(Path.of(outputFile));
+
+    Path expectedOutputFile = ResourceUtils.getFile("classpath:expected_probands.vcf").toPath();
     String expectedOutputVcf = Files.readString(expectedOutputFile).replaceAll("\\R", "\n");
 
     assertEquals(expectedOutputVcf, outputVcf);

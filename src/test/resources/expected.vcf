@@ -1,12 +1,16 @@
 ##fileformat=VCFv4.2
 ##FILTER=<ID=PASS,Description="All filters passed">
+##FORMAT=<ID=CMP,Number=1,Type=Integer,Description="Possible compound status for AR inheritance modes, 1 = true, 0 = false.">
+##FORMAT=<ID=DNV,Number=1,Type=Integer,Description="Denovo status, 1 = true, 0 = false.">
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+##FORMAT=<ID=GENES,Number=.,Type=String,Description="Genes for which inheritance modes of the sample and gene match.">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=MATCH,Number=1,Type=String,Description="Does inheritance match for sample and genes, 1 = true, 0 = false.">
+##FORMAT=<ID=MDS,Number=.,Type=String,Description="Predicted inheritance modes.">
 ##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|Gene|InheritanceModesGene">
 ##INFO=<ID=Compounds,Number=.,Type=String,Description="List of compound pairs for this variant.The list is splitted on ',' family id is separated with compoundswith ':'. Compounds are separated with '|'.">
 ##INFO=<ID=GeneticModels,Number=.,Type=String,Description="':'-separated list of genetic models for this variant.">
 ##INFO=<ID=ModelScore,Number=.,Type=String,Description="PHRED score for genotype models.">
-##INFO=<ID=VIP_INH,Number=.,Type=String,Description="VIP Inheritance information in the format: FamilyID|PredictedInheritanceModels|Denove|MatchingGenes">
 ##InheritanceModesGene=List of inheritance modes for the gene
 ##InheritanceModesPheno=List of inheritance modes for the gene per phenotype
 ##PREFERRED=Flags a transcript as preferred
@@ -39,7 +43,8 @@
 ##contig=<ID=MT,length=16569,assembly=b37>
 ##fileDate=20200320
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Patient	Mother	Father	Patient2	Mother2	Father2
-1	123456	.	C	T,G	.	PASS	CSQ=G|GENE1|ID1|AR_hom;GeneticModels=FAM001:AD_dn,FAM002:AR_hom;VIP_INH=FAM001|AD|true|,FAM002|AR:HOM|false|	GT:DP	1|0:50	0|0:10	0|0:10	1|0:50	0|0:10	0|0:10
-X	123457	.	C	G	.	PASS	CSQ=G|GENE2|ID2|XL;GeneticModels=FAM001:XD,FAM002:XR;VIP_INH=FAM001|XD|false|ID2,FAM002|XR|false|ID2	GT:DP	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50
-X	123457	.	C	G	.	PASS	CSQ=G|GENE3|ID3|XD;GeneticModels=FAM001:XD,FAM002:XR;VIP_INH=FAM001|XD|false|ID3,FAM002|XR|false|	GT:DP	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50
-MT	12345	.	G	A	.	PASS	CSQ=A|GENE4|ID4|MT;GeneticModels=FAM001:AD,FAM002:AR_hom;VIP_INH=FAM001|AD|false|,FAM002|AR:HOM|false|	GT:DP	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50
+1	123456	.	C	T,G	.	PASS	CSQ=G|GENE1|ID1|AR_hom;GeneticModels=FAM001:AD_dn,FAM002:AR_hom	GT:CMP:DNV:DP:MATCH:MDS	1|0:.:1:50:0:AD	0|0:.:1:10:0:AD	0|0:.:1:10:0:AD	1|0:0:0:50:0:AR	0|0:.:.:10	0|0:0:0:10:0:AR
+X	123457	.	C	G	.	PASS	CSQ=G|GENE2|ID2|XL;GeneticModels=FAM001:XD,FAM002:XR	GT:DNV:DP:GENES:MATCH:MDS	1/0:0:50:ID2:1:XD	1/0:0:50:ID2:1:XD	1/0:0:50:ID2:1:XD	1/0:0:50:ID2:1:XR	1/0:.:50	1/0:0:50:ID2:1:XR
+X	123458	.	C	G	.	PASS	CSQ=G|GENE3|ID3|XD;GeneticModels=FAM001:XD,FAM002:XR	GT:DNV:DP:GENES:MATCH:MDS	1/0:0:50:ID3:1:XD	1/0:0:50:ID3:1:XD	1/0:0:50:ID3:1:XD	1/0:0:50:.:0:XR	1/0:.:50	1/0:0:50:.:0:XR
+X	123459	.	C	G	.	PASS	CSQ=G|GENE3|ID3|XD	GT:DP	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50
+MT	12345	.	G	A	.	PASS	CSQ=A|GENE4|ID4|MT;GeneticModels=FAM001:AD,FAM002:AR_hom	GT:CMP:DNV:DP:MATCH:MDS	1/0:.:0:50:0:AD	1/0:.:0:50:0:AD	1/0:.:0:50:0:AD	1/0:0:0:50:0:AR	1/0:.:.:50	1/0:0:0:50:0:AR

@@ -13,9 +13,8 @@ import org.springframework.lang.Nullable;
 @NonFinal
 public class Annotation {
 
-  @NonNull String familyID;
   @Nullable
-  Set<InheritanceMode> inheritanceMode;
+  Set<InheritanceMode> inheritanceModes;
   @NonNull boolean denovo;
   @Nullable
   List<String> matchingGenes;

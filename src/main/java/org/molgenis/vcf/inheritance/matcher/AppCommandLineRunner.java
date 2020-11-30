@@ -5,9 +5,14 @@ import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_DEB
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_FORCE;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_INPUT;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_OUTPUT;
+import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PED;
+import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PROBANDS;
+import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
 
 import ch.qos.logback.classic.Level;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -40,7 +45,6 @@ class AppCommandLineRunner implements CommandLineRunner {
     this.appName = requireNonNull(appName);
     this.appVersion = requireNonNull(appVersion);
     this.inheritanceMatcher = inheritanceMatcher;
-
     this.commandLineParser = new DefaultParser();
   }
 
@@ -90,12 +94,26 @@ class AppCommandLineRunner implements CommandLineRunner {
       outputPath = Path.of(commandLine.getOptionValue(OPT_INPUT) + ".html");
     }
 
+    List<String> probandNames;
+    if (commandLine.hasOption(OPT_PROBANDS)) {
+      probandNames = Arrays.asList(commandLine.getOptionValue(OPT_PROBANDS).split(","));
+    } else {
+      probandNames = List.of();
+    }
+
+    List<Path> pedPaths;
+    if (commandLine.hasOption(OPT_PED)) {
+      pedPaths = parsePaths(commandLine.getOptionValue(OPT_PED));
+    } else {
+      pedPaths = null;
+    }
+
     boolean overwriteOutput = commandLine.hasOption(OPT_FORCE);
 
     boolean debugMode = commandLine.hasOption(OPT_DEBUG);
 
-    return Settings.builder().inputVcfPath(inputPath).outputPath(outputPath)
-        .overwrite(overwriteOutput).debug(debugMode)
+    return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
+        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode)
         .build();
   }
 
