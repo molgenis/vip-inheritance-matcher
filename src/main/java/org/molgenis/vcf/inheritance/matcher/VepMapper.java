@@ -53,7 +53,7 @@ public class VepMapper {
         if (nestedInfo.contains(INHERITANCE)) {
           this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
         } else {
-          throw new MissingVepAnnotationException("INHERITANCE");
+          throw new MissingVepAnnotationException(INHERITANCE);
         }
         return;
       }
