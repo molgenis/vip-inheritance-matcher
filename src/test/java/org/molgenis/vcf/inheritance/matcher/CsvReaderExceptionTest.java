@@ -12,7 +12,7 @@ class CsvReaderExceptionTest {
     Exception ex = mock(Exception.class);
     when(ex.getMessage()).thenReturn("TEST");
     assertEquals(
-        "An exception occured while reading the PED file 'PED': TEST.",
+        "An exception occurred while reading the PED file 'PED': TEST.",
         new CsvReaderException("PED",ex).getMessage());
   }
 }

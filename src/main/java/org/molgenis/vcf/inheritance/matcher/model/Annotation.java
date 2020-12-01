@@ -13,7 +13,7 @@ import org.springframework.lang.Nullable;
 @NonFinal
 public class Annotation {
 
-  @Nullable
+  @NonNull
   Set<InheritanceMode> inheritanceModes;
   @NonNull boolean denovo;
   @Nullable

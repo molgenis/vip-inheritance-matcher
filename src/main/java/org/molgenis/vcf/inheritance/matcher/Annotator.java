@@ -102,11 +102,7 @@ public class Annotator {
     for (InheritanceMode inheritanceMode : inheritanceModes) {
       if (inheritanceMode.getInheritanceModeEnum() == InheritanceModeEnum.AR && !Boolean.TRUE
           .equals(isCompound)) {
-        if (inheritanceMode.getSubInheritanceMode() == SubInheritanceMode.COMP) {
-          isCompound = true;
-        } else {
-          isCompound = false;
-        }
+        isCompound = inheritanceMode.getSubInheritanceMode() == SubInheritanceMode.COMP;
       }
     }
     return mapCompound(isCompound);
