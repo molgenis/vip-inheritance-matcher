@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PathUtils {
-  private PathUtils() {}
+
+  private PathUtils() {
+  }
 
   public static List<Path> parsePaths(String optionValue) {
     List<Path> result = new ArrayList<>();

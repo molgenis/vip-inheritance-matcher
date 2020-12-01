@@ -30,12 +30,12 @@ class AppCommandLineOptions {
   static {
     Options appOptions = new Options();
     appOptions.addOption(
-            Option.builder(OPT_INPUT)
-                .hasArg(true)
-                .required()
-                .longOpt(OPT_INPUT_LONG)
-                .desc("Input VCF file (.vcf or .vcf.gz).")
-                .build());
+        Option.builder(OPT_INPUT)
+            .hasArg(true)
+            .required()
+            .longOpt(OPT_INPUT_LONG)
+            .desc("Input VCF file (.vcf or .vcf.gz).")
+            .build());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
             .hasArg(true)

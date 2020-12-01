@@ -6,6 +6,6 @@ public class MissingVepAnnotationException extends
     RuntimeException {
 
   public MissingVepAnnotationException(String field) {
-      super(format("VEP annotation is missing field '%s'.", field));
-    }
+    super(format("VEP annotation is missing field '%s'.", field));
+  }
 }

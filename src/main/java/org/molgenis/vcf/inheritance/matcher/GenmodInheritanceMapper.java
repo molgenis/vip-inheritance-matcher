@@ -49,8 +49,8 @@ public class GenmodInheritanceMapper {
     return vc.hasAttribute(INHERITANCE_INFO_FIELD);
   }
 
-  Map<String,Annotation> mapInheritance(VariantContext vc) {
-    Map<String,Annotation> annotations = new HashMap<>();
+  Map<String, Annotation> mapInheritance(VariantContext vc) {
+    Map<String, Annotation> annotations = new HashMap<>();
     if (isSampleInheritanceAnnotated(vc)) {
       List<String> inheritanceValues = vc.getAttributeAsStringList(INHERITANCE_INFO_FIELD, "");
       for (String inheritanceValue : inheritanceValues) {

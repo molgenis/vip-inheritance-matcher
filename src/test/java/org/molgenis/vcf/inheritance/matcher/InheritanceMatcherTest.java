@@ -6,10 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import htsjdk.variant.variantcontext.VariantContext;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,7 +66,7 @@ class InheritanceMatcherTest {
     VariantContext vc = mock(VariantContext.class);
     Map<String, Annotation> annotations = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.HOM).build()))
+            InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.HOM).build()))
             .build());
     VepMapper vepMapper = mock(VepMapper.class);
     Map<String, Set<InheritanceModeEnum>> geneInheritanceMap = new HashMap<>();
@@ -81,7 +79,7 @@ class InheritanceMatcherTest {
 
     Map<String, Annotation> expected = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.HOM).build()))
+            InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.HOM).build()))
             .matchingGenes(Collections.singletonList("GENE1")).build());
     assertEquals(expected, inheritanceMatcher.matchInheritance(vc, vepMapper, variantGeneList));
   }
@@ -91,7 +89,7 @@ class InheritanceMatcherTest {
     VariantContext vc = mock(VariantContext.class);
     Map<String, Annotation> annotations = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
+            InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
             .build());
     VepMapper vepMapper = mock(VepMapper.class);
     Map<String, Set<InheritanceModeEnum>> geneInheritanceMap = new HashMap<>();
@@ -106,7 +104,7 @@ class InheritanceMatcherTest {
 
     Map<String, Annotation> expected = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
+            InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
             .matchingGenes(Collections.singletonList("GENE1")).build());
     assertEquals(expected, inheritanceMatcher.matchInheritance(vc, vepMapper, variantGeneList));
   }
@@ -116,7 +114,7 @@ class InheritanceMatcherTest {
     VariantContext vc = mock(VariantContext.class);
     Map<String, Annotation> annotations = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AD).build())).build());
+            InheritanceModeEnum.AD).build())).build());
     VepMapper vepMapper = mock(VepMapper.class);
     Map<String, Set<InheritanceModeEnum>> geneInheritanceMap = new HashMap<>();
     geneInheritanceMap.put("GENE1", Set.of(InheritanceModeEnum.AR));
@@ -128,7 +126,7 @@ class InheritanceMatcherTest {
 
     Map<String, Annotation> expected = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AD).build())).matchingGenes(emptyList()).build());
+            InheritanceModeEnum.AD).build())).matchingGenes(emptyList()).build());
     assertEquals(expected, inheritanceMatcher.matchInheritance(vc, vepMapper, variantGeneList));
   }
 
@@ -137,7 +135,7 @@ class InheritanceMatcherTest {
     VariantContext vc = mock(VariantContext.class);
     Map<String, Annotation> annotations = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
+            InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
             .build());
     VepMapper vepMapper = mock(VepMapper.class);
     Map<String, Set<InheritanceModeEnum>> geneInheritanceMap = new HashMap<>();
@@ -152,7 +150,7 @@ class InheritanceMatcherTest {
 
     Map<String, Annotation> expected = Map.of("FAM",
         Annotation.builder().inheritanceModes(Set.of(InheritanceMode.builder().inheritanceModeEnum(
-                InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
+            InheritanceModeEnum.AR).subInheritanceMode(SubInheritanceMode.COMP).build()))
             .matchingGenes(emptyList()).build());
     assertEquals(expected, inheritanceMatcher.matchInheritance(vc, vepMapper, variantGeneList));
   }

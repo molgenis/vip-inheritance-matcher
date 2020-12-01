@@ -61,7 +61,8 @@ public class InheritanceMatcher {
     VepMapper vepMapper = new VepMapper(fileReader);
     Map<String, Set<String>> variantGeneList = genmodCompoundMapper
         .createVariantGeneList(fileReader, vepMapper);
-    Map<String, String> familyMap = PedUtils.map(settings.getInputPedPaths(), settings.getProbands());
+    Map<String, String> familyMap = PedUtils
+        .map(settings.getInputPedPaths(), settings.getProbands());
 
     for (VariantContext vc : fileReader) {
       Map<String, Annotation> annotations = matchInheritance(vc, vepMapper, variantGeneList);

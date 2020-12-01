@@ -42,7 +42,7 @@ public class PedUtils {
         }
       }
     } catch (IOException | CsvException e) {
-      throw new CsvReaderException(path.getFileName().toString(),e);
+      throw new CsvReaderException(path.getFileName().toString(), e);
     }
     return result;
   }
