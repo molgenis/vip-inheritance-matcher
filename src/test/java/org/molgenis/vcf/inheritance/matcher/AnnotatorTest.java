@@ -12,11 +12,20 @@ import htsjdk.variant.vcf.VCFFormatHeaderLine;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class AnnotatorTest {
 
-  Annotator annotator = new Annotator();
+  private Annotator annotator;
+
+  @BeforeEach
+  void setUp() {
+    annotator = new Annotator();
+  }
 
   @Test
   void annotateHeader() {
@@ -25,19 +34,18 @@ class AnnotatorTest {
     verify(vcfHeader)
         .addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED,
             VCFHeaderLineType.String,
-            "Predicted inheritance modes."));
+            "An enumeration of possible inheritance modes."));
     verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(POSSIBLE_COMPOUND, 1,
         VCFHeaderLineType.Integer,
-        "Possible compound status for AR inheritance modes, 1 = true, 0 = false."));
+        "Inheritance Compound status."));
     verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(DENOVO, 1,
         VCFHeaderLineType.Integer,
-        "Denovo status, 1 = true, 0 = false."));
+        "Inheritance Denovo status."));
     verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1,
         VCFHeaderLineType.String,
-        "Does inheritance match for sample and genes, 1 = true, 0 = false."));
-    verify(vcfHeader)
-        .addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
-            VCFHeaderLineType.String,
-            "Genes for which inheritance modes of the sample and gene match."));
+        "Inheritance Match status."));
+    verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
+        VCFHeaderLineType.String,
+        "Genes with an inheritance match."));
   }
 }

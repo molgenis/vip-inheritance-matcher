@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,7 +23,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class GenmodCompoundMapperTest {
 
-  GenmodCompoundMapper mapper = new GenmodCompoundMapper();
+  private GenmodCompoundMapper mapper;
+
+  @BeforeEach
+  void setUp() {
+    mapper = new GenmodCompoundMapper();
+  }
 
   @Test
   void createVariantGeneList() {

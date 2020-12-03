@@ -22,29 +22,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class Annotator {
 
-  public static final String INHERITANCE_MODES = "MDS";
-  public static final String POSSIBLE_COMPOUND = "CMP";
-  public static final String DENOVO = "DNV";
-  public static final String INHERITANCE_MATCH = "MATCH";
-  public static final String MATCHING_GENES = "GENES";
+  public static final String INHERITANCE_MODES = "VI";
+  public static final String POSSIBLE_COMPOUND = "VIC";
+  public static final String DENOVO = "VID";
+  public static final String INHERITANCE_MATCH = "VIM";
+  public static final String MATCHING_GENES = "VIG";
 
   VCFHeader annotateHeader(VCFHeader vcfHeader) {
     vcfHeader
         .addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED,
             VCFHeaderLineType.String,
-            "Predicted inheritance modes."));
+            "An enumeration of possible inheritance modes."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(POSSIBLE_COMPOUND, 1,
         VCFHeaderLineType.Integer,
-        "Possible compound status for AR inheritance modes, 1 = true, 0 = false."));
+        "Inheritance Compound status."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(DENOVO, 1,
         VCFHeaderLineType.Integer,
-        "Denovo status, 1 = true, 0 = false."));
+        "Inheritance Denovo status."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1,
         VCFHeaderLineType.String,
-        "Does inheritance match for sample and genes, 1 = true, 0 = false."));
+        "Inheritance Match status."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
         VCFHeaderLineType.String,
-        "Genes for which inheritance modes of the sample and gene match."));
+        "Genes with an inheritance match."));
     return vcfHeader;
   }
 

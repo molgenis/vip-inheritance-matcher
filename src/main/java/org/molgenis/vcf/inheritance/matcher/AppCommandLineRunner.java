@@ -91,7 +91,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     if (commandLine.hasOption(OPT_OUTPUT)) {
       outputPath = Path.of(commandLine.getOptionValue(OPT_OUTPUT));
     } else {
-      outputPath = Path.of(commandLine.getOptionValue(OPT_INPUT) + ".html");
+      outputPath = Path.of(commandLine.getOptionValue(OPT_INPUT).replace(".vcf","out.vcf"));
     }
 
     List<String> probandNames;
