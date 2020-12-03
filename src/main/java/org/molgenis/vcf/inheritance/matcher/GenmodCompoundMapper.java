@@ -38,7 +38,7 @@ public class GenmodCompoundMapper {
   Map<String, String[]> mapCompounds(VariantContext vc) {
     String input = String.join(",",
         vc.getAttributeAsStringList(COMPOUNDS_INFO_FIELD, ""));
-    Pattern p = Pattern.compile("(\\w*:)+");
+    Pattern p = Pattern.compile("(\\w++:)+");
     Matcher m = p.matcher(input);
     Map<String, Integer> keys = new HashMap<>();
     m.results().forEach(result ->
