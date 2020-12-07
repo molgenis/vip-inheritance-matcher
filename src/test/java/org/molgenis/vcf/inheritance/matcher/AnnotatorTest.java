@@ -42,7 +42,7 @@ class AnnotatorTest {
         VCFHeaderLineType.Integer,
         "Inheritance Denovo status."));
     verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1,
-        VCFHeaderLineType.String,
+        VCFHeaderLineType.Integer,
         "Inheritance Match status."));
     verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
         VCFHeaderLineType.String,

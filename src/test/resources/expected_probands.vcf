@@ -6,7 +6,7 @@
 ##FORMAT=<ID=VIC,Number=1,Type=Integer,Description="Inheritance Compound status.">
 ##FORMAT=<ID=VID,Number=1,Type=Integer,Description="Inheritance Denovo status.">
 ##FORMAT=<ID=VIG,Number=.,Type=String,Description="Genes with an inheritance match.">
-##FORMAT=<ID=VIM,Number=1,Type=String,Description="Inheritance Match status.">
+##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match status.">
 ##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|Gene|InheritanceModesGene">
 ##INFO=<ID=Compounds,Number=.,Type=String,Description="List of compound pairs for this variant.The list is splitted on ',' family id is separated with compoundswith ':'. Compounds are separated with '|'.">
 ##INFO=<ID=GeneticModels,Number=.,Type=String,Description="':'-separated list of genetic models for this variant.">
