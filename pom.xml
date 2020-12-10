@@ -45,7 +45,6 @@
     <commons.cli.version>1.4</commons.cli.version>
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <java.version>11</java.version>
-    <opencsv.version>5.2</opencsv.version>
     <samtools.htsjdk.version>2.21.3</samtools.htsjdk.version>
   </properties>
 
@@ -120,11 +119,6 @@
         <version>${commons.cli.version}</version>
       </dependency>
       <dependency>
-        <artifactId>opencsv</artifactId>
-        <groupId>com.opencsv</groupId>
-        <version>${opencsv.version}</version>
-      </dependency>
-      <dependency>
         <artifactId>htsjdk</artifactId>
         <groupId>com.github.samtools</groupId>
         <version>${samtools.htsjdk.version}</version>
@@ -154,10 +148,6 @@
     <dependency>
       <artifactId>htsjdk</artifactId>
       <groupId>com.github.samtools</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>opencsv</artifactId>
-      <groupId>com.opencsv</groupId>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-test</artifactId>

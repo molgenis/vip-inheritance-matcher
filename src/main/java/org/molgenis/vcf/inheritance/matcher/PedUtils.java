@@ -1,12 +1,9 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.exceptions.CsvException;
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -30,25 +27,22 @@ public class PedUtils {
 
   private static Map<String, String> map(Path path, List<String> probands) {
     Map<String, String> result = new HashMap<>();
-    try (CSVReader reader = new CSVReaderBuilder(new FileReader(path.toFile()))
-        .withCSVParser(getParser()).build()) {
-      for (String[] line : reader.readAll()) {
-        if (line.length == 6) {
-          if (probands.isEmpty() || probands.contains(line[SAMPLE_INDEX])) {
-            result.put(line[SAMPLE_INDEX], line[FAMILY_INDEX]);
+    try (BufferedReader buffer = new BufferedReader(new FileReader(path.toFile()))) {
+      buffer.lines().forEach(line -> {
+        String[] tokens = line.split("\\s+");
+        if (tokens.length != 0 && !tokens[0].startsWith("#")) {
+          if (tokens.length == 6) {
+            if (probands.isEmpty() || probands.contains(tokens[SAMPLE_INDEX])) {
+              result.put(tokens[SAMPLE_INDEX], tokens[FAMILY_INDEX]);
+            }
+          } else {
+            throw new MalformedPedException(path.getFileName().toString());
           }
-        } else {
-          throw new MalformedPedException(path.getFileName().toString());
         }
-      }
-    } catch (IOException | CsvException e) {
-      throw new CsvReaderException(path.getFileName().toString(), e);
+      });
+    } catch (IOException e) {
+      throw new UncheckedIOException(path.getFileName().toString(), e);
     }
     return result;
   }
-
-  private static CSVParser getParser() {
-    return new CSVParserBuilder().withSeparator('\t').build();
-  }
-
 }
