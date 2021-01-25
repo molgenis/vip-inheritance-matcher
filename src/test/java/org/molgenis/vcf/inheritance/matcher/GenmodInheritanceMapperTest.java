@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.AD;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.AR;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.XD;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.XR;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.XLD;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.XLR;
 import static org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode.COMP;
 import static org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode.HOM;
 
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
@@ -61,10 +60,10 @@ class GenmodInheritanceMapperTest {
         Arguments.of("AR_comp_dn",AR,COMP,true),
         Arguments.of("AD",AD,null,false),
         Arguments.of("AD_dn",AD,null,true),
-        Arguments.of("XD",XD,null,false),
-        Arguments.of("XD_dn",XD,null,true),
-        Arguments.of("XR",XR,null,false),
-        Arguments.of("XR_dn",XR,null,true)
+        Arguments.of("XD", XLD,null,false),
+        Arguments.of("XD_dn", XLD,null,true),
+        Arguments.of("XR", XLR,null,false),
+        Arguments.of("XR_dn", XLR,null,true)
     );
   }
 
