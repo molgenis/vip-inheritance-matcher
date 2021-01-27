@@ -77,15 +77,15 @@ public class VepMapper {
           case "AD":
             modes.add(InheritanceModeEnum.AD);
             break;
-          case "XR":
-            modes.add(InheritanceModeEnum.XR);
+          case "XLR":
+            modes.add(InheritanceModeEnum.XLR);
             break;
-          case "XD":
-            modes.add(InheritanceModeEnum.XD);
+          case "XLD":
+            modes.add(InheritanceModeEnum.XLD);
             break;
           case "XL":
-            modes.add(InheritanceModeEnum.XD);
-            modes.add(InheritanceModeEnum.XR);
+            modes.add(InheritanceModeEnum.XLD);
+            modes.add(InheritanceModeEnum.XLR);
             break;
           default:
             //We ignore all the modes that are not used for matching (not provided by genmod)

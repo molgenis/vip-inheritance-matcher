@@ -96,22 +96,22 @@ public class GenmodInheritanceMapper {
         break;
       case "XD":
         mappedInheritanceModeBuilder.inheritanceMode(
-            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XD).build())
+            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XLD).build())
             .isDenovo(false);
         break;
       case "XD_dn":
         mappedInheritanceModeBuilder.inheritanceMode(
-            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XD).build())
+            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XLD).build())
             .isDenovo(true);
         break;
       case "XR":
         mappedInheritanceModeBuilder.inheritanceMode(
-            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XR).build())
+            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XLR).build())
             .isDenovo(false);
         break;
       case "XR_dn":
         mappedInheritanceModeBuilder.inheritanceMode(
-            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XR).build())
+            InheritanceMode.builder().inheritanceModeEnum(InheritanceModeEnum.XLR).build())
             .isDenovo(true);
         break;
       default:
