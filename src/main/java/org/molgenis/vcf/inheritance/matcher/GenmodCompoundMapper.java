@@ -1,6 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import htsjdk.variant.variantcontext.Allele;
+import static java.util.stream.Collectors.joining;
+
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import java.util.HashMap;
@@ -22,15 +23,31 @@ public class GenmodCompoundMapper {
       VepMapper vepMapper) {
     Map<String, Set<String>> result = new HashMap<>();
     for (VariantContext vc : fileReader) {
-      String key = String
-          .format("%s_%d_%s_%s", vc.getContig(), vc.getStart(), vc.getReference().getBaseString(),
-              vc.getAlternateAlleles().stream().map(Allele::getBaseString)
-                  .collect(Collectors.joining(",")));
+      String key = createGenmodVariantIdentifier(vc);
       Set<String> genes = vepMapper.getGenes(vc);
       result.put(key, genes);
     }
     return result;
   }
+
+  private static final Pattern PATTERN_REPLACE = Pattern.compile("[<>:\\[\\]]");
+
+  /**
+   * package-private for testability.
+   */
+  static String createGenmodVariantIdentifier(VariantContext vc) {
+    // Fix https://github.com/molgenis/vip-inheritance-matcher/issues/11
+    return vc.getContig()
+        + '_'
+        + vc.getStart()
+        + '_'
+        + vc.getReference().getDisplayString() // do not PATTERN_REPLACE on reference
+        + '_'
+        + vc.getAlternateAlleles().stream()
+        .map(altAllele -> PATTERN_REPLACE.matcher(altAllele.getDisplayString()).replaceAll(""))
+        .collect(joining(","));
+  }
+
 
   //roundabout way of getting the actual string from the infofield, which is malformed in case of multi allelics
   //comma's are added in the created key, which are the list sepearators in a VCF INFO field
