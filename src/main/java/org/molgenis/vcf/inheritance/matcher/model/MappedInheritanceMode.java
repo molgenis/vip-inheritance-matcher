@@ -8,6 +8,6 @@ import lombok.Value;
 @Builder
 public class MappedInheritanceMode {
 
-  @NonNull InheritanceMode inheritanceMode;
+  @NonNull Inheritance inheritance;
   @NonNull boolean isDenovo;
 }

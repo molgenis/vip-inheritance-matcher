@@ -1,6 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
@@ -11,7 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum;
+import java.util.stream.Collectors;
+import org.molgenis.vcf.inheritance.matcher.model.Gene;
+import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 
 public class VepMapper {
 
@@ -50,62 +53,74 @@ public class VepMapper {
         } else {
           throw new MissingVepAnnotationException("GENE");
         }
-        if (nestedInfo.contains(INHERITANCE)) {
-          this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
-        } else {
-          throw new MissingVepAnnotationException(INHERITANCE);
-        }
+        this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
+
         return;
       }
     }
     throw new MissingInfoException("VEP");
   }
 
-  public Map<String, Set<InheritanceModeEnum>> getGeneInheritanceMap(VariantContext vc) {
-    Map<String, Set<InheritanceModeEnum>> genes = new HashMap<>();
+  public Map<String, Gene> getGenes(VariantContext vc) {
+    return getGenes(vc, emptyMap());
+  }
+
+  public Map<String, Gene> getGenes(VariantContext vc, Map<String, Gene> knownGenes) {
+    Map<String, Gene> genes = new HashMap<>();
     List<String> vepValues = vc.getAttributeAsStringList(vepField, "");
     for (String vepValue : vepValues) {
       String[] vepSplit = vepValue.split("\\|", -1);
       String gene = vepSplit[geneIndex];
-      String[] inheritanceModes = vepSplit[inheritanceIndex].split("&");
-      Set<InheritanceModeEnum> modes = new HashSet<>();
-      for (String mode : inheritanceModes) {
-        switch (mode) {
-          case "AR":
-            modes.add(InheritanceModeEnum.AR);
-            break;
-          case "AD":
-            modes.add(InheritanceModeEnum.AD);
-            break;
-          case "XLR":
-            modes.add(InheritanceModeEnum.XLR);
-            break;
-          case "XLD":
-            modes.add(InheritanceModeEnum.XLD);
-            break;
-          case "XL":
-            modes.add(InheritanceModeEnum.XLD);
-            modes.add(InheritanceModeEnum.XLR);
-            break;
-          default:
-            //We ignore all the modes that are not used for matching (not provided by genmod)
+      if (!knownGenes.containsKey(gene)) {
+        Set<InheritanceMode> modes = new HashSet<>();
+        if(inheritanceIndex != -1) {
+          String[] inheritanceModes
+              = vepSplit[inheritanceIndex].split("&");
+          mapGeneInheritance(modes, inheritanceModes);
         }
+        genes.put(gene, new Gene(gene, modes));
+      } else {
+        genes.put(gene, knownGenes.get(gene));
       }
-      genes.put(gene, modes);
     }
     return genes;
   }
 
-  public Set<String> getGenes(VariantContext vc) {
-    Set<String> genes = new HashSet<>();
-    List<String> vepValues = vc.getAttributeAsStringList(vepField, "");
-    for (String vepValue : vepValues) {
-      String[] vepSplit = vepValue.split("\\|", -1);
-      String gene = vepSplit[geneIndex];
-      if (!gene.isEmpty()) {
-        genes.add(gene);
+  private void mapGeneInheritance(Set<InheritanceMode> modes, String[] inheritanceModes) {
+    for (String mode : inheritanceModes) {
+      switch (mode) {
+        case "AR":
+          modes.add(InheritanceMode.AR);
+          break;
+        case "AD":
+          modes.add(InheritanceMode.AD);
+          break;
+        case "XLR":
+          modes.add(InheritanceMode.XLR);
+          break;
+        case "XLD":
+          modes.add(InheritanceMode.XLD);
+          break;
+        case "XL":
+          modes.add(InheritanceMode.XLR);
+          modes.add(InheritanceMode.XLD);
+          break;
+        default:
+          //We ignore all the modes that are not used for matching (not provided by genmod)
       }
     }
-    return genes;
+  }
+
+  public Set<String> getNonPenetranceGenesForVariant(VariantContext variantContext, Set<String> lowPenetranceGenes) {
+    Set<String> nonPenetranceGenesForVariant = new HashSet<>();
+    List<String> genes = getGenes(variantContext).values().stream()
+        .map(Gene::getId).collect(
+            Collectors.toList());
+    for (String gene : genes) {
+      if (lowPenetranceGenes.contains(gene)) {
+        nonPenetranceGenesForVariant.add(gene);
+      }
+    }
+    return nonPenetranceGenesForVariant;
   }
 }

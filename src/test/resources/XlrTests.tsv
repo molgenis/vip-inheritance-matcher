@@ -1,0 +1,6 @@
+name	probandGt	probandAffectedStatus	probandSex	fatherGt	fatherAffectedStatus	motherGt	motherAffectedStatus	expected
+denovo	1	AFFECTED	MALE	0	UNAFFECTED	0/0	UNAFFECTED	true
+PresentInUnaffectedFather	1	AFFECTED	MALE	1	UNAFFECTED	0/0	UNAFFECTED	false
+MotherHomAlt	1	AFFECTED	MALE	0	UNAFFECTED	1/1	UNAFFECTED	false
+AllHomRef	0	AFFECTED	MALE	0	UNAFFECTED	0/1	UNAFFECTED	false
+MotherHet	1	AFFECTED	MALE	0	UNAFFECTED	0/1	UNAFFECTED	true

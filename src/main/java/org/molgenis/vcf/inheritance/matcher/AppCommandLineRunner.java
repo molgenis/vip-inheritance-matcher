@@ -4,15 +4,22 @@ import static java.util.Objects.requireNonNull;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_DEBUG;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_FORCE;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_INPUT;
+import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_NON_PENETRANCE;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_OUTPUT;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PED;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PROBANDS;
 import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
 
 import ch.qos.logback.classic.Level;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -36,15 +43,15 @@ class AppCommandLineRunner implements CommandLineRunner {
   private final String appName;
   private final String appVersion;
   private final CommandLineParser commandLineParser;
-  private final InheritanceMatcher inheritanceMatcher;
+  private final InheritanceService inheritanceService;
 
   AppCommandLineRunner(
       @Value("${app.name}") String appName,
       @Value("${app.version}") String appVersion,
-      InheritanceMatcher inheritanceMatcher) {
+      InheritanceService inheritanceService) {
     this.appName = requireNonNull(appName);
     this.appVersion = requireNonNull(appVersion);
-    this.inheritanceMatcher = inheritanceMatcher;
+    this.inheritanceService = requireNonNull(inheritanceService);
     this.commandLineParser = new DefaultParser();
   }
 
@@ -76,7 +83,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.validateCommandLine(commandLine);
     Settings settings = mapSettings(commandLine);
     try {
-      inheritanceMatcher.mapAndMatch(settings);
+      inheritanceService.run(settings);
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       System.exit(STATUS_MISC_ERROR);
@@ -91,7 +98,19 @@ class AppCommandLineRunner implements CommandLineRunner {
     if (commandLine.hasOption(OPT_OUTPUT)) {
       outputPath = Path.of(commandLine.getOptionValue(OPT_OUTPUT));
     } else {
-      outputPath = Path.of(commandLine.getOptionValue(OPT_INPUT).replace(".vcf","out.vcf"));
+      outputPath = Path.of(commandLine.getOptionValue(OPT_INPUT).replace(".vcf", "out.vcf"));
+    }
+
+    Set<String> nonPenetranceGenes = Collections.emptySet();
+    if (commandLine.hasOption(OPT_NON_PENETRANCE)) {
+      Path nonPenetrancePath = Path.of(commandLine.getOptionValue(OPT_NON_PENETRANCE));
+      try {
+        nonPenetranceGenes = Files.readAllLines(nonPenetrancePath).stream()
+            .map(line -> line.split("\t")[0]).collect(
+                Collectors.toSet());
+      } catch (IOException ioException) {
+        throw new UncheckedIOException(ioException);
+      }
     }
 
     List<String> probandNames;
@@ -105,7 +124,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     if (commandLine.hasOption(OPT_PED)) {
       pedPaths = parsePaths(commandLine.getOptionValue(OPT_PED));
     } else {
-      pedPaths = null;
+      pedPaths = Collections.emptyList();
     }
 
     boolean overwriteOutput = commandLine.hasOption(OPT_FORCE);
@@ -114,7 +133,7 @@ class AppCommandLineRunner implements CommandLineRunner {
 
     return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
         .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode)
-        .build();
+        .nonPenetranceGenes(nonPenetranceGenes).build();
   }
 
   private CommandLine getCommandLine(String[] args) {

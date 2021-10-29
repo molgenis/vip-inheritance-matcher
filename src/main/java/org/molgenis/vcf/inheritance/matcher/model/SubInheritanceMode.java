@@ -1,5 +1,5 @@
 package org.molgenis.vcf.inheritance.matcher.model;
 
 public enum SubInheritanceMode {
-  HOM, COMP
+  AR_COMPOUND, AD_NON_PENETRANCE, XLR, XLD
 }
