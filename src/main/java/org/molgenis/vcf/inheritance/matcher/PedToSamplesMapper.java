@@ -12,7 +12,6 @@ import org.molgenis.vcf.inheritance.matcher.PedIndividual.AffectionStatus;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
 
-
 public class PedToSamplesMapper {
 
   private PedToSamplesMapper() {
