@@ -7,7 +7,7 @@ cache:
     - "$HOME/.m2"
 branches:
   only:
-    - master
+    - main
     - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 addons:
   sonarcloud:
