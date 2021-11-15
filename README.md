@@ -29,8 +29,6 @@ usage: java -jar vcf-inheritance-matcher.jar -i <arg> [-o <arg>] [-pd
  -np,--nonpenetrance <arg>   File containing a list of non penetrance
                              genes (.tsv), first column is assumed to
                              contain the genes.
- -c,--annotateCompounds      Annotate variant/sample combinations with a
-                             compound with the key of the other variant.
  -f,--force                  Override the output file if it already
                              exists.
  -d,--debug                  Enable debug mode (additional logging).
@@ -78,7 +76,7 @@ If the VEP inheritance mode annotation is missing the tool still calculates all 
 However the actual matching on genes will obviously never yield a result.
 
 ###Compatible Inheritance modes
-The VIP inheritance plugin adds a whole range of inheritance modes, however for matching purposes we can only use these that are also used by Genmod.
+The VIP inheritance plugin adds a whole range of inheritance modes, however for matching purposes we can only use a subset: AD,AR,XL,XLD,XLR.
 
 ####Supported
 |OMIM Inheritance*|Annotation|

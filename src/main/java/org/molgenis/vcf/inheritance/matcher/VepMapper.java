@@ -106,7 +106,7 @@ public class VepMapper {
           modes.add(InheritanceMode.XLD);
           break;
         default:
-          //We ignore all the modes that are not used for matching (not provided by genmod)
+          //We ignore all the modes that are not used for matching.
       }
     }
   }
