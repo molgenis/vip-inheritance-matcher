@@ -17,7 +17,7 @@ public class DeNovoChecker {
       return false;
     }
     if ((variantContext.getContig().equals("X")
-        || variantContext.getContig().equals("chrX")) && sample.getSex() == Sex.MALE) {
+        || variantContext.getContig().startsWith("chrX")) && sample.getSex() == Sex.MALE) {
       Sample motherSample = family.get(sample.getMaternalId());
       return motherSample == null || isHomRefOrMissingVariant(motherSample, variantContext);
     } else {

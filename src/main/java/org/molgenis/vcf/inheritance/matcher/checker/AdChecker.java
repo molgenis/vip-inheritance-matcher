@@ -14,7 +14,7 @@ public class AdChecker {
   public static boolean check(
       VariantContext variantContext, Map<String, Sample> family) {
 
-    if (!(variantContext.getContig().equals("X") || variantContext.getContig().equals("chrX"))) {
+    if (!(variantContext.getContig().equals("X") || variantContext.getContig().startsWith("chrX"))) {
       for (Sample currentSample : family.values()) {
         Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
         if (!checkSample(variantContext, currentSample, genotype)) {

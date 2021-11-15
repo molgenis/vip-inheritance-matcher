@@ -13,7 +13,7 @@ import org.molgenis.vcf.inheritance.matcher.model.Sex;
 public class XldChecker {
 
   public boolean check(VariantContext variantContext, Map<String, Sample> family) {
-    if (!(variantContext.getContig().equals("X") || variantContext.getContig().equals("chrX"))) {
+    if (!(variantContext.getContig().equals("X") || variantContext.getContig().startsWith("chrX"))) {
       return false;
     }
       for (Sample currentSample : family.values()) {

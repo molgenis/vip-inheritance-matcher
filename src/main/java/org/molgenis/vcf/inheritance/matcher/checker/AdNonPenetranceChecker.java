@@ -20,7 +20,7 @@ public class AdNonPenetranceChecker {
 
   public Set<String> check(VariantContext variantContext, Map<String, Sample> family,
       Set<String> nonPenetranceGenes) {
-    if (!(variantContext.getContig().equals("X") || variantContext.getContig().equals("chrX"))
+    if (!(variantContext.getContig().equals("X") || variantContext.getContig().startsWith("chrX"))
         && !AdChecker.check(variantContext, family)) {
       Set<String> nonPenetranceGenesForVariant = vepMapper
           .getNonPenetranceGenesForVariant(variantContext, nonPenetranceGenes);

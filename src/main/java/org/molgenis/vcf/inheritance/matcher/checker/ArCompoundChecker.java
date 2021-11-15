@@ -22,7 +22,7 @@ public class ArCompoundChecker {
   public List<VariantContext> check(
       Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Map<String, Sample> family) {
-    if (!(variantContext.getContig().equals("X") || variantContext.getContig().equals("chrX"))) {
+    if (!(variantContext.getContig().equals("X") || variantContext.getContig().startsWith("chrX"))) {
       List<VariantContext> compounds = new ArrayList<>();
       Map<String, Gene> genes = vepMapper.getGenes(variantContext);
       for (Gene gene : genes.values()) {
