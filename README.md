@@ -9,7 +9,7 @@ Input should be annotated with [VIP inheritance VEP plugin](https://github.com/m
 ###Added Sample information
 ```
 ##FORMAT=<ID=VI,Number=.,Type=String,Description="An enumeration of possible inheritance modes.">
-##FORMAT=<ID=VIC,Number=1,Type=String,Description="List of possible compounds.">
+##FORMAT=<ID=VIC,Number=1,Type=String,Description="List of possible compound hetrozygote variants.">
 ##FORMAT=<ID=VID,Number=1,Type=Integer,Description="Inheritance Denovo status.">
 ##FORMAT=<ID=VIG,Number=.,Type=String,Description="Genes with an inheritance match.">
 ##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match status.">
@@ -26,20 +26,23 @@ usage: java -jar vcf-inheritance-matcher.jar -i <arg> [-o <arg>] [-pd
                              (.ped).
  -pb,--probands <arg>        Comma-separated list of proband sample
                              identifiers.
- -np,--nonpenetrance <arg>   File containing a list of non penetrance
-                             genes (.tsv), first column is assumed to
-                             contain the genes.
  -f,--force                  Override the output file if it already
                              exists.
  -d,--debug                  Enable debug mode (additional logging).
 ```
+
+###Subinheritance modes:
+- XLR: X-linked recessive
+- XLD: X-linked dominant
+- AR_C: Autosomal recessive compound hetrozygote
+- AD_IP: Autosomal dominant incomplete penetrance. 
 
 ###Inheritance mode rules
 Possible inheritance modes are calculated on the following rules:
 ####AR:
 - Affected samples have to be homozygote ALT.
 - Unaffected samples cannot be homozygous ALT.
-####AR compound:
+####AR compound hetrozygote:
 #####For unphased data:
 - Affected samples need to have both variants.
 - Unaffected samples cannot have both variants.
@@ -49,7 +52,7 @@ Possible inheritance modes are calculated on the following rules:
 ####AD:
 - Affected samples have to carry the ALT allele.
 Unaffected samples have to be homozygous REF.
-####AD non penetrant:
+####AD imcomplete penetrance:
 - Affected samples have to carry the ALT allele.
 - Unaffected samples have to be homozygous REF, unless the gene on which the variant lies is also on the provided non-penetrance list.
 ####XLD:

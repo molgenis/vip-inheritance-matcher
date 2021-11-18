@@ -1,11 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static java.util.Collections.emptySet;
-
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
-import java.util.Set;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
@@ -18,26 +15,24 @@ public class AdNonPenetranceChecker {
     this.vepMapper = vepMapper;
   }
 
-  public Set<String> check(VariantContext variantContext, Map<String, Sample> family,
-      Set<String> nonPenetranceGenes) {
-    if (!(variantContext.getContig().equals("X") || variantContext.getContig().startsWith("chrX"))
+  public boolean check(VariantContext variantContext, Map<String, Sample> family) {
+    if (!(variantContext.getContig().equals("X")
+        || variantContext.getContig().startsWith("chrX")) && vepMapper
+        .containsIncompletePenetrance(variantContext)
         && !AdChecker.check(variantContext, family)) {
-      Set<String> nonPenetranceGenesForVariant = vepMapper
-          .getNonPenetranceGenesForVariant(variantContext, nonPenetranceGenes);
       for (Sample currentSample : family.values()) {
         Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
-        if (!checkSample(variantContext, currentSample, genotype,
-            !nonPenetranceGenesForVariant.isEmpty())) {
-          return emptySet();
+        if (!checkSample(variantContext, currentSample, genotype)) {
+          return false;
         }
       }
-      return nonPenetranceGenesForVariant;
+      return true;
     }
-    return emptySet();
+    return false;
   }
 
   private boolean checkSample(VariantContext variantContext,
-      Sample currentSample, Genotype genotype, boolean isNonPenetrance) {
+      Sample currentSample, Genotype genotype) {
     if (genotype != null && genotype.isCalled()) {
       boolean affected = currentSample.getAffectedStatus() == AffectedStatus.AFFECTED;
       if (affected) {
@@ -45,7 +40,7 @@ public class AdNonPenetranceChecker {
             .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype
             .isHet();
       } else {
-        return genotype.isHomRef() || isNonPenetrance;
+        return genotype.isHomRef() || genotype.isHet();
       }
     }
     return true;

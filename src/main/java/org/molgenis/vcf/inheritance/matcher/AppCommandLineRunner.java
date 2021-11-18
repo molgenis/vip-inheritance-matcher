@@ -4,22 +4,16 @@ import static java.util.Objects.requireNonNull;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_DEBUG;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_FORCE;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_INPUT;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_NON_PENETRANCE;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_OUTPUT;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PED;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PROBANDS;
 import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
 
 import ch.qos.logback.classic.Level;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -101,18 +95,6 @@ class AppCommandLineRunner implements CommandLineRunner {
       outputPath = Path.of(commandLine.getOptionValue(OPT_INPUT).replace(".vcf", "out.vcf"));
     }
 
-    Set<String> nonPenetranceGenes = Collections.emptySet();
-    if (commandLine.hasOption(OPT_NON_PENETRANCE)) {
-      Path nonPenetrancePath = Path.of(commandLine.getOptionValue(OPT_NON_PENETRANCE));
-      try {
-        nonPenetranceGenes = Files.readAllLines(nonPenetrancePath).stream()
-            .map(line -> line.split("\t")[0]).collect(
-                Collectors.toSet());
-      } catch (IOException ioException) {
-        throw new UncheckedIOException(ioException);
-      }
-    }
-
     List<String> probandNames;
     if (commandLine.hasOption(OPT_PROBANDS)) {
       probandNames = Arrays.asList(commandLine.getOptionValue(OPT_PROBANDS).split(","));
@@ -132,8 +114,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     boolean debugMode = commandLine.hasOption(OPT_DEBUG);
 
     return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
-        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode)
-        .nonPenetranceGenes(nonPenetranceGenes).build();
+        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode).build();
   }
 
   private CommandLine getCommandLine(String[] args) {

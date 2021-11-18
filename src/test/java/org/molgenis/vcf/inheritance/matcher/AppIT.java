@@ -77,25 +77,7 @@ class AppIT {
 
     String outputVcf = Files.readString(Path.of(outputFile));
 
-    Path expectedOutputFile = ResourceUtils.getFile("classpath:expected_no_parents.vcf").toPath();
-    String expectedOutputVcf = Files.readString(expectedOutputFile).replaceAll("\\R", "\n");
-
-    assertEquals(expectedOutputVcf, outputVcf);
-  }
-
-  @Test
-  void testNonPenetrance() throws IOException {
-    String inputFile = ResourceUtils.getFile("classpath:integration.vcf").toString();
-    String pedigree = ResourceUtils.getFile("classpath:pedigree_complex.ped").toString();
-    String nonPenFile = ResourceUtils.getFile("classpath:nonPen.tsv").toString();
-    String outputFile = sharedTempDir.resolve("actual.vcf").toString();
-
-    String[] args = {"-i", inputFile, "-o", outputFile, "-pd", pedigree, "-pb", "Patient", "-np", nonPenFile};
-    SpringApplication.run(App.class, args);
-
-    String outputVcf = Files.readString(Path.of(outputFile));
-
-    Path expectedOutputFile = ResourceUtils.getFile("classpath:expected_nonPen.vcf").toPath();
+    Path expectedOutputFile = ResourceUtils.getFile("classpath:expected_noParents.vcf").toPath();
     String expectedOutputVcf = Files.readString(expectedOutputFile).replaceAll("\\R", "\n");
 
     assertEquals(expectedOutputVcf, outputVcf);

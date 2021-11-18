@@ -38,21 +38,14 @@ class AdNonPenCheckerTest {
 
   @ParameterizedTest(name = "{index} {4}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Map<String, Sample> family, String gene,
-      boolean expected,
+  void check(VariantContext variantContext, Map<String, Sample> family,
+      boolean isIncompletePenetrance, boolean expected,
       String displayName) {
     AdNonPenetranceChecker adNonPenChecker = new AdNonPenetranceChecker(vepMapper);
-    if(gene.equals("GENE2")) {
-      when(vepMapper
-          .getNonPenetranceGenesForVariant(variantContext, singleton("GENE2")))
-          .thenReturn(singleton("GENE2"));
-    }else if(gene.equals("GENE1")){
-      when(vepMapper
-          .getNonPenetranceGenesForVariant(variantContext, singleton("GENE2")))
-          .thenReturn(Collections.emptySet());
-    }
-    assertEquals(expected,
-        !adNonPenChecker.check(variantContext, family, singleton("GENE2")).isEmpty());
+    when(vepMapper
+        .containsIncompletePenetrance(variantContext))
+        .thenReturn(isIncompletePenetrance);
+    assertEquals(expected, adNonPenChecker.check(variantContext, family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
@@ -69,7 +62,7 @@ class AdNonPenCheckerTest {
       AffectedStatus fatherAffectedStatus = AffectedStatus.valueOf(line[5]);
       String motherGt = line[6];
       AffectedStatus motherAffectedStatus = AffectedStatus.valueOf(line[7]);
-      String gene = line[8];
+      boolean isIncompletePenetrance = Boolean.parseBoolean(line[8]);
       boolean expected = Boolean.parseBoolean(line[9]);
 
       Map<String, Sample> family = PedigreeTestUtil
@@ -79,7 +72,7 @@ class AdNonPenCheckerTest {
           .createVariantContext(Arrays.asList(createGenotype("Patient", probandGt),
               createGenotype("Father", fatherGt),
               createGenotype("Mother", motherGt)),
-              ""), family, gene, expected, testName);
+              ""), family, isIncompletePenetrance, expected, testName);
 
     });
   }

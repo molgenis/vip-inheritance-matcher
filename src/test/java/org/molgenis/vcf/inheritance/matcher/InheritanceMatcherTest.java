@@ -20,12 +20,12 @@ class InheritanceMatcherTest {
   @Test
   void matchInheritance() {
     Inheritance inheritance1 = Inheritance.builder().denovo(true).inheritanceModes(
-        Set.of(AD,AR)).subInheritanceModes(Set.of(SubInheritanceMode.AD_NON_PENETRANCE, SubInheritanceMode.AR_COMPOUND)).compounds(singleton("OTHER_VARIANT")).build();
+        Set.of(AD,AR)).subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
     Inheritance inheritance2 = Inheritance.builder().denovo(false).inheritanceModes(
         Set.of(AR)).subInheritanceModes(emptySet()).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1, "sample2",
         inheritance2);
-    Collection<Gene> genes = Set.of(new Gene("GENE1",Set.of(AR,AD)),new Gene("GENE2",Set.of(AD)));
+    Collection<Gene> genes = Set.of(new Gene("GENE1","EntrezGene", false, Set.of(AR,AD)),new Gene("GENE2","EntrezGene", false, Set.of(AD)));
 
     Map<String, Annotation> actual = InheritanceMatcher
         .matchInheritance(inheritanceMap, genes);

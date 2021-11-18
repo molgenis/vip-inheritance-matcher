@@ -8,7 +8,6 @@ import htsjdk.variant.vcf.VCFFormatHeaderLine;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,9 +29,8 @@ public class Annotator {
   public static final String DENOVO = "VID";
   public static final String INHERITANCE_MATCH = "VIM";
   public static final String MATCHING_GENES = "VIG";
-  public static final String NONE_PENETRANCE_GENES = "VIPN";
 
-  VCFHeader annotateHeader(VCFHeader vcfHeader, boolean isAnnotateNonPenetrance) {
+  VCFHeader annotateHeader(VCFHeader vcfHeader) {
     vcfHeader
         .addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED,
             VCFHeaderLineType.String,
@@ -43,7 +41,7 @@ public class Annotator {
             "An enumeration of possible sub inheritance modes like e.g. compound, non penetrance."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(POSSIBLE_COMPOUND, 1,
         VCFHeaderLineType.String,
-        "Inheritance Compound status."));
+        "Possible Compound hetrozygote variants."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(DENOVO, 1,
         VCFHeaderLineType.Integer,
         "Inheritance Denovo status."));
@@ -53,12 +51,6 @@ public class Annotator {
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
         VCFHeaderLineType.String,
         "Genes with an inheritance match."));
-    if(isAnnotateNonPenetrance) {
-      vcfHeader.addMetaDataLine(
-          new VCFInfoHeaderLine(NONE_PENETRANCE_GENES, VCFHeaderLineCount.UNBOUNDED,
-              VCFHeaderLineType.String,
-              "Genes that were treated as non penetrant for the inheritance matching."));
-    }
     return vcfHeader;
   }
 
@@ -75,12 +67,6 @@ public class Annotator {
       }
     }
     return variantContextBuilder.genotypes(genotypesContext).make();
-  }
-
-  VariantContext annotateNonPenetranceGenes(VariantContext vc, Set<String> nonPenetranceGenes) {
-    VariantContextBuilder variantContextBuilder = new VariantContextBuilder(vc);
-    variantContextBuilder.attribute(NONE_PENETRANCE_GENES,nonPenetranceGenes);
-    return variantContextBuilder.make();
   }
 
   private void annotateGenotype(VariantContext vc, Annotation annotation,

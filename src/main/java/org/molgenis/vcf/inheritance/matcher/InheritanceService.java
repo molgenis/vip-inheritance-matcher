@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.molgenis.vcf.inheritance.matcher.checker.AdChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.AdNonPenetranceChecker;
@@ -57,7 +56,6 @@ public class InheritanceService {
   public void run(Settings settings) {
     Path inputVcf = settings.getInputVcfPath();
     List<Path> pedigreePaths = settings.getInputPedPaths();
-    Set<String> nonPenetranceGenes = settings.getNonPenetranceGenes();
     List<String> probands = settings.getProbands();
     VCFFileReader vcfFileReader = createReader(inputVcf);
 
@@ -73,8 +71,7 @@ public class InheritanceService {
     } else {
       familyList = createFamilyFromVcf(vcfFileReader.getFileHeader());
     }
-    VCFHeader newHeader = annotator.annotateHeader(vcfFileReader.getFileHeader(),
-        !nonPenetranceGenes.isEmpty());
+    VCFHeader newHeader = annotator.annotateHeader(vcfFileReader.getFileHeader());
     try (VariantContextWriter writer = createVcfWriter(settings.getOutputPath(),
         settings.isOverwrite())) {
       writer.writeHeader(newHeader);
@@ -83,25 +80,19 @@ public class InheritanceService {
       vcfFileReader.forEach(variantContextList::add);
       Map<String, List<VariantContext>> geneVariantMap = createGeneVariantMap(vepMapper, knownGenes, variantContextList);
       variantContextList.stream().map(
-          vc -> processSingleVariantcontext(nonPenetranceGenes, probands, vepMapper, familyList,
+          vc -> processSingleVariantcontext(probands, vepMapper, familyList,
               geneVariantMap, vc)).forEach(writer::add);
     } catch (IOException ioException) {
       throw new UncheckedIOException(ioException);
     }
   }
 
-  private VariantContext processSingleVariantcontext(Set<String> nonPenetranceGenes,
-      List<String> probands, VepMapper vepMapper, Map<String, Map<String, Sample>> familyList,
+  private VariantContext processSingleVariantcontext(List<String> probands, VepMapper vepMapper, Map<String, Map<String, Sample>> familyList,
       Map<String, List<VariantContext>> geneVariantMap, VariantContext vc) {
     Map<String, Inheritance> inheritanceMap = matchInheritanceForVariant(geneVariantMap,
-        vc, familyList, nonPenetranceGenes, probands);
+        vc, familyList, probands);
     Map<String, Annotation> annotationMap = matchInheritance(inheritanceMap,
         vepMapper.getGenes(vc).values());
-    Set<String> nonPenetranceGenesForVariant = vepMapper
-        .getNonPenetranceGenesForVariant(vc, nonPenetranceGenes);
-    if (!nonPenetranceGenesForVariant.isEmpty()) {
-      vc = annotator.annotateNonPenetranceGenes(vc, nonPenetranceGenesForVariant);
-    }
     return annotator.annotateInheritance(vc, familyList, annotationMap);
   }
 
@@ -142,11 +133,11 @@ public class InheritanceService {
   private Map<String, Inheritance> matchInheritanceForVariant(
       Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Map<String, Map<String, Sample>> familyList,
-      Set<String> nonPenetranceGenes, List<String> probands) {
+      List<String> probands) {
     Map<String, Inheritance> result = new HashMap<>();
     for (Map<String, Sample> family : familyList.values()) {
       result.putAll(
-          matchInheritanceForFamily(geneVariantMap, variantContext, family, nonPenetranceGenes,
+          matchInheritanceForFamily(geneVariantMap, variantContext, family,
               probands));
     }
     return result;
@@ -154,14 +145,14 @@ public class InheritanceService {
 
   private Map<String, Inheritance> matchInheritanceForFamily(
       Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Map<String, Sample> family, Set<String> nonPenetranceGenes,
+      VariantContext variantContext, Map<String, Sample> family,
       List<String> probands) {
     Map<String, Inheritance> result = new HashMap<>();
     Inheritance inheritance = Inheritance.builder().build();
 
     if (familyContains(probands, family) || probands.isEmpty()) {
       checkAr(geneVariantMap, variantContext, family, inheritance);
-      checkAd(variantContext, family, nonPenetranceGenes, inheritance);
+      checkAd(variantContext, family, inheritance);
       checkXl(variantContext, family, inheritance);
     }
     for (Sample sample : family.values()) {
@@ -189,12 +180,12 @@ public class InheritanceService {
   }
 
   private void checkAd(VariantContext variantContext, Map<String, Sample> family,
-      Set<String> nonPenetranceGenes, Inheritance inheritance) {
+      Inheritance inheritance) {
     if (AdChecker.check(variantContext, family)) {
       inheritance.addInheritanceMode(InheritanceMode.AD);
     } else {
-      if (!adNonPenetranceChecker.check(variantContext, family, nonPenetranceGenes).isEmpty()) {
-        inheritance.addSubInheritanceMode(SubInheritanceMode.AD_NON_PENETRANCE);
+      if (adNonPenetranceChecker.check(variantContext, family)) {
+        inheritance.addSubInheritanceMode(SubInheritanceMode.AD_IP);
         inheritance.addInheritanceMode(InheritanceMode.AD);
       }
     }
@@ -209,7 +200,7 @@ public class InheritanceService {
       List<VariantContext> compounds = arCompoundChecker
           .check(geneVariantMap, variantContext, family);
       if (!compounds.isEmpty()) {
-        inheritance.addSubInheritanceMode(SubInheritanceMode.AR_COMPOUND);
+        inheritance.addSubInheritanceMode(SubInheritanceMode.AR_C);
         inheritance.addInheritanceMode(InheritanceMode.AR);
         inheritance.setCompounds(compounds.stream().map(this::createKey).collect(
             Collectors.toSet()));

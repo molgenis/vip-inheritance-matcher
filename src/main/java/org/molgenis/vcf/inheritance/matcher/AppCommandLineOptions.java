@@ -18,8 +18,6 @@ class AppCommandLineOptions {
   static final String OPT_PED_LONG = "pedigree";
   static final String OPT_PROBANDS = "pb";
   static final String OPT_PROBANDS_LONG = "probands";
-  static final String OPT_NON_PENETRANCE = "np";
-  static final String OPT_NON_PENETRANCE_LONG = "nonpenetrance";
   static final String OPT_FORCE = "f";
   static final String OPT_FORCE_LONG = "force";
   static final String OPT_DEBUG = "d";
@@ -57,12 +55,6 @@ class AppCommandLineOptions {
             .desc("Comma-separated list of proband sample identifiers.")
             .build());
     appOptions.addOption(
-        Option.builder(OPT_NON_PENETRANCE)
-            .hasArg(true)
-            .longOpt(OPT_NON_PENETRANCE_LONG)
-            .desc("File containing a list of non penetrance genes (.tsv), first column is assumed to contain the genes.")
-            .build());
-    appOptions.addOption(
         Option.builder(OPT_FORCE)
             .longOpt(OPT_FORCE_LONG)
             .desc("Override the output file if it already exists.")
@@ -96,7 +88,6 @@ class AppCommandLineOptions {
 
   static void validateCommandLine(CommandLine commandLine) {
     validateInput(commandLine);
-    validateNonPenetrance(commandLine);
     validateOutput(commandLine);
   }
 
@@ -131,20 +122,6 @@ class AppCommandLineOptions {
     if (!commandLine.hasOption(OPT_FORCE) && Files.exists(outputPath)) {
       throw new IllegalArgumentException(
           format("Output file '%s' already exists", outputPath.toString()));
-    }
-  }
-
-  private static void validateNonPenetrance(CommandLine commandLine) {
-    if (!commandLine.hasOption(OPT_NON_PENETRANCE)) {
-      return;
-    }
-
-    Path nonPenetrancePath = Path.of(commandLine.getOptionValue(OPT_NON_PENETRANCE));
-
-    String nonPenetrancePathStr = nonPenetrancePath.toString();
-    if (!nonPenetrancePathStr.endsWith(".tsv")) {
-      throw new IllegalArgumentException(
-          format("Input file '%s' is not a .tsv file.", nonPenetrancePathStr));
     }
   }
 }

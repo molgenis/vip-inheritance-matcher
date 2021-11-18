@@ -12,21 +12,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 
 public class VepMapper {
 
   public static final String GENE = "Gene";
-  public static final String GENE_SOURCE = "SYMBOL_SOURCE";
+  public static final String SYMBOL_SOURCE = "SYMBOL_SOURCE";
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
+  public static final String INCOMPLETE_PENETRANCE_INDEX = "IncompletePenetrance";
   private String vepField = null;
   private int geneIndex = -1;
   private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
+  private int incompletePenetranceIndex = -1;
 
   public VepMapper(VCFFileReader vcfFileReader) {
     init(vcfFileReader);
@@ -50,18 +51,25 @@ public class VepMapper {
       if (canMap(vcfInfoHeaderLine)) {
         this.vepField = vcfInfoHeaderLine.getID();
         List<String> nestedInfo = getNestedInfoIds(vcfInfoHeaderLine);
-        if (nestedInfo.contains(GENE)) {
-          this.geneIndex = nestedInfo.indexOf(GENE);
-          this.geneSourceIndex = nestedInfo.indexOf(GENE_SOURCE);
-        } else {
-          throw new MissingVepAnnotationException(GENE);
-        }
+        this.geneIndex = getVepIndex(nestedInfo, GENE);
+        this.geneSourceIndex = getVepIndex(nestedInfo, SYMBOL_SOURCE);
+        this.incompletePenetranceIndex = nestedInfo.indexOf(INCOMPLETE_PENETRANCE_INDEX);
         this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
 
         return;
       }
     }
     throw new MissingInfoException("VEP");
+  }
+
+  private int getVepIndex(List<String> nestedInfo, String vepField) {
+    int index;
+    if (nestedInfo.contains(vepField)) {
+      index = nestedInfo.indexOf(vepField);
+    } else {
+      throw new MissingVepAnnotationException(vepField);
+    }
+    return index;
   }
 
   public Map<String, Gene> getGenes(VariantContext vc) {
@@ -74,6 +82,7 @@ public class VepMapper {
     for (String vepValue : vepValues) {
       String[] vepSplit = vepValue.split("\\|", -1);
       String gene = vepSplit[geneIndex];
+      String source = vepSplit[geneSourceIndex];
       if (!knownGenes.containsKey(gene)) {
         Set<InheritanceMode> modes = new HashSet<>();
         if(inheritanceIndex != -1) {
@@ -81,7 +90,11 @@ public class VepMapper {
               = vepSplit[inheritanceIndex].split("&");
           mapGeneInheritance(modes, inheritanceModes);
         }
-        genes.put(gene, new Gene(gene, modes));
+        boolean isIncompletePenetrance = false;
+        if(incompletePenetranceIndex != -1) {
+          isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
+        }
+        genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
       } else {
         genes.put(gene, knownGenes.get(gene));
       }
@@ -114,16 +127,8 @@ public class VepMapper {
     }
   }
 
-  public Set<String> getNonPenetranceGenesForVariant(VariantContext variantContext, Set<String> lowPenetranceGenes) {
-    Set<String> nonPenetranceGenesForVariant = new HashSet<>();
-    List<String> genes = getGenes(variantContext).values().stream()
-        .map(Gene::getId).collect(
-            Collectors.toList());
-    for (String gene : genes) {
-      if (lowPenetranceGenes.contains(gene)) {
-        nonPenetranceGenesForVariant.add(gene);
-      }
-    }
-    return nonPenetranceGenesForVariant;
+  public boolean containsIncompletePenetrance(VariantContext variantContext) {
+    Map<String, Gene> genes = getGenes(variantContext);
+    return genes.values().stream().anyMatch(Gene::isIncompletePenetrance);
   }
 }

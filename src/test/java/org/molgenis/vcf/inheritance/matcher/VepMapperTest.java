@@ -51,15 +51,9 @@ class VepMapperTest {
   @Test
   void getGenes() {
     Map<String, Gene> expected = Map
-        .of("ENSG00000123457", new Gene("ENSG00000123457", Set.of(XLD, XLR)), "ENSG00000123456",
-            new Gene("ENSG00000123456", Set.of(AD, AR)), "ENSG00000123458",
-            new Gene("ENSG00000123458", Set.of(XLD, XLR)));
+        .of("ENSG00000123457", new Gene("ENSG00000123457","HGNC", false,  Set.of(XLD, XLR)), "ENSG00000123456",
+            new Gene("ENSG00000123456","HGNC", false,  Set.of(AD, AR)), "ENSG00000123458",
+            new Gene("ENSG00000123458","HGNC", false,  Set.of(XLD, XLR)));
     assertEquals(expected, vepMapper.getGenes(vc));
-  }
-
-  @Test
-  void getNonPenetranceGenesforVariant() {
-    Set<String> expected = Set.of("ENSG00000123457","ENSG00000123456");
-    assertEquals(expected, vepMapper.getNonPenetranceGenesForVariant(vc, Set.of("ENSG00000123457","ENSG00000123456","GENE1","GENE2")));
   }
 }

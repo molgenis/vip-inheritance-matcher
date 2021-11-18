@@ -37,7 +37,7 @@ class ArCompoundCheckerTest {
 
   @Mock
   private VepMapper vepMapper;
-  private final static Gene gene1 = new Gene("GENE1", singleton(InheritanceMode.AR));
+  private final static Gene gene1 = new Gene("GENE1", "EntrezGene", false, singleton(InheritanceMode.AR));
 
   @ParameterizedTest(name = "{index} {4}")
   @MethodSource("provideTestCases")
