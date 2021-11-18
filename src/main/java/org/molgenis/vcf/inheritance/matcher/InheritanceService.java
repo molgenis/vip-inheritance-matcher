@@ -79,10 +79,9 @@ public class InheritanceService {
         settings.isOverwrite())) {
       writer.writeHeader(newHeader);
 
-      Map<String, List<VariantContext>> geneVariantMap = new HashMap<>();
       List<VariantContext> variantContextList = new ArrayList<>();
       vcfFileReader.forEach(variantContextList::add);
-      createGeneVariantMap(vepMapper, knownGenes, geneVariantMap, variantContextList);
+      Map<String, List<VariantContext>> geneVariantMap = createGeneVariantMap(vepMapper, knownGenes, variantContextList);
       variantContextList.stream().map(
           vc -> processSingleVariantcontext(nonPenetranceGenes, probands, vepMapper, familyList,
               geneVariantMap, vc)).forEach(writer::add);
@@ -106,8 +105,10 @@ public class InheritanceService {
     return annotator.annotateInheritance(vc, familyList, annotationMap);
   }
 
-  private void createGeneVariantMap(VepMapper vepMapper, Map<String, Gene> knownGenes,
-      Map<String, List<VariantContext>> geneVariantMap, List<VariantContext> variantContextList) {
+  private Map<String, List<VariantContext>> createGeneVariantMap(VepMapper vepMapper,
+      Map<String, Gene> knownGenes,
+      List<VariantContext> variantContextList) {
+    Map<String, List<VariantContext>> geneVariantMap = new HashMap<>();
     for (VariantContext vc : variantContextList) {
       Map<String, Gene> genes = vepMapper.getGenes(vc, knownGenes);
       knownGenes.putAll(genes);
@@ -118,9 +119,11 @@ public class InheritanceService {
         } else {
           geneVariantList = new ArrayList<>();
         }
+        geneVariantList.add(vc);
         geneVariantMap.put(gene.getId(), geneVariantList);
       }
     }
+    return geneVariantMap;
   }
 
   private Map<String, Map<String, Sample>> createFamilyFromVcf(VCFHeader fileHeader) {

@@ -19,11 +19,13 @@ import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 public class VepMapper {
 
   public static final String GENE = "Gene";
+  public static final String GENE_SOURCE = "SYMBOL_SOURCE";
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
   private String vepField = null;
   private int geneIndex = -1;
+  private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
 
   public VepMapper(VCFFileReader vcfFileReader) {
@@ -50,8 +52,9 @@ public class VepMapper {
         List<String> nestedInfo = getNestedInfoIds(vcfInfoHeaderLine);
         if (nestedInfo.contains(GENE)) {
           this.geneIndex = nestedInfo.indexOf(GENE);
+          this.geneSourceIndex = nestedInfo.indexOf(GENE_SOURCE);
         } else {
-          throw new MissingVepAnnotationException("GENE");
+          throw new MissingVepAnnotationException(GENE);
         }
         this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
 
