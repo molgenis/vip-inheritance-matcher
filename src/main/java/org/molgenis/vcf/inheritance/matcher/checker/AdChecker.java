@@ -3,7 +3,9 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
+import org.molgenis.vcf.inheritance.matcher.ChromsomeUtils;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
+import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
 
 public class AdChecker {
@@ -14,7 +16,7 @@ public class AdChecker {
   public static boolean check(
       VariantContext variantContext, Map<String, Sample> family) {
 
-    if (!(variantContext.getContig().equals("X") || variantContext.getContig().startsWith("chrX"))) {
+    if (ChromsomeUtils.mapChromosomeID(variantContext.getContig()) != Chromosome.X) {
       for (Sample currentSample : family.values()) {
         Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
         if (!checkSample(variantContext, currentSample, genotype)) {

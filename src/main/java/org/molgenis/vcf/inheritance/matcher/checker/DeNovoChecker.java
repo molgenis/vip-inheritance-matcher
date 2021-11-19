@@ -3,6 +3,8 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
+import org.molgenis.vcf.inheritance.matcher.ChromsomeUtils;
+import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 
@@ -16,8 +18,7 @@ public class DeNovoChecker {
     if(!hasParents(sample)){
       return false;
     }
-    if ((variantContext.getContig().equals("X")
-        || variantContext.getContig().startsWith("chrX")) && sample.getSex() == Sex.MALE) {
+    if ((ChromsomeUtils.mapChromosomeID(variantContext.getContig()) == Chromosome.X) && sample.getSex() == Sex.MALE) {
       Sample motherSample = family.get(sample.getMaternalId());
       return motherSample == null || isHomRefOrMissingVariant(motherSample, variantContext);
     } else {
