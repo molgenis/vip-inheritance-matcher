@@ -1,12 +1,12 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
+
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
-import org.molgenis.vcf.inheritance.matcher.ChromosomeUtils;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
 
 public class AdNonPenetranceChecker {
@@ -18,8 +18,7 @@ public class AdNonPenetranceChecker {
   }
 
   public boolean check(VariantContext variantContext, Map<String, Sample> family) {
-    if ((ChromosomeUtils.mapChromosomeId(variantContext.getContig()) != Chromosome.X) && vepMapper
-        .containsIncompletePenetrance(variantContext)
+    if (onAutosome(variantContext) && vepMapper.containsIncompletePenetrance(variantContext)
         && !AdChecker.check(variantContext, family)) {
       for (Sample currentSample : family.values()) {
         Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
