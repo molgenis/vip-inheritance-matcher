@@ -6,7 +6,7 @@ import static org.molgenis.vcf.inheritance.matcher.model.Sex.MALE;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
-import org.molgenis.vcf.inheritance.matcher.ChromsomeUtils;
+import org.molgenis.vcf.inheritance.matcher.ChromosomeUtils;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
@@ -15,7 +15,7 @@ import org.molgenis.vcf.inheritance.matcher.model.Sex;
 public class XldChecker {
 
   public boolean check(VariantContext variantContext, Map<String, Sample> family) {
-    if (ChromsomeUtils.mapChromosomeID(variantContext.getContig()) != Chromosome.X) {
+    if (ChromosomeUtils.mapChromosomeId(variantContext.getContig()) != Chromosome.X) {
       return false;
     }
       for (Sample currentSample : family.values()) {

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.vcf.inheritance.matcher.ChromsomeUtils;
+import org.molgenis.vcf.inheritance.matcher.ChromosomeUtils;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
@@ -24,7 +24,7 @@ public class ArCompoundChecker {
   public List<VariantContext> check(
       Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Map<String, Sample> family) {
-    if ((ChromsomeUtils.mapChromosomeID(variantContext.getContig()) != Chromosome.X)) {
+    if ((ChromosomeUtils.mapChromosomeId(variantContext.getContig()) != Chromosome.X)) {
       List<VariantContext> compounds = new ArrayList<>();
       Map<String, Gene> genes = vepMapper.getGenes(variantContext);
       for (Gene gene : genes.values()) {
