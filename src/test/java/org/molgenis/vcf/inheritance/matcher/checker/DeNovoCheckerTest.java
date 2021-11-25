@@ -49,8 +49,8 @@ class DeNovoCheckerTest {
       boolean expected = Boolean.parseBoolean(line[6]);
 
       Pedigree family = PedigreeTestUtil
-          .createFamily(probandSex, AffectedStatus.MISSING, AffectedStatus.MISSING,
-              AffectedStatus.MISSING, "FAM001");
+          .createFamily(probandSex, AffectedStatus.UNKNOWN, AffectedStatus.UNKNOWN,
+              AffectedStatus.UNKNOWN, "FAM001");
       return Arguments.of(VariantContextTestUtil
           .createVariantContext(Arrays.asList(createGenotype("Patient", probandGt),
               createGenotype("Father", fatherGt),
