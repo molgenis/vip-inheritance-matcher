@@ -1,6 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonMap;
 import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
 import static org.molgenis.vcf.inheritance.matcher.PedToSamplesMapper.mapPedFileToPersons;
 import static org.molgenis.vcf.inheritance.matcher.checker.DeNovoChecker.checkDeNovo;
@@ -29,11 +30,12 @@ import org.molgenis.vcf.inheritance.matcher.checker.XldChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.XlrChecker;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 import org.springframework.stereotype.Component;
@@ -64,7 +66,7 @@ public class InheritanceService {
     this.arCompoundChecker = new ArCompoundChecker(vepMapper);
 
     Map<String, Gene> knownGenes = new HashMap<>();
-    Map<String, Map<String, Sample>> familyList;
+    Map<String, Pedigree> familyList;
     if (!pedigreePaths.isEmpty()) {
       familyList = mapPedFileToPersons(
           pedigreePaths);
@@ -87,13 +89,13 @@ public class InheritanceService {
     }
   }
 
-  private VariantContext processSingleVariantcontext(List<String> probands, VepMapper vepMapper, Map<String, Map<String, Sample>> familyList,
+  private VariantContext processSingleVariantcontext(List<String> probands, VepMapper vepMapper, Map<String, Pedigree> pedigreeList,
       Map<String, List<VariantContext>> geneVariantMap, VariantContext vc) {
     Map<String, Inheritance> inheritanceMap = matchInheritanceForVariant(geneVariantMap,
-        vc, familyList, probands);
+        vc, pedigreeList, probands);
     Map<String, Annotation> annotationMap = matchInheritance(inheritanceMap,
         vepMapper.getGenes(vc).values());
-    return annotator.annotateInheritance(vc, familyList, annotationMap);
+    return annotator.annotateInheritance(vc, pedigreeList, annotationMap);
   }
 
   private Map<String, List<VariantContext>> createGeneVariantMap(VepMapper vepMapper,
@@ -117,25 +119,25 @@ public class InheritanceService {
     return geneVariantMap;
   }
 
-  private Map<String, Map<String, Sample>> createFamilyFromVcf(VCFHeader fileHeader) {
-    Map<String, Map<String, Sample>> familyList = new HashMap<>();
+  private Map<String, Pedigree> createFamilyFromVcf(VCFHeader fileHeader) {
+    Map<String, Pedigree> familyList = new HashMap<>();
     ArrayList<String> sampleNames = fileHeader.getSampleNamesInOrder();
     for (String sampleName : sampleNames) {
       //no ped: unknown Sex, assume affected, no relatives, therefor the sampleId can be used as familyId
-      Sample sample = Sample.builder().familyId(sampleName).individualId(sampleName).paternalId("")
+      Individual individual = Individual.builder().familyId(sampleName).id(sampleName).paternalId("")
           .maternalId("").proband(true).sex(Sex.UNKNOWN)
           .affectedStatus(AffectedStatus.AFFECTED).build();
-      familyList.put(sampleName, Collections.singletonMap(sampleName, sample));
+      familyList.put(sampleName, new Pedigree(sampleName, singletonMap(sampleName, individual)));
     }
     return familyList;
   }
 
   private Map<String, Inheritance> matchInheritanceForVariant(
       Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Map<String, Map<String, Sample>> familyList,
+      VariantContext variantContext, Map<String, Pedigree> familyList,
       List<String> probands) {
     Map<String, Inheritance> result = new HashMap<>();
-    for (Map<String, Sample> family : familyList.values()) {
+    for (Pedigree family : familyList.values()) {
       result.putAll(
           matchInheritanceForFamily(geneVariantMap, variantContext, family,
               probands));
@@ -145,7 +147,7 @@ public class InheritanceService {
 
   private Map<String, Inheritance> matchInheritanceForFamily(
       Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Map<String, Sample> family,
+      VariantContext variantContext, Pedigree family,
       List<String> probands) {
     Map<String, Inheritance> result = new HashMap<>();
     Inheritance inheritance = Inheritance.builder().build();
@@ -155,17 +157,17 @@ public class InheritanceService {
       checkAd(variantContext, family, inheritance);
       checkXl(variantContext, family, inheritance);
     }
-    for (Sample sample : family.values()) {
-      if (probands.contains(sample.getIndividualId()) || (probands.isEmpty()
-          && sample.getAffectedStatus() == AffectedStatus.AFFECTED)) {
-        inheritance.setDenovo(checkDeNovo(variantContext, family, sample));
-        result.put(sample.getIndividualId(), inheritance);
+    for (Individual individual : family.getMembers().values()) {
+      if (probands.contains(individual.getId()) || (probands.isEmpty()
+          && individual.getAffectedStatus() == AffectedStatus.AFFECTED)) {
+        inheritance.setDenovo(checkDeNovo(variantContext, family, individual));
+        result.put(individual.getId(), inheritance);
       }
     }
     return result;
   }
 
-  private void checkXl(VariantContext variantContext, Map<String, Sample> family,
+  private void checkXl(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
     if (xldChecker.check(variantContext, family)) {
       inheritance.addSubInheritanceMode(SubInheritanceMode.XLD);
@@ -179,7 +181,7 @@ public class InheritanceService {
     }
   }
 
-  private void checkAd(VariantContext variantContext, Map<String, Sample> family,
+  private void checkAd(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
     if (AdChecker.check(variantContext, family)) {
       inheritance.addInheritanceMode(InheritanceMode.AD);
@@ -192,7 +194,7 @@ public class InheritanceService {
   }
 
   private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Map<String, Sample> family,
+      VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
     if (arChecker.check(variantContext, family)) {
       inheritance.addInheritanceMode(InheritanceMode.AR);
@@ -215,9 +217,9 @@ public class InheritanceService {
             .collect(Collectors.joining("/")));
   }
 
-  private boolean familyContains(List<String> probands, Map<String, Sample> family) {
+  private boolean familyContains(List<String> probands, Pedigree family) {
     for (String proband : probands) {
-      if (family.keySet().contains(proband)) {
+      if (family.getMembers().keySet().contains(proband)) {
         return true;
       }
     }

@@ -24,7 +24,7 @@ usage: java -jar vcf-inheritance-matcher.jar -i <arg> [-o <arg>] [-pd
  -o,--output <arg>           Output VCF file (.vcf or .vcf.gz).
  -pd,--pedigree <arg>        Comma-separated list of pedigree files
                              (.ped).
- -pb,--probands <arg>        Comma-separated list of proband sample
+ -pb,--probands <arg>        Comma-separated list of proband individual
                              identifiers.
  -f,--force                  Override the output file if it already
                              exists.

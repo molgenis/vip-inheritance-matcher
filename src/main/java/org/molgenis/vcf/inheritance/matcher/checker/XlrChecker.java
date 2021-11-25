@@ -5,16 +5,16 @@ import static org.molgenis.vcf.inheritance.matcher.model.Sex.MALE;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 
 public class XlrChecker extends XlChecker {
 
   protected boolean checkSample(VariantContext variantContext,
-      Sample currentSample, Genotype genotype) {
+      Individual currentIndividual, Genotype genotype) {
     if (genotype != null && genotype.isCalled()) {
-      boolean affected = currentSample.getAffectedStatus() == AffectedStatus.AFFECTED;
-      Sex sex = currentSample.getSex();
+      boolean affected = currentIndividual.getAffectedStatus() == AffectedStatus.AFFECTED;
+      Sex sex = currentIndividual.getSex();
       if (getSex(sex, genotype) == MALE) {
         if (affected) {
           // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).

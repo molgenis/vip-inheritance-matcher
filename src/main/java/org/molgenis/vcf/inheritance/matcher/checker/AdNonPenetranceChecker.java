@@ -7,7 +7,8 @@ import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 
 public class AdNonPenetranceChecker {
 
@@ -17,12 +18,12 @@ public class AdNonPenetranceChecker {
     this.vepMapper = vepMapper;
   }
 
-  public boolean check(VariantContext variantContext, Map<String, Sample> family) {
+  public boolean check(VariantContext variantContext, Pedigree family) {
     if (onAutosome(variantContext) && vepMapper.containsIncompletePenetrance(variantContext)
         && !AdChecker.check(variantContext, family)) {
-      for (Sample currentSample : family.values()) {
-        Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
-        if (!checkSample(variantContext, currentSample, genotype)) {
+      for (Individual currentIndividual : family.getMembers().values()) {
+        Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
+        if (!checkSample(variantContext, currentIndividual, genotype)) {
           return false;
         }
       }
@@ -32,9 +33,9 @@ public class AdNonPenetranceChecker {
   }
 
   private boolean checkSample(VariantContext variantContext,
-      Sample currentSample, Genotype genotype) {
+      Individual currentIndividual, Genotype genotype) {
     if (genotype != null && genotype.isCalled()) {
-      boolean affected = currentSample.getAffectedStatus() == AffectedStatus.AFFECTED;
+      boolean affected = currentIndividual.getAffectedStatus() == AffectedStatus.AFFECTED;
       if (affected) {
         return genotype.getAlleles().stream()
             .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype

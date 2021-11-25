@@ -7,18 +7,19 @@ import static org.molgenis.vcf.inheritance.matcher.model.Sex.MALE;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 
 public abstract class XlChecker {
 
-  public boolean check(VariantContext variantContext, Map<String, Sample> family) {
+  public boolean check(VariantContext variantContext, Pedigree family) {
     if (!onChromosomeX(variantContext)) {
       return false;
     }
-    for (Sample currentSample : family.values()) {
-      Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
-      if (!checkSample(variantContext, currentSample, genotype)) {
+    for (Individual currentIndividual : family.getMembers().values()) {
+      Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
+      if (!checkSample(variantContext, currentIndividual, genotype)) {
         return false;
       }
     }
@@ -26,7 +27,7 @@ public abstract class XlChecker {
   }
 
   protected abstract boolean checkSample(VariantContext variantContext,
-      Sample currentSample, Genotype genotype);
+      Individual currentIndividual, Genotype genotype);
 
   protected Sex getSex(Sex sex, Genotype genotype) {
     if (sex == Sex.UNKNOWN) {

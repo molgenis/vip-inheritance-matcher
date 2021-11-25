@@ -26,7 +26,8 @@ import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 import org.molgenis.vcf.inheritance.matcher.util.PedigreeTestUtil;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
@@ -42,7 +43,7 @@ class ArCompoundCheckerTest {
   @ParameterizedTest(name = "{index} {4}")
   @MethodSource("provideTestCases")
   void check(VariantContext variantContext, Map<String, List<VariantContext>> geneVariantMap,
-      Map<String, Sample> family, boolean expected,
+      Pedigree family, boolean expected,
       String displayName) {
     ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMapper);
     when(vepMapper.getGenes(variantContext)).thenReturn(singletonMap("GENE1", gene1));
@@ -74,7 +75,7 @@ class ArCompoundCheckerTest {
       }
       boolean expected = Boolean.parseBoolean(line[11]);
 
-      Map<String, Sample> family = PedigreeTestUtil
+      Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,
               motherAffectedStatus, "FAM001");
       return Arguments.of(VariantContextTestUtil

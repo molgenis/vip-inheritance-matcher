@@ -1,9 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.molgenis.vcf.inheritance.matcher.model.Sex.MALE;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
 
 import htsjdk.variant.variantcontext.VariantContext;
@@ -11,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,7 +21,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 import org.molgenis.vcf.inheritance.matcher.util.PedigreeTestUtil;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
@@ -38,7 +36,7 @@ class AdNonPenCheckerTest {
 
   @ParameterizedTest(name = "{index} {4}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Map<String, Sample> family,
+  void check(VariantContext variantContext, Pedigree family,
       boolean isIncompletePenetrance, boolean expected,
       String displayName) {
     AdNonPenetranceChecker adNonPenChecker = new AdNonPenetranceChecker(vepMapper);
@@ -65,7 +63,7 @@ class AdNonPenCheckerTest {
       boolean isIncompletePenetrance = Boolean.parseBoolean(line[8]);
       boolean expected = Boolean.parseBoolean(line[9]);
 
-      Map<String, Sample> family = PedigreeTestUtil
+      Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,
               motherAffectedStatus, "FAM001");
       return Arguments.of(VariantContextTestUtil

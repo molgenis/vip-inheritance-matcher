@@ -5,7 +5,8 @@ import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
 import java.util.Optional;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 
 /**
  * Autosomal dominant (AD) inheritance pattern matcher
@@ -19,14 +20,14 @@ public class AdChecker {
    * Check whether the AD inheritance pattern could match for a variant in a pedigree
    */
   public static boolean check(
-      VariantContext variantContext, Map<String, Sample> family) {
+      VariantContext variantContext, Pedigree family) {
     if (!VariantContextUtils.onAutosome(variantContext)) {
       return false;
     }
 
-    for (Sample sample : family.values()) {
-      Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, sample);
-      if (genotype.isPresent() && !check(genotype.get(), sample)) {
+    for (Individual individual : family.getMembers().values()) {
+      Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, individual);
+      if (genotype.isPresent() && !check(genotype.get(), individual)) {
         return false;
       }
     }
@@ -36,12 +37,12 @@ public class AdChecker {
   /**
    * Check whether the AD inheritance pattern could match for a variant as seen in an individual
    */
-  private static boolean check(Genotype genotype, Sample sample) {
+  private static boolean check(Genotype genotype, Individual individual) {
     if (!genotype.isCalled() || genotype.isMixed()) {
       return true;
     }
 
-    switch (sample.getAffectedStatus()) {
+    switch (individual.getAffectedStatus()) {
       case AFFECTED:
         return genotype.isHet();
       case UNAFFECTED:

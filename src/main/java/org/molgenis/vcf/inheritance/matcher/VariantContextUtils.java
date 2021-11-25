@@ -3,7 +3,7 @@ package org.molgenis.vcf.inheritance.matcher;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Optional;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
 
 public class VariantContextUtils {
 
@@ -31,8 +31,8 @@ public class VariantContextUtils {
   }
 
   public static Optional<Genotype> getGenotype(VariantContext variantContext,
-      Sample sample) {
-    String individualId = sample.getIndividualId();
+      Individual individual) {
+    String individualId = individual.getId();
     return Optional.ofNullable(variantContext.getGenotype(individualId));
   }
 }

@@ -18,7 +18,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 import org.molgenis.vcf.inheritance.matcher.util.PedigreeTestUtil;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
@@ -29,7 +30,7 @@ class AdCheckerTest {
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Map<String, Sample> family, boolean expected,
+  void check(VariantContext variantContext, Pedigree family, boolean expected,
       String displayName) {
     assertEquals(expected, AdChecker.check(variantContext, family));
   }
@@ -50,7 +51,7 @@ class AdCheckerTest {
       AffectedStatus motherAffectedStatus = AffectedStatus.valueOf(line[7]);
       boolean expected = Boolean.parseBoolean(line[8]);
 
-      Map<String, Sample> family = PedigreeTestUtil
+      Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,
               motherAffectedStatus, "FAM001");
       return Arguments.of(VariantContextTestUtil

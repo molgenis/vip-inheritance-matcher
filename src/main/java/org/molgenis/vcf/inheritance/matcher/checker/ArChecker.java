@@ -4,18 +4,18 @@ import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosom
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import java.util.Map;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 
 public class ArChecker {
 
   public boolean check(
-      VariantContext variantContext, Map<String, Sample> family) {
+      VariantContext variantContext, Pedigree family) {
     if (onAutosome(variantContext)) {
-      for (Sample currentSample : family.values()) {
-        Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
-        if (genotype != null && !checkSample(variantContext, currentSample, genotype)) {
+      for (Individual currentIndividual : family.getMembers().values()) {
+        Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
+        if (genotype != null && !checkSample(variantContext, currentIndividual, genotype)) {
           return false;
         }
       }
@@ -25,9 +25,9 @@ public class ArChecker {
   }
 
   private boolean checkSample(VariantContext variantContext,
-      Sample currentSample, Genotype genotype) {
+      Individual currentIndividual, Genotype genotype) {
     if (genotype != null && genotype.isCalled()) {
-      boolean affected = currentSample.getAffectedStatus() == AffectedStatus.AFFECTED;
+      boolean affected = currentIndividual.getAffectedStatus() == AffectedStatus.AFFECTED;
       if (affected) {
         return genotype.getAlleles().stream()
             .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype

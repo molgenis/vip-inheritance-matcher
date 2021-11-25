@@ -14,10 +14,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -54,15 +55,15 @@ public class Annotator {
     return vcfHeader;
   }
 
-  VariantContext annotateInheritance(VariantContext vc, Map<String, Map<String, Sample>> familyMap,
+  VariantContext annotateInheritance(VariantContext vc, Map<String, Pedigree> familyMap,
       Map<String, Annotation> annotationMap) {
     GenotypesContext genotypesContext = GenotypesContext.copy(vc.getGenotypes());
     VariantContextBuilder variantContextBuilder = new VariantContextBuilder(vc);
-    for (Entry<String, Map<String, Sample>> sampleFamilyEntry : familyMap.entrySet()) {
-      for (Sample sample : sampleFamilyEntry.getValue().values()) {
-        String sampleId = sample.getIndividualId();
+    for (Entry<String, Pedigree> sampleFamilyEntry : familyMap.entrySet()) {
+      for (Individual individual : sampleFamilyEntry.getValue().getMembers().values()) {
+        String sampleId = individual.getId();
         if (annotationMap.containsKey(sampleId)) {
-          annotateGenotype(vc, annotationMap.get(sampleId), genotypesContext, sample);
+          annotateGenotype(vc, annotationMap.get(sampleId), genotypesContext, individual);
         }
       }
     }
@@ -70,10 +71,10 @@ public class Annotator {
   }
 
   private void annotateGenotype(VariantContext vc, Annotation annotation,
-      GenotypesContext genotypesContext, Sample sample) {
-    if (vc.getGenotype(sample.getIndividualId()) != null) {
+      GenotypesContext genotypesContext, Individual individual) {
+    if (vc.getGenotype(individual.getId()) != null) {
       GenotypeBuilder genotypeBuilder = new GenotypeBuilder(
-          vc.getGenotype(sample.getIndividualId()));
+          vc.getGenotype(individual.getId()));
       String inheritanceModes = String
           .join(",", mapInheritanceModes(annotation.getInheritance()));
       if (!inheritanceModes.isEmpty()) {

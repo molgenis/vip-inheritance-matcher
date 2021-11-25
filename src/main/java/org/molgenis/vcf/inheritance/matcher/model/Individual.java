@@ -8,13 +8,13 @@ import lombok.experimental.NonFinal;
 @Data
 @NonFinal
 @Builder
-public class Sample {
+public class Individual {
 
   @NonNull
   String familyId;
 
   @NonNull
-  String individualId;
+  String id;
 
   @NonNull
   String paternalId;

@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.springframework.util.ResourceUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,36 +27,35 @@ class PedToSamplesMapperTest {
     Path pedFile2 = ResourceUtils.getFile("classpath:example2.ped").toPath();
     List<Path> paths = Arrays.asList(pedFile1, pedFile2);
 
-    Map<String, Map<String, Sample>> expected = new HashMap();
-    expected.put("FAM001", Map.of(
+    Map<String, Pedigree> expected = new HashMap();
+    expected.put("FAM001", new Pedigree("FAM001", Map.of(
         "John",
-        Sample.builder()
+        Individual.builder()
             .familyId("FAM001")
-            .individualId("John").paternalId("Jimmy").maternalId("Jane").sex(MALE)
+            .id("John").paternalId("Jimmy").maternalId("Jane").sex(MALE)
             .affectedStatus(AffectedStatus.AFFECTED).build(),
         "Jimmy",
-        Sample.builder()
+        Individual.builder()
             .familyId("FAM001")
-            .individualId("Jimmy").paternalId("0").maternalId("0").sex(MALE)
+            .id("Jimmy").paternalId("0").maternalId("0").sex(MALE)
             .affectedStatus(AffectedStatus.UNAFFECTED).build(),
         "Jane",
-        Sample.builder()
+        Individual.builder()
             .familyId("FAM001")
-            .individualId("Jane").paternalId("0").maternalId("0").sex(FEMALE)
-            .affectedStatus(AffectedStatus.UNAFFECTED).build()));
-
+            .id("Jane").paternalId("0").maternalId("0").sex(FEMALE)
+            .affectedStatus(AffectedStatus.UNAFFECTED).build())));
     expected.put("FAM002",
-        Map.of("James",
-            Sample.builder()
+        new Pedigree("FAM002", Map.of("James",
+            Individual.builder()
                 .familyId("FAM002")
-                .individualId("James").paternalId("0").maternalId("0").sex(MALE)
-                .affectedStatus(AffectedStatus.UNAFFECTED).build()));
-    expected.put("FAM003", Map.of(
+                .id("James").paternalId("0").maternalId("0").sex(MALE)
+                .affectedStatus(AffectedStatus.UNAFFECTED).build())));
+    expected.put("FAM003", new Pedigree("FAM003", Map.of(
         "Jake",
-        Sample.builder()
+        Individual.builder()
             .familyId("FAM003")
-            .individualId("Jake").paternalId("0").maternalId("0").sex(MALE)
-            .affectedStatus(AffectedStatus.AFFECTED).build()));
+            .id("Jake").paternalId("0").maternalId("0").sex(MALE)
+            .affectedStatus(AffectedStatus.AFFECTED).build())));
 
     assertEquals(expected, PedToSamplesMapper.mapPedFileToPersons(paths));
   }

@@ -11,7 +11,8 @@ import java.util.Map;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 
 public class ArCompoundChecker {
 
@@ -23,7 +24,7 @@ public class ArCompoundChecker {
 
   public List<VariantContext> check(
       Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Map<String, Sample> family) {
+      VariantContext variantContext, Pedigree family) {
     if (onAutosome(variantContext)) {
       List<VariantContext> compounds = new ArrayList<>();
       Map<String, Gene> genes = vepMapper.getGenes(variantContext);
@@ -36,7 +37,7 @@ public class ArCompoundChecker {
   }
 
   private void checkForGene(Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Map<String, Sample> family, List<VariantContext> compounds,
+      VariantContext variantContext, Pedigree family, List<VariantContext> compounds,
       Gene gene) {
     List<VariantContext> variantContexts = geneVariantMap.get(gene.getId());
     if (variantContexts != null) {
@@ -49,15 +50,15 @@ public class ArCompoundChecker {
     }
   }
 
-  private boolean checkFamily(Map<String, Sample> family, VariantContext variantContext,
+  private boolean checkFamily(Pedigree family, VariantContext variantContext,
       VariantContext otherVariantContext) {
-    for (Sample sample : family.values()) {
+    for (Individual individual : family.getMembers().values()) {
       //Affected individuals have to be het. for both variants
       //Healthy individuals can be het. for one of the variants but cannot have both variants
-      Genotype sampleGt = variantContext.getGenotype(sample.getIndividualId());
-      Genotype sampleOtherGt = otherVariantContext.getGenotype(sample.getIndividualId());
+      Genotype sampleGt = variantContext.getGenotype(individual.getId());
+      Genotype sampleOtherGt = otherVariantContext.getGenotype(individual.getId());
 
-      if (sample.getAffectedStatus() == AffectedStatus.AFFECTED) {
+      if (individual.getAffectedStatus() == AffectedStatus.AFFECTED) {
         if (!checkAffectedSample(sampleGt, sampleOtherGt)) {
           return false;
         }

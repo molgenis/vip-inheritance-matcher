@@ -33,7 +33,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
-import org.molgenis.vcf.inheritance.matcher.model.Sample;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
 
@@ -84,8 +85,8 @@ class AnnotatorTest {
     Genotype genotype = createGenotype("Patient", "1/1");
     VariantContext vc = new VariantContextBuilder().chr("1").start(1).stop(1).alleles("T", "A").genotypes(genotype)
         .make();
-    Map<String, Sample> familyMap = createFamily(Sex.MALE, AffectedStatus.AFFECTED, AffectedStatus.UNAFFECTED, AffectedStatus.UNAFFECTED, "FAM");
-    Map<String, Map<String, Sample>> families = Map.of("FAM", familyMap);
+    Pedigree familyMap = createFamily(Sex.MALE, AffectedStatus.AFFECTED, AffectedStatus.UNAFFECTED, AffectedStatus.UNAFFECTED, "FAM");
+    Map<String, Pedigree> families = Map.of("FAM", familyMap);
 
     Inheritance inheritance = Inheritance.builder().denovo(true).inheritanceModes(
         Set.of(AD,AR)).subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
