@@ -2,10 +2,10 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
+import java.util.Map;
 import java.util.Optional;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
+import org.molgenis.vcf.inheritance.matcher.model.Sample;
 
 /**
  * Autosomal dominant (AD) inheritance pattern matcher
@@ -16,16 +16,17 @@ public class AdChecker {
   }
 
   /**
-   * Check whether the AD inheritance pattern could match for a variant as seen in a pedigree
+   * Check whether the AD inheritance pattern could match for a variant in a pedigree
    */
-  public static boolean check(VariantContext variantContext, Pedigree pedigree) {
+  public static boolean check(
+      VariantContext variantContext, Map<String, Sample> family) {
     if (!VariantContextUtils.onAutosome(variantContext)) {
       return false;
     }
 
-    for (Individual individual : pedigree.getMembers()) {
-      Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, individual);
-      if (genotype.isPresent() && !check(genotype.get(), individual)) {
+    for (Sample sample : family.values()) {
+      Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, sample);
+      if (genotype.isPresent() && !check(genotype.get(), sample)) {
         return false;
       }
     }
@@ -35,17 +36,18 @@ public class AdChecker {
   /**
    * Check whether the AD inheritance pattern could match for a variant as seen in an individual
    */
-  private static boolean check(Genotype genotype, Individual individual) {
+  private static boolean check(Genotype genotype, Sample sample) {
     if (!genotype.isCalled() || genotype.isMixed()) {
       return true;
     }
 
-    switch (individual.getAffectionStatus()) {
+    switch (sample.getAffectedStatus()) {
       case AFFECTED:
         return genotype.isHet();
       case UNAFFECTED:
         return genotype.isHomRef();
-      case UNKNOWN:
+      case UNRECOGNIZED:
+      case MISSING:
         return true;
       default:
         throw new IllegalArgumentException();
