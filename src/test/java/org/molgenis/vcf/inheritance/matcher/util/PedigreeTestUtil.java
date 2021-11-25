@@ -12,6 +12,12 @@ public class PedigreeTestUtil {
   public static Pedigree createFamily(Sex probandSex,
       AffectedStatus probandAffectedStatus, AffectedStatus fatherAffectedStatus,
       AffectedStatus motherAffectedStatus, String familyId) {
+    return createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus, motherAffectedStatus, null, familyId);
+  }
+
+  public static Pedigree createFamily(Sex probandSex,
+      AffectedStatus probandAffectedStatus, AffectedStatus fatherAffectedStatus,
+      AffectedStatus motherAffectedStatus, AffectedStatus brotherAffectedStatus, String familyId) {
     Map<String, Individual> result = new HashMap<>();
     result.put("Patient", createSample(probandSex, probandAffectedStatus, familyId, "Patient", "Father",
         "Mother"));
@@ -20,6 +26,9 @@ public class PedigreeTestUtil {
     }
     if (fatherAffectedStatus != null) {
       result.put("Father",createSample(Sex.MALE, fatherAffectedStatus, familyId, "Father", "", ""));
+    }
+    if (brotherAffectedStatus != null) {
+      result.put("Brother",createSample(Sex.MALE, brotherAffectedStatus, familyId, "Brother", "Father", "Mother"));
     }
     return new Pedigree(familyId, result);
   }

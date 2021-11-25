@@ -32,7 +32,7 @@ public class VariantContextTestUtil {
 
   public static Genotype createGenotype(String sample, String gt) {
     boolean isPhased = false;
-    String[] gtSplit = null;
+    String[] gtSplit;
     if (gt.contains("|")) {
       isPhased = true;
       gtSplit = gt.split("\\|");
