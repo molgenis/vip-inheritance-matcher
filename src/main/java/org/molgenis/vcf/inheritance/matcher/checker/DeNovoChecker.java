@@ -1,10 +1,10 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
+
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
-import org.molgenis.vcf.inheritance.matcher.ChromosomeUtils;
-import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 
@@ -15,10 +15,10 @@ public class DeNovoChecker {
 
   public static boolean checkDeNovo(VariantContext variantContext, Map<String, Sample> family,
       Sample sample) {
-    if(!hasParents(sample)){
+    if (!hasParents(sample)) {
       return false;
     }
-    if ((ChromosomeUtils.mapChromosomeId(variantContext.getContig()) == Chromosome.X) && sample.getSex() == Sex.MALE) {
+    if (onChromosomeX(variantContext) && sample.getSex() == Sex.MALE) {
       Sample motherSample = family.get(sample.getMaternalId());
       return motherSample == null || isHomRefOrMissingVariant(motherSample, variantContext);
     } else {

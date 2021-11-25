@@ -1,19 +1,19 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
 import static org.molgenis.vcf.inheritance.matcher.model.Sex.FEMALE;
 import static org.molgenis.vcf.inheritance.matcher.model.Sex.MALE;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
-import org.molgenis.vcf.inheritance.matcher.ChromosomeUtils;
-import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
 
 public abstract class XlChecker {
+
   public boolean check(VariantContext variantContext, Map<String, Sample> family) {
-    if (ChromosomeUtils.mapChromosomeId(variantContext.getContig()) != Chromosome.X) {
+    if (!onChromosomeX(variantContext)) {
       return false;
     }
     for (Sample currentSample : family.values()) {

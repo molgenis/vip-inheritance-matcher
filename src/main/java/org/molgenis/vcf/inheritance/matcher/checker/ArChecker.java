@@ -1,18 +1,18 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
+
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Map;
-import org.molgenis.vcf.inheritance.matcher.ChromosomeUtils;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Chromosome;
 import org.molgenis.vcf.inheritance.matcher.model.Sample;
 
 public class ArChecker {
 
   public boolean check(
       VariantContext variantContext, Map<String, Sample> family) {
-    if ((ChromosomeUtils.mapChromosomeId(variantContext.getContig()) != Chromosome.X)) {
+    if (onAutosome(variantContext)) {
       for (Sample currentSample : family.values()) {
         Genotype genotype = variantContext.getGenotype(currentSample.getIndividualId());
         if (genotype != null && !checkSample(variantContext, currentSample, genotype)) {
