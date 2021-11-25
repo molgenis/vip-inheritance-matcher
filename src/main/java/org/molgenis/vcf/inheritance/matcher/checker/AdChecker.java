@@ -46,8 +46,7 @@ public class AdChecker {
         return genotype.isHet();
       case UNAFFECTED:
         return genotype.isHomRef();
-      case UNRECOGNIZED:
-      case MISSING:
+      case UNKNOWN:
         return true;
       default:
         throw new IllegalArgumentException();

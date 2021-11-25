@@ -73,10 +73,8 @@ public class PedToSamplesMapper {
         return AffectedStatus.AFFECTED;
       case UNAFFECTED:
         return AffectedStatus.UNAFFECTED;
-      case UNKNOWN:
-        return AffectedStatus.MISSING;
       default:
-        return AffectedStatus.UNRECOGNIZED;
+        return AffectedStatus.UNKNOWN;
     }
   }
 }
