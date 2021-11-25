@@ -30,13 +30,13 @@ public class ArChecker {
       boolean affected = currentIndividual.getAffectedStatus() == AffectedStatus.AFFECTED;
       if (affected) {
         return genotype.getAlleles().stream()
-            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype
-            .isHom();
+            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && (genotype
+            .isHom() || genotype.isMixed());
       } else {
         //Alt present, only allowed if it is hetrozygous
         if (genotype.getAlleles().stream()
             .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele))) {
-          return genotype.isHet();
+          return genotype.isHet() || genotype.isMixed();
         }
       }
     }

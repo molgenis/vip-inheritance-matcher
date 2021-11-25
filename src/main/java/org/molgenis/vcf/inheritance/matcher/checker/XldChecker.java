@@ -16,7 +16,7 @@ public class XldChecker extends XlChecker {
       if (affected) {
         // Affected individuals have to be het. or hom. alt.
         return genotype.getAlleles().stream()
-            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
+            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) || genotype.isMixed();
       } else if (getSex(sex, genotype) == Sex.MALE) {
         // Healthy males cannot carry the variant
         return genotype.getAlleles().stream()

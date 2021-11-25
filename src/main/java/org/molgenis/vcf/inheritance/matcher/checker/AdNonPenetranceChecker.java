@@ -22,7 +22,7 @@ public class AdNonPenetranceChecker {
         && !AdChecker.check(variantContext, family)) {
       for (Individual currentIndividual : family.getMembers().values()) {
         Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
-        if (!checkSample(variantContext, currentIndividual, genotype)) {
+        if (!checkSample(currentIndividual, genotype)) {
           return false;
         }
       }
@@ -31,14 +31,11 @@ public class AdNonPenetranceChecker {
     return false;
   }
 
-  private boolean checkSample(VariantContext variantContext,
-      Individual currentIndividual, Genotype genotype) {
-    if (genotype != null && genotype.isCalled()) {
+  private boolean checkSample(Individual currentIndividual, Genotype genotype) {
+    if (genotype != null && genotype.isCalled() && !genotype.isMixed()) {
       boolean affected = currentIndividual.getAffectedStatus() == AffectedStatus.AFFECTED;
       if (affected) {
-        return genotype.getAlleles().stream()
-            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype
-            .isHet();
+        return genotype.isHet();
       } else {
         return genotype.isHomRef() || genotype.isHet();
       }

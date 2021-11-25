@@ -19,7 +19,7 @@ public class XlrChecker extends XlChecker {
         if (affected) {
           // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).
           return genotype.getAlleles().stream()
-              .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
+              .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) || genotype.isMixed();
         } else {
           // Healthy males cannot carry the variant
           return genotype.getAlleles().stream()
@@ -28,9 +28,9 @@ public class XlrChecker extends XlChecker {
       } else if (getSex(sex, genotype) == Sex.FEMALE) {
         if (affected) {
           // Affected females have to be hom. alt.
-          return genotype.getAlleles().stream()
-              .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype
-              .isHom();
+          return (genotype.getAlleles().stream()
+              .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && (genotype
+              .isHom() || genotype.isMixed()));
         } else {
           // Healthy females cannot be hom. alt.
           return !(genotype.getAlleles().stream()
