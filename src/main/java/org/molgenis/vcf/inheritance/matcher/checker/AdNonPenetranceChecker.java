@@ -1,6 +1,9 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
+import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.AFFECTED;
+import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.UNAFFECTED;
+import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.UNKNOWN;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -31,15 +34,22 @@ public class AdNonPenetranceChecker {
     return false;
   }
 
-  private boolean checkSample(Individual currentIndividual, Genotype genotype) {
-    if (genotype != null && genotype.isCalled() && !genotype.isMixed()) {
-      boolean affected = currentIndividual.getAffectedStatus() == AffectedStatus.AFFECTED;
-      if (affected) {
-        return genotype.isHet();
-      } else {
-        return genotype.isHomRef() || genotype.isHet();
-      }
+  private boolean checkSample(Individual individual, Genotype genotype) {
+
+    if (genotype == null || !genotype.isCalled()) {
+      throw new IllegalArgumentException("missing");
+    }else if(genotype.isMixed()){
+      throw new IllegalArgumentException("mixed");
     }
-    return true;
+
+    switch (individual.getAffectedStatus()) {
+      case AFFECTED:
+        return genotype.isHet();
+      case UNAFFECTED:
+      case UNKNOWN:
+        return genotype.isHomRef() || genotype.isHet();
+      default:
+        throw new IllegalArgumentException();
+    }
   }
 }

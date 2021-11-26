@@ -16,16 +16,16 @@ public abstract class XlChecker {
     if (!onChromosomeX(variantContext)) {
       return false;
     }
-    for (Individual currentIndividual : family.getMembers().values()) {
-      Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
-      if (!checkSample(variantContext, currentIndividual, genotype)) {
+    for (Individual familyMember : family.getMembers().values()) {
+      Genotype genotype = variantContext.getGenotype(familyMember.getId());
+      if (!checkIndividual(variantContext, familyMember, genotype)) {
         return false;
       }
     }
     return true;
   }
 
-  protected abstract boolean checkSample(VariantContext variantContext,
+  protected abstract boolean checkIndividual(VariantContext variantContext,
       Individual currentIndividual, Genotype genotype);
 
   protected Sex getSex(Sex sex, Genotype genotype) {

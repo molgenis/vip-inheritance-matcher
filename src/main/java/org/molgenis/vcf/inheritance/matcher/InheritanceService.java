@@ -79,8 +79,9 @@ public class InheritanceService {
 
       List<VariantContext> variantContextList = new ArrayList<>();
       vcfFileReader.forEach(variantContextList::add);
-      Map<String, List<VariantContext>> geneVariantMap = createGeneVariantMap(vepMapper, knownGenes, variantContextList);
-      variantContextList.stream().map(
+      Map<String, List<VariantContext>> geneVariantMap = createGeneVariantMap(vepMapper, knownGenes,
+          variantContextList);
+      variantContextList.stream().filter(vc -> vc.getAlternateAlleles().size() == 1).map(
           vc -> processSingleVariantcontext(probands, vepMapper, familyList,
               geneVariantMap, vc)).forEach(writer::add);
     } catch (IOException ioException) {
@@ -88,7 +89,8 @@ public class InheritanceService {
     }
   }
 
-  private VariantContext processSingleVariantcontext(List<String> probands, VepMapper vepMapper, Map<String, Pedigree> pedigreeList,
+  private VariantContext processSingleVariantcontext(List<String> probands, VepMapper vepMapper,
+      Map<String, Pedigree> pedigreeList,
       Map<String, List<VariantContext>> geneVariantMap, VariantContext vc) {
     Map<String, Inheritance> inheritanceMap = matchInheritanceForVariant(geneVariantMap,
         vc, pedigreeList, probands);
@@ -123,7 +125,8 @@ public class InheritanceService {
     ArrayList<String> sampleNames = fileHeader.getSampleNamesInOrder();
     for (String sampleName : sampleNames) {
       //no ped: unknown Sex, assume affected, no relatives, therefor the sampleId can be used as familyId
-      Individual individual = Individual.builder().familyId(sampleName).id(sampleName).paternalId("")
+      Individual individual = Individual.builder().familyId(sampleName).id(sampleName)
+          .paternalId("")
           .maternalId("").proband(true).sex(Sex.UNKNOWN)
           .affectedStatus(AffectedStatus.AFFECTED).build();
       familyList.put(sampleName, new Pedigree(sampleName, singletonMap(sampleName, individual)));

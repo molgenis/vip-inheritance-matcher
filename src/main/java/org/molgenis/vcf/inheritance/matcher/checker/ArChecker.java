@@ -24,22 +24,28 @@ public class ArChecker {
     return false;
   }
 
-  private boolean checkSample(VariantContext variantContext,
-      Individual currentIndividual, Genotype genotype) {
-    if (genotype != null && genotype.isCalled()) {
-      boolean affected = currentIndividual.getAffectedStatus() == AffectedStatus.AFFECTED;
-      if (affected) {
+  private boolean checkSample(VariantContext variantContext, Individual individual, Genotype genotype) {
+    if (genotype == null || !genotype.isCalled()) {
+      return true;
+    }else if(genotype.isMixed()){
+      throw new IllegalArgumentException("mixed");
+    }
+
+    switch (individual.getAffectedStatus()) {
+      case AFFECTED:
         return genotype.getAlleles().stream()
             .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && (genotype
             .isHom() || genotype.isMixed());
-      } else {
+      case UNAFFECTED:
         //Alt present, only allowed if it is hetrozygous
         if (genotype.getAlleles().stream()
             .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele))) {
           return genotype.isHet() || genotype.isMixed();
         }
-      }
+      case UNKNOWN:
+        return true;
+      default:
+        throw new IllegalArgumentException();
     }
-    return true;
   }
 }
