@@ -24,6 +24,8 @@ public class XlrChecker extends XlChecker {
             return (genotype.getAlleles().stream()
                 .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && (genotype
                 .isHom() || genotype.isMixed()));
+          default:
+            throw new IllegalArgumentException();
         }
       case UNAFFECTED:
         switch (getSex(individual.getSex(), genotype)) {
@@ -36,6 +38,8 @@ public class XlrChecker extends XlChecker {
             return !(genotype.getAlleles().stream()
                 .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype
                 .isHom());
+          default:
+            throw new IllegalArgumentException();
         }
       case UNKNOWN:
         return true;

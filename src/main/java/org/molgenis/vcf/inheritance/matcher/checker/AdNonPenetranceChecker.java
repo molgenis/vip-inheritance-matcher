@@ -1,14 +1,12 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
-import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.AFFECTED;
 import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.UNAFFECTED;
 import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.UNKNOWN;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
-import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Individual;
 import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 
@@ -36,20 +34,12 @@ public class AdNonPenetranceChecker {
 
   private boolean checkSample(Individual individual, Genotype genotype) {
 
-    if (genotype == null || !genotype.isCalled()) {
-      throw new IllegalArgumentException("missing");
-    }else if(genotype.isMixed()){
-      throw new IllegalArgumentException("mixed");
+    if (genotype == null || !genotype.isCalled() || genotype.isHet() || genotype.isMixed()){
+      //Due to the incomplete penetrance individuals can be HET indepent of their affected status
+      return true;
     }
 
-    switch (individual.getAffectedStatus()) {
-      case AFFECTED:
-        return genotype.isHet();
-      case UNAFFECTED:
-      case UNKNOWN:
-        return genotype.isHomRef() || genotype.isHet();
-      default:
-        throw new IllegalArgumentException();
-    }
+    //HOMREF individuals cannot be affected
+    return genotype.isHomRef() && (individual.getAffectedStatus() == UNAFFECTED || individual.getAffectedStatus() == UNKNOWN);
   }
 }

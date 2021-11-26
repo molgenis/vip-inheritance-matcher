@@ -16,16 +16,19 @@ public class XldChecker extends XlChecker {
       case AFFECTED:
         // Affected individuals have to be het. or hom. alt.
         return genotype.getAlleles().stream()
-            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) || genotype.isMixed();
+            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) || genotype
+            .isMixed();
       case UNAFFECTED:
         switch (getSex(individual.getSex(), genotype)) {
           case MALE:
-          // Healthy males cannot carry the variant
-          return genotype.getAlleles().stream()
-              .noneMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
+            // Healthy males cannot carry the variant
+            return genotype.getAlleles().stream()
+                .noneMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
           case FEMALE:
-          // Healthy females can carry the variant (because of X inactivation)
-          return genotype.isHet() || genotype.isHomRef();
+            // Healthy females can carry the variant (because of X inactivation)
+            return genotype.isHet() || genotype.isMixed() || genotype.isHomRef();
+          default:
+            throw new IllegalArgumentException();
         }
       case UNKNOWN:
         return true;

@@ -4,7 +4,6 @@ import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosom
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Individual;
 import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 
@@ -27,8 +26,6 @@ public class ArChecker {
   private boolean checkSample(VariantContext variantContext, Individual individual, Genotype genotype) {
     if (genotype == null || !genotype.isCalled()) {
       return true;
-    }else if(genotype.isMixed()){
-      throw new IllegalArgumentException("mixed");
     }
 
     switch (individual.getAffectedStatus()) {
@@ -37,11 +34,8 @@ public class ArChecker {
             .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && (genotype
             .isHom() || genotype.isMixed());
       case UNAFFECTED:
-        //Alt present, only allowed if it is hetrozygous
-        if (genotype.getAlleles().stream()
-            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele))) {
-          return genotype.isHet() || genotype.isMixed();
-        }
+        //Alt present, only allowed if it is hetrozygous or the other allele is missing
+          return genotype.isHomRef() || genotype.isHet() || genotype.isMixed();
       case UNKNOWN:
         return true;
       default:

@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
-import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.Individual;
 import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
@@ -53,36 +52,52 @@ public class ArCompoundChecker {
   private boolean checkFamily(Pedigree family, VariantContext variantContext,
       VariantContext otherVariantContext) {
     for (Individual individual : family.getMembers().values()) {
-      //Affected individuals have to be het. for both variants
-      //Healthy individuals can be het. for one of the variants but cannot have both variants
-      Genotype sampleGt = variantContext.getGenotype(individual.getId());
-      Genotype sampleOtherGt = otherVariantContext.getGenotype(individual.getId());
-
-      if (individual.getAffectedStatus() == AffectedStatus.AFFECTED) {
-        if (!checkAffectedSample(sampleGt, sampleOtherGt)) {
-          return false;
-        }
-      } else {
-        if (!checkUnaffectedSample(sampleGt, sampleOtherGt)) {
-          return false;
-        }
+      if (!checkIndividual(variantContext, otherVariantContext, individual)) {
+        return false;
       }
     }
     return true;
   }
 
-  private boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-    if (sampleGt.isHet() && sampleGt.isCalled() && sampleOtherGt.isHet() && sampleOtherGt
-        .isCalled()) {
+  private boolean checkIndividual(VariantContext variantContext, VariantContext otherVariantContext,
+      Individual individual) {
+    //Affected individuals have to be het. for both variants
+    //Healthy individuals can be het. for one of the variants but cannot have both variants
+    Genotype sampleGt = variantContext.getGenotype(individual.getId());
+    Genotype sampleOtherGt = otherVariantContext.getGenotype(individual.getId());
+
+    switch (individual.getAffectedStatus()) {
+      case AFFECTED:
+        return checkAffectedSample(sampleGt, sampleOtherGt);
+      case UNAFFECTED:
+        return checkUnaffectedSample(sampleGt, sampleOtherGt, variantContext);
+      case UNKNOWN:
+        return true;
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  private boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt,
+      VariantContext variantContext) {
+    boolean sampleContainsAlt = sampleGt.getAlleles().stream()
+        .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
+    boolean otherSampleContainsAlt = sampleOtherGt.getAlleles().stream()
+        .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
+    if (sampleContainsAlt && otherSampleContainsAlt) {
       //if data is phased, the variants can occur in unaffected individuals as long as they are on the same allele
-      return sampleGt.isPhased() && sampleOtherGt.isPhased() && (sampleGt.getAllele(0)
-          .equals(sampleOtherGt.getAllele(0)));
+      if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
+        return sampleGt.getAllele(0).equals(sampleOtherGt.getAllele(0));
+      } else {
+        return false;
+      }
     }
     return true;
   }
 
   private boolean checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-    if (!(sampleGt.isHet() && sampleOtherGt.isHet())) {
+    if (!((sampleGt.isHet() || sampleGt.isMixed()) && (sampleOtherGt.isHet() || sampleOtherGt
+        .isMixed()))) {
       return false;
     } else {
       if (sampleGt.isPhased() && sampleOtherGt.isPhased() && sampleGt.getAllele(0)
