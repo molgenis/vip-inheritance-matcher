@@ -45,7 +45,6 @@ class AppCommandLineOptions {
     appOptions.addOption(
         Option.builder(OPT_PED)
             .hasArg(true)
-            .required()
             .longOpt(OPT_PED_LONG)
             .desc("Comma-separated list of pedigree files (.ped).")
             .build());

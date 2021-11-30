@@ -3,10 +3,10 @@ package org.molgenis.vcf.inheritance.matcher;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.AD;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.AR;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.XLD;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum.XLR;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.XLD;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.XLR;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
@@ -14,7 +14,6 @@ import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum;
+import org.molgenis.vcf.inheritance.matcher.model.Gene;
 
 @ExtendWith(MockitoExtension.class)
 class VepMapperTest {
@@ -48,18 +47,13 @@ class VepMapperTest {
     vepMapper = new VepMapper(vcfFileReader);
   }
 
-  @Test
-  void getGeneInheritanceMap() {
-    Map<String, Set<InheritanceModeEnum>> expected = new HashMap<>();
-    expected.put("ENSG00000123456", Set.of(AR, AD));
-    expected.put("ENSG00000123457", Set.of(XLD, XLR));
-    expected.put("ENSG00000123458", Set.of(XLD, XLR));
-    assertEquals(expected, vepMapper.getGeneInheritanceMap(vc));
-  }
 
   @Test
   void getGenes() {
-    Set<String> expected = Set.of("ENSG00000123456", "ENSG00000123457", "ENSG00000123458");
+    Map<String, Gene> expected = Map
+        .of("ENSG00000123457", new Gene("ENSG00000123457","HGNC", false,  Set.of(XLD, XLR)), "ENSG00000123456",
+            new Gene("ENSG00000123456","HGNC", false,  Set.of(AD, AR)), "ENSG00000123458",
+            new Gene("ENSG00000123458","HGNC", false,  Set.of(XLD, XLR)));
     assertEquals(expected, vepMapper.getGenes(vc));
   }
 }

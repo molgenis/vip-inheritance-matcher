@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-class UnknownVariantExceptionTest {
+class InvalidPedExceptionTest {
 
   @Test
   void getMessage() {
     assertEquals(
-        "Cannot find a variant for compound key '1_2_A_T'.",
-        new UnknownVariantException("1_2_A_T").getMessage());
+        "Invalid PED line, expected 6 columns on line: 'Patient\tFather\tMother\t0'.",
+        new InvalidPedException("Patient\tFather\tMother\t0").getMessage());
   }
 }

@@ -1,6 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
@@ -11,17 +12,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceModeEnum;
+import org.molgenis.vcf.inheritance.matcher.model.Gene;
+import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 
 public class VepMapper {
 
   public static final String GENE = "Gene";
+  public static final String SYMBOL_SOURCE = "SYMBOL_SOURCE";
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
+  public static final String INCOMPLETE_PENETRANCE_INDEX = "IncompletePenetrance";
   private String vepField = null;
   private int geneIndex = -1;
+  private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
+  private int incompletePenetranceIndex = -1;
 
   public VepMapper(VCFFileReader vcfFileReader) {
     init(vcfFileReader);
@@ -45,67 +51,84 @@ public class VepMapper {
       if (canMap(vcfInfoHeaderLine)) {
         this.vepField = vcfInfoHeaderLine.getID();
         List<String> nestedInfo = getNestedInfoIds(vcfInfoHeaderLine);
-        if (nestedInfo.contains(GENE)) {
-          this.geneIndex = nestedInfo.indexOf(GENE);
-        } else {
-          throw new MissingVepAnnotationException("GENE");
-        }
-        if (nestedInfo.contains(INHERITANCE)) {
-          this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
-        } else {
-          throw new MissingVepAnnotationException(INHERITANCE);
-        }
+        this.geneIndex = getVepIndex(nestedInfo, GENE);
+        this.geneSourceIndex = getVepIndex(nestedInfo, SYMBOL_SOURCE);
+        this.incompletePenetranceIndex = nestedInfo.indexOf(INCOMPLETE_PENETRANCE_INDEX);
+        this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
+
         return;
       }
     }
     throw new MissingInfoException("VEP");
   }
 
-  public Map<String, Set<InheritanceModeEnum>> getGeneInheritanceMap(VariantContext vc) {
-    Map<String, Set<InheritanceModeEnum>> genes = new HashMap<>();
+  private int getVepIndex(List<String> nestedInfo, String vepField) {
+    int index;
+    if (nestedInfo.contains(vepField)) {
+      index = nestedInfo.indexOf(vepField);
+    } else {
+      throw new MissingVepAnnotationException(vepField);
+    }
+    return index;
+  }
+
+  public Map<String, Gene> getGenes(VariantContext vc) {
+    return getGenes(vc, emptyMap());
+  }
+
+  public Map<String, Gene> getGenes(VariantContext vc, Map<String, Gene> knownGenes) {
+    Map<String, Gene> genes = new HashMap<>();
     List<String> vepValues = vc.getAttributeAsStringList(vepField, "");
     for (String vepValue : vepValues) {
       String[] vepSplit = vepValue.split("\\|", -1);
       String gene = vepSplit[geneIndex];
-      String[] inheritanceModes = vepSplit[inheritanceIndex].split("&");
-      Set<InheritanceModeEnum> modes = new HashSet<>();
-      for (String mode : inheritanceModes) {
-        switch (mode) {
-          case "AR":
-            modes.add(InheritanceModeEnum.AR);
-            break;
-          case "AD":
-            modes.add(InheritanceModeEnum.AD);
-            break;
-          case "XLR":
-            modes.add(InheritanceModeEnum.XLR);
-            break;
-          case "XLD":
-            modes.add(InheritanceModeEnum.XLD);
-            break;
-          case "XL":
-            modes.add(InheritanceModeEnum.XLD);
-            modes.add(InheritanceModeEnum.XLR);
-            break;
-          default:
-            //We ignore all the modes that are not used for matching (not provided by genmod)
+      String source = vepSplit[geneSourceIndex];
+      if (!knownGenes.containsKey(gene)) {
+        Set<InheritanceMode> modes = new HashSet<>();
+        if (inheritanceIndex != -1) {
+          String[] inheritanceModes
+              = vepSplit[inheritanceIndex].split("&");
+          mapGeneInheritance(modes, inheritanceModes);
         }
+        boolean isIncompletePenetrance = false;
+        if (incompletePenetranceIndex != -1) {
+          isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
+        }
+        genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
+      } else {
+        genes.put(gene, knownGenes.get(gene));
       }
-      genes.put(gene, modes);
     }
     return genes;
   }
 
-  public Set<String> getGenes(VariantContext vc) {
-    Set<String> genes = new HashSet<>();
-    List<String> vepValues = vc.getAttributeAsStringList(vepField, "");
-    for (String vepValue : vepValues) {
-      String[] vepSplit = vepValue.split("\\|", -1);
-      String gene = vepSplit[geneIndex];
-      if (!gene.isEmpty()) {
-        genes.add(gene);
+  private void mapGeneInheritance(Set<InheritanceMode> modes, String[] inheritanceModes) {
+    for (String mode : inheritanceModes) {
+      switch (mode) {
+        case "AR":
+          modes.add(InheritanceMode.AR);
+          break;
+        case "AD":
+          modes.add(InheritanceMode.AD);
+          break;
+        case "XLR":
+          modes.add(InheritanceMode.XLR);
+          break;
+        case "XLD":
+          modes.add(InheritanceMode.XLD);
+          break;
+        case "XL":
+          modes.add(InheritanceMode.XLR);
+          modes.add(InheritanceMode.XLD);
+          break;
+        default:
+          //We ignore all the modes that are not used for matching.
       }
     }
-    return genes;
+  }
+
+  public boolean containsIncompletePenetrance(VariantContext variantContext) {
+    Map<String, Gene> genes = getGenes(variantContext);
+    return genes.values().stream().anyMatch(Gene::isIncompletePenetrance);
   }
 }

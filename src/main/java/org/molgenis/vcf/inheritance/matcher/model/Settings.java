@@ -15,4 +15,5 @@ public class Settings {
   List<String> probands;
   boolean overwrite;
   boolean debug;
+  boolean strict;
 }

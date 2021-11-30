@@ -3,18 +3,17 @@
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=VI,Number=.,Type=String,Description="An enumeration of possible inheritance modes.">
-##FORMAT=<ID=VIC,Number=1,Type=Integer,Description="Inheritance Compound status.">
+##FORMAT=<ID=VIC,Number=1,Type=String,Description="Possible Compound hetrozygote variants.">
 ##FORMAT=<ID=VID,Number=1,Type=Integer,Description="Inheritance Denovo status.">
 ##FORMAT=<ID=VIG,Number=.,Type=String,Description="Genes with an inheritance match.">
 ##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match status.">
-##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|Gene|InheritanceModesGene">
+##FORMAT=<ID=VIS,Number=.,Type=String,Description="An enumeration of possible sub inheritance modes like e.g. compound, non penetrance.">
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|SYMBOL_SOURCE|Gene|IncompletePenetrance|InheritanceModesGene">
 ##INFO=<ID=Compounds,Number=.,Type=String,Description="List of compound pairs for this variant.The list is splitted on ',' family id is separated with compoundswith ':'. Compounds are separated with '|'.">
 ##INFO=<ID=GeneticModels,Number=.,Type=String,Description="':'-separated list of genetic models for this variant.">
 ##INFO=<ID=ModelScore,Number=.,Type=String,Description="PHRED score for genotype models.">
 ##InheritanceModesGene=List of inheritance modes for the gene
 ##InheritanceModesPheno=List of inheritance modes for the gene per phenotype
-##PREFERRED=Flags a transcript as preferred
-##Software=<ID=genmod,Version=3.7.3,Date="2020-11-19 08:13",CommandLineOptions="processes=1 keyword=SYMBOL family_type=ped family_file=<_io.TextIOWrapper name='./pedigree_complex.ped' mode='r' encoding='UTF-8'> variant_file=./workdir/splitted.vcf context=<click.core.Context object at 0x7fcfa0a0cf60>">
 ##VEP="v98" time="2020-11-19 08:13:30" cache="/home/bart/.vep/homo_sapiens/98_GRCh37" ensembl-io=98.052d23b ensembl-variation=98.5f5ffce ensembl-funcgen=98.36eef94 ensembl=98.e98e194 1000genomes="phase3" COSMIC="86" ClinVar="201810" ESP="20141103" HGMD-PUBLIC="20174" assembly="GRCh37.p13" dbSNP="151" gencode="GENCODE 19" genebuild="2011-04" gnomAD="r2.1" polyphen="2.2.2" regbuild="1.0" sift="sift5.2.2"
 ##contig=<ID=1,length=249250621,assembly=b37>
 ##contig=<ID=2,length=243199373,assembly=b37>
@@ -43,8 +42,12 @@
 ##contig=<ID=MT,length=16569,assembly=b37>
 ##fileDate=20200320
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Patient	Mother	Father	Patient2	Mother2	Father2
-1	123456	.	C	T,G	.	PASS	CSQ=G|GENE1|ID1|AR_hom;GeneticModels=FAM001:AD_dn,FAM002:AR_hom	GT:DP:VI:VIC:VID:VIM	1|0:50:AD:.:1:0	0|0:10:AD:.:1:0	0|0:10:AD:.:1:0	1|0:50:AR:0:0:0	0|0:10	0|0:10:AR:0:0:0
-X	123457	.	C	G	.	PASS	CSQ=G|GENE2|ID2|XL;GeneticModels=FAM001:XD,FAM002:XR	GT:DP:VI:VID:VIG:VIM	1/0:50:XLD:0:ID2:1	1/0:50:XLD:0:ID2:1	1/0:50:XLD:0:ID2:1	1/0:50:XLR:0:ID2:1	1/0:50	1/0:50:XLR:0:ID2:1
-X	123458	.	C	G	.	PASS	CSQ=G|GENE3|ID3|XLD;GeneticModels=FAM001:XD,FAM002:XR	GT:DP:VI:VID:VIG:VIM	1/0:50:XLD:0:ID3:1	1/0:50:XLD:0:ID3:1	1/0:50:XLD:0:ID3:1	1/0:50:XLR:0:.:0	1/0:50	1/0:50:XLR:0:.:0
-X	123459	.	C	G	.	PASS	CSQ=G|GENE3|ID3|XLD	GT:DP	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50	1/0:50
-MT	12345	.	G	A	.	PASS	CSQ=A|GENE4|ID4|MT;GeneticModels=FAM001:AD,FAM002:AR_hom	GT:DP:VI:VIC:VID:VIM	1/0:50:AD:.:0:0	1/0:50:AD:.:0:0	1/0:50:AD:.:0:0	1/0:50:AR:0:0:0	1/0:50	1/0:50:AR:0:0:0
+1	123457	.	C	G	.	PASS	CSQ=G|GENE1|EntrezGene|ID1|1|AR,G|GENE2|EntrezGene|ID2||AD	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/0:50:AD:.:0:ID2:1	0/0:50:.:.:0:.:0	0/0:50:.:.:0:.:0	1/0:50:AR,AD:1_123459_C_G:0:ID1,ID2:1:AR_C	0/0:50:.:.:0:.:0	1/0:50:AD:.:0:ID2:1
+1	123458	.	C	G	.	PASS	CSQ=G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/0:50:AR,AD:1_123460_C_G:0:ID3:1:AR_C	./.:50:AR,AD:.:0:ID3:1	0/0:50:.:.:0:.:0	1/0:50:AR,AD:1_123460_C_G,1_123459_C_G:0:ID3:1:AR_C	1/0:50:AR,AD:1_123460_C_G:0:ID3:1:AR_C	0/0:50:.:.:0:.:0
+1	123459	.	C	G	.	PASS	CSQ=G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/1:50:AR:.:0:ID3:1	1/1:50:AR:.:0:ID3:1	0/1:50:AD:.:0:.:0	1/0:50:AR,AD:1_123458_C_G,1_123460_C_G:0:ID3:1:AR_C	1/1:50:AR:.:0:ID3:1	0/0:50:.:.:0:.:0
+1	123459	.	C	G	.	PASS	CSQ=G|GENE1|EntrezGene|ID1|1|AR,G|GENE2|EntrezGene|ID2||AD	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/1:50:AR:.:0:ID1:1	0/1:50:AD:.:0:ID2:1	0/1:50:AD:.:0:ID2:1	1/0:50:AR,AD:1_123457_C_G:0:ID1,ID2:1:AR_C	1/0:50:AD:.:0:ID2:1	0/0:50:.:.:0:.:0
+1	123460	.	C	G	.	PASS	CSQ=G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/0:50:AR,AD:1_123458_C_G:0:ID3:1:AR_C	1/0:50:AD:.:0:.:0	0/0:50:.:.:0:.:0	1/0:50:AR,AD:1_123458_C_G,1_123459_C_G:0:ID3:1:AR_C	1/0:50:AR,AD:1_123458_C_G:0:ID3:1:AR_C	0/0:50:.:.:0:.:0
+1	123461	.	C	G	.	PASS	CSQ=G|GENE4|EntrezGene|ID4|1|AD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD:.:0:ID4:1	0/0:50:.:.:0:.:0	1/0:50:AD:.:0:ID4:1	1/0:50:AD:.:0:ID4:1	1/0:50:AD:.:0:ID4:1	0/0:50:.:.:0:.:0
+X	123457	.	C	G	.	PASS	CSQ=G|GENE5|EntrezGene|ID5||XLR,G|GENE7|EntrezGene|ID7||XLD	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/0:50:XLD,XL:.:0:ID7:1:XLD	0/0:50:.:.:0:.:0	0/0:50:.:.:0:.:0	1/0:50:XLD,XL:.:0:ID7:1:XLD	0/0:50:.:.:0:.:0	1/0:50:XLD,XL:.:0:ID7:1:XLD
+X	123458	.	C	G	.	PASS	CSQ=G|GENE6|EntrezGene|ID6||	GT:DP:VI:VIC:VID:VIM:VIS	1/0:50:XLD,XL:.:0:0:XLD	./.:50:XLD,XL,XLR:.:0:0:XLD,XLR	0/0:50:.:.:0:0	1/0:50:XLD,XL:.:0:0:XLD	1/0:50:XLD,XL:.:0:0:XLD	0/0:50:.:.:0:0
+X	123459	.	C	G	.	PASS	CSQ=G|GENE6|EntrezGene|ID6||XLR	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/1:50:XLD,XL,XLR:.:0:ID6:1:XLD,XLR	0/1:50:XLD,XL:.:0:.:0:XLD	0/1:50:XLD,XL:.:0:.:0:XLD	1/0:50:XLD,XL:.:0:.:0:XLD	1/0:50:XLD,XL:.:0:.:0:XLD	0/0:50:.:.:0:.:0
