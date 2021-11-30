@@ -18,12 +18,11 @@ public class XlrChecker extends XlChecker {
           case MALE:
             // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).
             return genotype.getAlleles().stream()
-                .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) || genotype.isMixed();
+                .anyMatch(allele -> allele.isNonReference() || allele.isNoCall());
           case FEMALE:
             // Affected females have to be hom. alt.
             return (genotype.getAlleles().stream()
-                .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && (genotype
-                .isHom() || genotype.isMixed()));
+                .allMatch(allele -> allele.isNonReference() || allele.isNoCall()));
           default:
             throw new IllegalArgumentException();
         }

@@ -57,6 +57,6 @@ public class DeNovoChecker {
   public static boolean isHomRefOrMissingVariant(Individual individual, VariantContext variantContext) {
     Genotype genotype = variantContext.getGenotype(individual.getId());
     return genotype == null || !genotype.isCalled() || genotype.getAlleles().stream()
-        .noneMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
+        .noneMatch(allele -> allele.isNonReference() || allele.isNoCall());
   }
 }

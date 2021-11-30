@@ -2,6 +2,7 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
 
+import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public class ArCompoundChecker {
       case AFFECTED:
         return checkAffectedSample(sampleGt, sampleOtherGt);
       case UNAFFECTED:
-        return checkUnaffectedSample(sampleGt, sampleOtherGt, variantContext);
+        return checkUnaffectedSample(sampleGt, sampleOtherGt);
       case UNKNOWN:
         return true;
       default:
@@ -78,21 +79,33 @@ public class ArCompoundChecker {
     }
   }
 
-  private boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt,
-      VariantContext variantContext) {
-    boolean sampleContainsAlt = sampleGt.getAlleles().stream()
-        .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
-    boolean otherSampleContainsAlt = sampleOtherGt.getAlleles().stream()
-        .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
-    if (sampleContainsAlt && otherSampleContainsAlt) {
-      //if data is phased, the variants can occur in unaffected individuals as long as they are on the same allele
-      if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
-        return sampleGt.getAllele(0).equals(sampleOtherGt.getAllele(0));
-      } else {
-        return false;
+  private boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+    boolean sampleContainsAlt= !sampleGt.getAlleles().stream().allMatch(allele -> allele.isReference() || allele
+        .isNoCall());
+    boolean sampleOtherGtContainsAlt= !sampleOtherGt.getAlleles().stream().allMatch(allele -> allele.isReference() || allele
+        .isNoCall());
+    //Check if one or both of the variants might not be present (REF or missing) in a unaffected individual.
+    //Only if both are present the check fails.
+    if(sampleContainsAlt && sampleOtherGtContainsAlt){
+      if(sampleGt.isPhased() && sampleOtherGt.isPhased()){
+        return checkPhasedUnaffected(sampleGt, sampleOtherGt);
       }
+      return false;
     }
     return true;
+  }
+
+  private boolean checkPhasedUnaffected(Genotype sampleGt, Genotype sampleOtherGt) {
+    Allele allele1 = sampleGt.getAllele(0);
+    Allele allele2 = sampleGt.getAllele(1);
+    Allele otherAllele1 = sampleOtherGt.getAllele(0);
+    Allele otherAllele2 = sampleOtherGt.getAllele(1);
+    //For phased data both variants can be present in a unaffected individual if both are on the same allele
+    return !(bothAlt(allele1, otherAllele2) || bothAlt(allele2, otherAllele1));
+  }
+
+  private boolean bothAlt(Allele allele1, Allele allele2) {
+    return allele1.isNonReference() && allele2.isNonReference();
   }
 
   private boolean checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {

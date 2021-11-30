@@ -14,7 +14,7 @@ public class ArChecker {
     if (onAutosome(variantContext)) {
       for (Individual currentIndividual : family.getMembers().values()) {
         Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
-        if (genotype != null && !checkSample(variantContext, currentIndividual, genotype)) {
+        if (genotype != null && !checkSample(currentIndividual, genotype)) {
           return false;
         }
       }
@@ -23,7 +23,7 @@ public class ArChecker {
     return false;
   }
 
-  private boolean checkSample(VariantContext variantContext, Individual individual, Genotype genotype) {
+  private boolean checkSample(Individual individual, Genotype genotype) {
     if (genotype == null || !genotype.isCalled()) {
       return true;
     }
@@ -31,8 +31,7 @@ public class ArChecker {
     switch (individual.getAffectedStatus()) {
       case AFFECTED:
         return genotype.getAlleles().stream()
-            .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && (genotype
-            .isHom() || genotype.isMixed());
+            .allMatch(allele -> allele.isNonReference() || allele.isNoCall());
       case UNAFFECTED:
         //Alt present, only allowed if it is hetrozygous or the other allele is missing
           return genotype.isHomRef() || genotype.isHet() || genotype.isMixed();

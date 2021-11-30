@@ -26,7 +26,7 @@ public class AdChecker {
 
     for (Individual individual : family.getMembers().values()) {
       Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, individual);
-      if (genotype.isPresent() && !check(genotype.get(), individual, variantContext)) {
+      if (genotype.isPresent() && !check(genotype.get(), individual)) {
         return false;
       }
     }
@@ -36,8 +36,7 @@ public class AdChecker {
   /**
    * Check whether the AD inheritance pattern could match for a variant as seen in an individual
    */
-  private static boolean check(Genotype genotype, Individual individual,
-      VariantContext variantContext) {
+  private static boolean check(Genotype genotype, Individual individual) {
     if (!genotype.isCalled()) {
       return true;
     }
@@ -46,9 +45,8 @@ public class AdChecker {
       case AFFECTED:
         return genotype.isHet() || genotype.isMixed();
       case UNAFFECTED:
-        return genotype.isHomRef() || (genotype.getAlleles().stream()
-            .noneMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype
-            .isMixed());
+        return genotype.getAlleles().stream()
+            .allMatch(allele -> allele.isReference() || allele.isNoCall());
       case UNKNOWN:
         return true;
       default:
