@@ -114,7 +114,8 @@ class AppCommandLineRunner implements CommandLineRunner {
     boolean debugMode = commandLine.hasOption(OPT_DEBUG);
 
     return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
-        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode).build();
+        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode)
+        .build();
   }
 
   private CommandLine getCommandLine(String[] args) {

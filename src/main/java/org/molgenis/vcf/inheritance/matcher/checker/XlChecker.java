@@ -18,15 +18,14 @@ public abstract class XlChecker {
     }
     for (Individual familyMember : family.getMembers().values()) {
       Genotype genotype = variantContext.getGenotype(familyMember.getId());
-      if (!checkIndividual(variantContext, familyMember, genotype)) {
+      if (!checkIndividual(familyMember, genotype)) {
         return false;
       }
     }
     return true;
   }
 
-  protected abstract boolean checkIndividual(VariantContext variantContext,
-      Individual currentIndividual, Genotype genotype);
+  protected abstract boolean checkIndividual(Individual currentIndividual, Genotype genotype);
 
   protected Sex getSex(Sex sex, Genotype genotype) {
     if (sex == Sex.UNKNOWN) {

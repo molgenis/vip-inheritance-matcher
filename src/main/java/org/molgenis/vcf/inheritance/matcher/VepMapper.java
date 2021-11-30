@@ -85,13 +85,13 @@ public class VepMapper {
       String source = vepSplit[geneSourceIndex];
       if (!knownGenes.containsKey(gene)) {
         Set<InheritanceMode> modes = new HashSet<>();
-        if(inheritanceIndex != -1) {
+        if (inheritanceIndex != -1) {
           String[] inheritanceModes
               = vepSplit[inheritanceIndex].split("&");
           mapGeneInheritance(modes, inheritanceModes);
         }
         boolean isIncompletePenetrance = false;
-        if(incompletePenetranceIndex != -1) {
+        if (incompletePenetranceIndex != -1) {
           isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
         }
         genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));

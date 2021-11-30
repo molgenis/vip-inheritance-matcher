@@ -24,14 +24,14 @@ import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.springframework.util.ResourceUtils;
 
 class DeNovoCheckerTest {
-
+    DeNovoChecker deNovoChecker = new DeNovoChecker();
 
     @ParameterizedTest(name = "{index} {3}")
     @MethodSource("provideTestCases")
     void check(VariantContext variantContext, Pedigree family, boolean expected,
     String displayName) {
       Individual individual = family.getMembers().get("Patient");
-      assertEquals(expected, DeNovoChecker.checkDeNovo(variantContext, family, individual));
+      assertEquals(expected, deNovoChecker.checkDeNovo(variantContext, family, individual));
     }
 
   private static Stream<Arguments> provideTestCases() throws IOException {

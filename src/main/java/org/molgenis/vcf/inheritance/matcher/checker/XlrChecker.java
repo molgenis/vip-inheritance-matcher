@@ -1,13 +1,12 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.model.Individual;
 
 public class XlrChecker extends XlChecker {
 
-  protected boolean checkIndividual(VariantContext variantContext,
-      Individual individual, Genotype genotype) {
+  protected boolean checkIndividual(Individual individual, Genotype genotype) {
     if (genotype == null || !genotype.isCalled()) {
       return true;
     }
@@ -31,11 +30,12 @@ public class XlrChecker extends XlChecker {
           case MALE:
             // Healthy males cannot carry the variant
             return genotype.getAlleles().stream()
-                .noneMatch(allele -> variantContext.getAlternateAlleles().contains(allele));
+                .noneMatch(Allele::isNonReference);
           case FEMALE:
             // Healthy females cannot be hom. alt.
             return !(genotype.getAlleles().stream()
-                .anyMatch(allele -> variantContext.getAlternateAlleles().contains(allele)) && genotype
+                .anyMatch(allele -> allele.isNonReference() || allele.isNoCall())
+                && genotype
                 .isHom());
           default:
             throw new IllegalArgumentException();

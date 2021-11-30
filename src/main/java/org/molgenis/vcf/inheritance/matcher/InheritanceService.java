@@ -4,7 +4,6 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
 import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
 import static org.molgenis.vcf.inheritance.matcher.PedToSamplesMapper.mapPedFileToPersons;
-import static org.molgenis.vcf.inheritance.matcher.checker.DeNovoChecker.checkDeNovo;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -25,18 +24,19 @@ import org.molgenis.vcf.inheritance.matcher.checker.AdChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.AdNonPenetranceChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.ArChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.ArCompoundChecker;
+import org.molgenis.vcf.inheritance.matcher.checker.DeNovoChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.XldChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.XlrChecker;
 import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
-import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
+import org.molgenis.vcf.inheritance.matcher.model.Individual;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.model.Sex;
+import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,6 +45,7 @@ public class InheritanceService {
   ArChecker arChecker = new ArChecker();
   XldChecker xldChecker = new XldChecker();
   XlrChecker xlrChecker = new XlrChecker();
+  DeNovoChecker deNovoChecker = new DeNovoChecker();
   private AdNonPenetranceChecker adNonPenetranceChecker;
   private ArCompoundChecker arCompoundChecker;
   private final Annotator annotator;
@@ -162,7 +163,7 @@ public class InheritanceService {
     for (Individual individual : family.getMembers().values()) {
       if (probands.contains(individual.getId()) || (probands.isEmpty()
           && individual.getAffectedStatus() == AffectedStatus.AFFECTED)) {
-        inheritance.setDenovo(checkDeNovo(variantContext, family, individual));
+        inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, family, individual));
         result.put(individual.getId(), inheritance);
       }
     }

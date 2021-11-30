@@ -15,10 +15,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
-import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
+import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -85,7 +85,7 @@ public class Annotator {
       if (!subinheritanceModes.isEmpty()) {
         genotypeBuilder.attribute(SUBINHERITANCE_MODES, subinheritanceModes);
       }
-      String compounds = annotation.getInheritance().getCompounds().isEmpty()?null:String
+      String compounds = annotation.getInheritance().getCompounds().isEmpty() ? null : String
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
       genotypeBuilder.attribute(DENOVO, annotation.getInheritance().isDenovo() ? "1" : "0");
@@ -96,8 +96,9 @@ public class Annotator {
               isMatch
                   ? "1" : "0");
       if (isMatch) {
-        genotypeBuilder.attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
-            Collectors.joining(",")));
+        genotypeBuilder
+            .attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
+                Collectors.joining(",")));
       }
 
       genotypesContext.replace(genotypeBuilder.make());

@@ -80,14 +80,16 @@ public class ArCompoundChecker {
   }
 
   private boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-    boolean sampleContainsAlt= !sampleGt.getAlleles().stream().allMatch(allele -> allele.isReference() || allele
-        .isNoCall());
-    boolean sampleOtherGtContainsAlt= !sampleOtherGt.getAlleles().stream().allMatch(allele -> allele.isReference() || allele
-        .isNoCall());
+    boolean sampleContainsAlt = !sampleGt.getAlleles().stream()
+        .allMatch(allele -> allele.isReference() || allele
+            .isNoCall());
+    boolean sampleOtherGtContainsAlt = !sampleOtherGt.getAlleles().stream()
+        .allMatch(allele -> allele.isReference() || allele
+            .isNoCall());
     //Check if one or both of the variants might not be present (REF or missing) in a unaffected individual.
     //Only if both are present the check fails.
-    if(sampleContainsAlt && sampleOtherGtContainsAlt){
-      if(sampleGt.isPhased() && sampleOtherGt.isPhased()){
+    if (sampleContainsAlt && sampleOtherGtContainsAlt) {
+      if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
         return checkPhasedUnaffected(sampleGt, sampleOtherGt);
       }
       return false;

@@ -10,6 +10,7 @@ import lombok.experimental.NonFinal;
 @Builder
 @NonFinal
 public class Annotation {
+
   @NonNull
   Inheritance inheritance;
   Set<String> matchingGenes;

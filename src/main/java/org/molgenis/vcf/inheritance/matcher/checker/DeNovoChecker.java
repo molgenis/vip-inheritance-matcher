@@ -10,10 +10,7 @@ import org.molgenis.vcf.inheritance.matcher.model.Sex;
 
 public class DeNovoChecker {
 
-  private DeNovoChecker() {
-  }
-
-  public static boolean checkDeNovo(VariantContext variantContext, Pedigree family,
+  public boolean checkDeNovo(VariantContext variantContext, Pedigree family,
       Individual individual) {
     if (!hasParents(individual)) {
       return false;
@@ -26,12 +23,12 @@ public class DeNovoChecker {
     }
   }
 
-  private static boolean hasParents(Individual individual) {
+  private boolean hasParents(Individual individual) {
     return !(individual.getMaternalId().isEmpty() || individual.getMaternalId().equals("0")) &&
         !(individual.getPaternalId().isEmpty() || individual.getPaternalId().equals("0"));
   }
 
-  private static boolean checkRegular(VariantContext variantContext, Pedigree family,
+  private boolean checkRegular(VariantContext variantContext, Pedigree family,
       Individual individual) {
     Individual father = family.getMembers().get(individual.getPaternalId());
     Individual mother = family.getMembers().get(individual.getMaternalId());
@@ -54,7 +51,7 @@ public class DeNovoChecker {
     return result;
   }
 
-  public static boolean isHomRefOrMissingVariant(Individual individual, VariantContext variantContext) {
+  public boolean isHomRefOrMissingVariant(Individual individual, VariantContext variantContext) {
     Genotype genotype = variantContext.getGenotype(individual.getId());
     return genotype == null || !genotype.isCalled() || genotype.getAlleles().stream()
         .noneMatch(allele -> allele.isNonReference() || allele.isNoCall());

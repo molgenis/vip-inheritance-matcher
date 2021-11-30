@@ -34,7 +34,7 @@ public class ArChecker {
             .allMatch(allele -> allele.isNonReference() || allele.isNoCall());
       case UNAFFECTED:
         //Alt present, only allowed if it is hetrozygous or the other allele is missing
-          return genotype.isHomRef() || genotype.isHet() || genotype.isMixed();
+        return genotype.isHomRef() || genotype.isHet() || genotype.isMixed();
       case UNKNOWN:
         return true;
       default:

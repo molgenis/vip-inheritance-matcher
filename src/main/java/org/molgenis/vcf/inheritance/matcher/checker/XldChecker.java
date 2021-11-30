@@ -1,13 +1,11 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.model.Individual;
 
 public class XldChecker extends XlChecker {
 
-  protected boolean checkIndividual(VariantContext variantContext,
-      Individual individual, Genotype genotype) {
+  protected boolean checkIndividual(Individual individual, Genotype genotype) {
     if (genotype == null || !genotype.isCalled()) {
       return true;
     }

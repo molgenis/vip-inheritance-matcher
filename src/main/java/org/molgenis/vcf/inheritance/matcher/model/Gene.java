@@ -1,7 +1,5 @@
 package org.molgenis.vcf.inheritance.matcher.model;
 
-import static java.util.Collections.emptySet;
-
 import java.util.Set;
 import lombok.Value;
 

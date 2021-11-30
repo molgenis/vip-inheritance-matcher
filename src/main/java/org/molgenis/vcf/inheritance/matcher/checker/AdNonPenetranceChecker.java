@@ -34,12 +34,13 @@ public class AdNonPenetranceChecker {
 
   private boolean checkSample(Individual individual, Genotype genotype) {
 
-    if (genotype == null || !genotype.isCalled() || genotype.isHet() || genotype.isMixed()){
+    if (genotype == null || !genotype.isCalled() || genotype.isHet() || genotype.isMixed()) {
       //Due to the incomplete penetrance individuals can be HET indepent of their affected status
       return true;
     }
 
     //HOMREF individuals cannot be affected
-    return genotype.isHomRef() && (individual.getAffectedStatus() == UNAFFECTED || individual.getAffectedStatus() == UNKNOWN);
+    return genotype.isHomRef() && (individual.getAffectedStatus() == UNAFFECTED
+        || individual.getAffectedStatus() == UNKNOWN);
   }
 }

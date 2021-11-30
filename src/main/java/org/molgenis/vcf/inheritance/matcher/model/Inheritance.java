@@ -9,10 +9,14 @@ import lombok.Data;
 @Builder
 public class Inheritance {
 
-  @Builder.Default Set<InheritanceMode> inheritanceModes = new HashSet<>();
-  @Builder.Default Set<SubInheritanceMode> subInheritanceModes = new HashSet<>();
-  @Builder.Default Set<String> compounds = new HashSet<>();
-  @Builder.Default boolean denovo = false;
+  @Builder.Default
+  Set<InheritanceMode> inheritanceModes = new HashSet<>();
+  @Builder.Default
+  Set<SubInheritanceMode> subInheritanceModes = new HashSet<>();
+  @Builder.Default
+  Set<String> compounds = new HashSet<>();
+  @Builder.Default
+  boolean denovo = false;
 
   public void addInheritanceMode(InheritanceMode inheritanceMode) {
     inheritanceModes.add(inheritanceMode);

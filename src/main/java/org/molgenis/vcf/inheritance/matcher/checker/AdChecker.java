@@ -26,7 +26,7 @@ public class AdChecker {
 
     for (Individual individual : family.getMembers().values()) {
       Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, individual);
-      if (genotype.isPresent() && !check(genotype.get(), individual)) {
+      if (genotype.isPresent() && !check(individual, genotype.get())) {
         return false;
       }
     }
@@ -36,7 +36,7 @@ public class AdChecker {
   /**
    * Check whether the AD inheritance pattern could match for a variant as seen in an individual
    */
-  private static boolean check(Genotype genotype, Individual individual) {
+  private static boolean check(Individual individual, Genotype genotype) {
     if (!genotype.isCalled()) {
       return true;
     }
