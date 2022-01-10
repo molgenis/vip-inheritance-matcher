@@ -4,15 +4,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <parent>
-    <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
-    <relativePath/>
-    <version>2.3.3.RELEASE</version> <!-- lookup parent from repository -->
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.6.2</version>
+    <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance-matcher</artifactId>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
 
   <name>vip-inheritance-matcher</name>
   <description>Annotates VCF samples with mendelian violation and possible compound flags and
@@ -42,9 +42,9 @@
   </issueManagement>
 
   <properties>
+    <java.version>17</java.version>
     <commons.cli.version>1.4</commons.cli.version>
-    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-    <java.version>11</java.version>
+    <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
     <samtools.htsjdk.version>2.21.3</samtools.htsjdk.version>
   </properties>
 
@@ -80,29 +80,33 @@
   <build>
     <finalName>vcf-inheritance-matcher</finalName>
 
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <compilerArgs>
+              <arg>-Xlint</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
-      <plugin>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>target/generated-resources</directory>
-                </resource>
-              </resources>
-            </configuration>
-            <goals>
-              <goal>add-resource</goal>
-            </goals>
-            <phase>generate-resources</phase>
-          </execution>
-        </executions>
-        <groupId>org.codehaus.mojo</groupId>
-      </plugin>
       <plugin>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <groupId>org.springframework.boot</groupId>
+        <configuration>
+          <excludes>
+            <!-- By default provided dependencies are included -->
+            <exclude>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </exclude>
+          </excludes>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -123,11 +127,6 @@
         <groupId>com.github.samtools</groupId>
         <version>${samtools.htsjdk.version}</version>
       </dependency>
-      <dependency>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <groupId>org.junit.jupiter</groupId>
-        <version>${junit-jupiter.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -139,7 +138,7 @@
     <dependency>
       <artifactId>lombok</artifactId>
       <groupId>org.projectlombok</groupId>
-      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <artifactId>commons-cli</artifactId>
@@ -151,18 +150,7 @@
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>junit-vintage-engine</artifactId>
-          <groupId>org.junit.vintage</groupId>
-        </exclusion>
-      </exclusions>
       <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <groupId>org.junit.jupiter</groupId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -27,7 +27,7 @@ class PedToSamplesMapperTest {
     Path pedFile2 = ResourceUtils.getFile("classpath:example2.ped").toPath();
     List<Path> paths = Arrays.asList(pedFile1, pedFile2);
 
-    Map<String, Pedigree> expected = new HashMap();
+    Map<String, Pedigree> expected = new HashMap<>();
     expected.put("FAM001", new Pedigree("FAM001", Map.of(
         "John",
         Individual.builder()
