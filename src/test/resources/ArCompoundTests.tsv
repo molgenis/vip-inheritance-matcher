@@ -1,5 +1,6 @@
 name	probandGt	probandOtherGt	probandAffectedStatus	probandSex	fatherGt	fatherOtherGt	fatherAffectedStatus	motherGt	motherOtherGt	motherAffectedStatus	brotherGt	brotherOtherGt	brotherAffectedStatus	expected
 regular	0/1	0/1	AFFECTED	MALE	0/0	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED				true
+regularBrotherMissingFromVcf	0/1	0/1	AFFECTED	MALE	0/0	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED			UNAFFECTED	true
 regularPhased	1|0	0|1	AFFECTED	MALE	0|0	0|1	UNAFFECTED	0|1	0|0	UNAFFECTED				true
 FatherUnaffectedHasBoth	1/0	0/1	AFFECTED	MALE	0/1	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED				false
 phasedFatherBothSameAllele	1|0	0|1	AFFECTED	MALE	0|1	0|1	UNAFFECTED	0|1	0|0	UNAFFECTED				true
