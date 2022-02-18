@@ -1,6 +1,7 @@
 FAM001	Patient	Father	Mother	1	2
 FAM001	Father	0	0	1	1
-FAM001	Mother	0	0	2	1
+FAM001	Mother	0	Mother3	2	1
+FAM001	Mother3	0	0	2	1
 FAM002	Patient2	Father2	0	1	2
 FAM002	Father2	0	0	1	1
 FAM003	Patient3	0	0	1	2

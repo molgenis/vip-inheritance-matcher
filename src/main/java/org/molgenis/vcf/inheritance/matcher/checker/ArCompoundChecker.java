@@ -80,6 +80,9 @@ public class ArCompoundChecker {
   }
 
   private boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+    if(sampleGt == null || sampleOtherGt == null){
+      return true;
+    }
     boolean sampleContainsAlt = !sampleGt.getAlleles().stream()
         .allMatch(allele -> allele.isReference() || allele
             .isNoCall());
