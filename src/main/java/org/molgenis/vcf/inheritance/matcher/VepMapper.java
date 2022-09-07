@@ -83,6 +83,10 @@ public class VepMapper {
       String[] vepSplit = vepValue.split("\\|", -1);
       String gene = vepSplit[geneIndex];
       String source = vepSplit[geneSourceIndex];
+      if (gene.isEmpty() || source.isEmpty()) {
+        continue;
+      }
+
       if (!knownGenes.containsKey(gene)) {
         Set<InheritanceMode> modes = new HashSet<>();
         if (inheritanceIndex != -1) {
