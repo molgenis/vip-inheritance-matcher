@@ -1,6 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
@@ -14,6 +16,7 @@ import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,5 +72,14 @@ class VepMapperTest {
         .of("ENSG00000123457", new Gene("ENSG00000123457","HGNC", false,  Set.of(XLD, XLR)), "ENSG00000123456",
             new Gene("ENSG00000123456","HGNC", false,  Set.of(AD, AR)));
     assertEquals(expected, vepMapper.getGenes(vc2));
+  }
+
+  @Test
+  void getGenesEmptySymbolSource() {
+    VariantContext variantContext = mock(VariantContext.class);
+    when(variantContext.getAttributeAsStringList(eq("CSQ"), any())).thenReturn(List.of(
+        "G|missense_variant|MODERATE|TEST1|ENSG00000123456|Transcript|ENST00000377205|protein_coding|5/5||ENST00000377205.1:c.619C>G|ENSP00000366410.1:p.Arg207Gly|763|619|207|R/G|Cgg/Ggg|||1|||17877||AD&AR|Leber_congenital_amaurosis_9:AR|"));
+
+    assertEquals(Map.of(), vepMapper.getGenes(variantContext));
   }
 }
