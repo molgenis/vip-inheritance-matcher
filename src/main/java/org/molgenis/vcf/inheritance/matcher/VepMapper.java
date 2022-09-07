@@ -83,22 +83,24 @@ public class VepMapper {
       String[] vepSplit = vepValue.split("\\|", -1);
       String gene = vepSplit[geneIndex];
       String source = vepSplit[geneSourceIndex];
-      if(!gene.isEmpty()) {
-        if (!knownGenes.containsKey(gene)) {
-          Set<InheritanceMode> modes = new HashSet<>();
-          if (inheritanceIndex != -1) {
-            String[] inheritanceModes
-                = vepSplit[inheritanceIndex].split("&");
-            mapGeneInheritance(modes, inheritanceModes);
-          }
-          boolean isIncompletePenetrance = false;
-          if (incompletePenetranceIndex != -1) {
-            isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
-          }
-          genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
-        } else {
-          genes.put(gene, knownGenes.get(gene));
+      if (gene.isEmpty() || source.isEmpty()) {
+        continue;
+      }
+
+      if (!knownGenes.containsKey(gene)) {
+        Set<InheritanceMode> modes = new HashSet<>();
+        if (inheritanceIndex != -1) {
+          String[] inheritanceModes
+              = vepSplit[inheritanceIndex].split("&");
+          mapGeneInheritance(modes, inheritanceModes);
         }
+        boolean isIncompletePenetrance = false;
+        if (incompletePenetranceIndex != -1) {
+          isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
+        }
+        genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
+      } else {
+        genes.put(gene, knownGenes.get(gene));
       }
     }
     return genes;
