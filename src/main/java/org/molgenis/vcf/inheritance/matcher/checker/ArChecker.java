@@ -4,17 +4,17 @@ import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosom
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class ArChecker {
 
   public boolean check(
       VariantContext variantContext, Pedigree family) {
     if (onAutosome(variantContext)) {
-      for (Individual currentIndividual : family.getMembers().values()) {
-        Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
-        if (genotype != null && !checkSample(currentIndividual, genotype)) {
+      for (Sample currentSample : family.getMembers().values()) {
+        Genotype genotype = variantContext.getGenotype(currentSample.getPerson().getIndividualId());
+        if (genotype != null && !checkSample(currentSample, genotype)) {
           return false;
         }
       }
@@ -23,19 +23,19 @@ public class ArChecker {
     return false;
   }
 
-  private boolean checkSample(Individual individual, Genotype genotype) {
+  private boolean checkSample(Sample sample, Genotype genotype) {
     if (genotype == null || !genotype.isCalled()) {
       return true;
     }
 
-    switch (individual.getAffectedStatus()) {
+    switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED:
         return genotype.getAlleles().stream()
             .allMatch(allele -> allele.isNonReference() || allele.isNoCall());
       case UNAFFECTED:
         //Alt present, only allowed if it is hetrozygous or the other allele is missing
         return genotype.isHomRef() || genotype.isHet() || genotype.isMixed();
-      case UNKNOWN:
+      case MISSING:
         return true;
       default:
         throw new IllegalArgumentException();

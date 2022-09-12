@@ -4,8 +4,8 @@ import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import java.util.Optional;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sample;
 
 /**
  * Autosomal dominant (AD) inheritance pattern matcher
@@ -24,9 +24,9 @@ public class AdChecker {
       return false;
     }
 
-    for (Individual individual : family.getMembers().values()) {
-      Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, individual);
-      if (genotype.isPresent() && !check(individual, genotype.get())) {
+    for (Sample sample : family.getMembers().values()) {
+      Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, sample);
+      if (genotype.isPresent() && !check(sample, genotype.get())) {
         return false;
       }
     }
@@ -36,18 +36,18 @@ public class AdChecker {
   /**
    * Check whether the AD inheritance pattern could match for a variant as seen in an individual
    */
-  private static boolean check(Individual individual, Genotype genotype) {
+  private static boolean check(Sample sample, Genotype genotype) {
     if (!genotype.isCalled()) {
       return true;
     }
 
-    switch (individual.getAffectedStatus()) {
+    switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED:
         return genotype.isHet() || genotype.isMixed();
       case UNAFFECTED:
         return genotype.getAlleles().stream()
             .allMatch(allele -> allele.isReference() || allele.isNoCall());
-      case UNKNOWN:
+      case MISSING:
         return true;
       default:
         throw new IllegalArgumentException();

@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class ArCompoundChecker {
 
@@ -52,8 +52,8 @@ public class ArCompoundChecker {
 
   private boolean checkFamily(Pedigree family, VariantContext variantContext,
       VariantContext otherVariantContext) {
-    for (Individual individual : family.getMembers().values()) {
-      if (!checkIndividual(variantContext, otherVariantContext, individual)) {
+    for (Sample sample : family.getMembers().values()) {
+      if (!checkIndividual(variantContext, otherVariantContext, sample)) {
         return false;
       }
     }
@@ -61,18 +61,18 @@ public class ArCompoundChecker {
   }
 
   private boolean checkIndividual(VariantContext variantContext, VariantContext otherVariantContext,
-      Individual individual) {
+      Sample sample) {
     //Affected individuals have to be het. for both variants
     //Healthy individuals can be het. for one of the variants but cannot have both variants
-    Genotype sampleGt = variantContext.getGenotype(individual.getId());
-    Genotype sampleOtherGt = otherVariantContext.getGenotype(individual.getId());
+    Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
+    Genotype sampleOtherGt = otherVariantContext.getGenotype(sample.getPerson().getIndividualId());
 
-    switch (individual.getAffectedStatus()) {
+    switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED:
         return checkAffectedSample(sampleGt, sampleOtherGt);
       case UNAFFECTED:
         return checkUnaffectedSample(sampleGt, sampleOtherGt);
-      case UNKNOWN:
+      case MISSING:
         return true;
       default:
         throw new IllegalArgumentException();

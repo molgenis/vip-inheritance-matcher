@@ -3,7 +3,7 @@ package org.molgenis.vcf.inheritance.matcher;
 import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
 import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
-import static org.molgenis.vcf.inheritance.matcher.PedToSamplesMapper.mapPedFileToPersons;
+import static org.molgenis.vcf.utils.sample.mapper.PedToSamplesMapper.mapPedFileToPedigrees;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -27,16 +27,17 @@ import org.molgenis.vcf.inheritance.matcher.checker.ArCompoundChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.DeNovoChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.XldChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.XlrChecker;
-import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
-import org.molgenis.vcf.inheritance.matcher.model.Sex;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Person;
+import org.molgenis.vcf.utils.sample.model.Sample;
+import org.molgenis.vcf.utils.sample.model.Sex;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -68,8 +69,7 @@ public class InheritanceService {
     Map<String, Gene> knownGenes = new HashMap<>();
     Map<String, Pedigree> familyList;
     if (!pedigreePaths.isEmpty()) {
-      familyList = mapPedFileToPersons(
-          pedigreePaths);
+      familyList = mapPedFileToPedigrees(pedigreePaths);
     } else {
       familyList = createFamilyFromVcf(vcfFileReader.getFileHeader());
     }
@@ -126,11 +126,13 @@ public class InheritanceService {
     ArrayList<String> sampleNames = fileHeader.getSampleNamesInOrder();
     for (String sampleName : sampleNames) {
       //no ped: unknown Sex, assume affected, no relatives, therefor the sampleId can be used as familyId
-      Individual individual = Individual.builder().familyId(sampleName).id(sampleName)
+      Person person = Person.builder().familyId(sampleName).individualId(sampleName)
           .paternalId("")
-          .maternalId("").proband(true).sex(Sex.UNKNOWN)
+          .maternalId("").sex(Sex.UNKNOWN)
           .affectedStatus(AffectedStatus.AFFECTED).build();
-      familyList.put(sampleName, new Pedigree(sampleName, singletonMap(sampleName, individual)));
+      Sample sample = Sample.builder().person(person).proband(true).build();
+      familyList.put(sampleName, Pedigree.builder()
+          .id(sampleName).members(singletonMap(sampleName, sample)).build());
     }
     return familyList;
   }
@@ -160,11 +162,11 @@ public class InheritanceService {
       checkAd(variantContext, family, inheritance);
       checkXl(variantContext, family, inheritance);
     }
-    for (Individual individual : family.getMembers().values()) {
-      if (probands.contains(individual.getId()) || (probands.isEmpty()
-          && individual.getAffectedStatus() == AffectedStatus.AFFECTED)) {
-        inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, family, individual));
-        result.put(individual.getId(), inheritance);
+    for (Sample sample : family.getMembers().values()) {
+      if (probands.contains(sample.getPerson().getIndividualId()) || (probands.isEmpty()
+          && sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED)) {
+        inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, family, sample));
+        result.put(sample.getPerson().getIndividualId(), inheritance);
       }
     }
     return result;

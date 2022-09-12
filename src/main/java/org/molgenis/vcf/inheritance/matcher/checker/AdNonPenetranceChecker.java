@@ -1,14 +1,14 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
-import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.UNAFFECTED;
-import static org.molgenis.vcf.inheritance.matcher.model.AffectedStatus.UNKNOWN;
+import static org.molgenis.vcf.utils.sample.model.AffectedStatus.MISSING;
+import static org.molgenis.vcf.utils.sample.model.AffectedStatus.UNAFFECTED;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class AdNonPenetranceChecker {
 
@@ -21,9 +21,9 @@ public class AdNonPenetranceChecker {
   public boolean check(VariantContext variantContext, Pedigree family) {
     if (onAutosome(variantContext) && vepMapper.containsIncompletePenetrance(variantContext)
         && !AdChecker.check(variantContext, family)) {
-      for (Individual currentIndividual : family.getMembers().values()) {
-        Genotype genotype = variantContext.getGenotype(currentIndividual.getId());
-        if (!checkSample(currentIndividual, genotype)) {
+      for (Sample currentSample : family.getMembers().values()) {
+        Genotype genotype = variantContext.getGenotype(currentSample.getPerson().getIndividualId());
+        if (!checkSample(currentSample, genotype)) {
           return false;
         }
       }
@@ -32,7 +32,7 @@ public class AdNonPenetranceChecker {
     return false;
   }
 
-  private boolean checkSample(Individual individual, Genotype genotype) {
+  private boolean checkSample(Sample sample, Genotype genotype) {
 
     if (genotype == null || !genotype.isCalled() || genotype.isHet() || genotype.isMixed()) {
       //Due to the incomplete penetrance individuals can be HET indepent of their affected status
@@ -40,7 +40,7 @@ public class AdNonPenetranceChecker {
     }
 
     //HOMREF individuals cannot be affected
-    return genotype.isHomRef() && (individual.getAffectedStatus() == UNAFFECTED
-        || individual.getAffectedStatus() == UNKNOWN);
+    return genotype.isHomRef() && (sample.getPerson().getAffectedStatus() == UNAFFECTED
+        || sample.getPerson().getAffectedStatus() == MISSING);
   }
 }
