@@ -12,9 +12,9 @@ import static org.molgenis.vcf.inheritance.matcher.Annotator.INHERITANCE_MODES;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.MATCHING_GENES;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.POSSIBLE_COMPOUND;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.SUBINHERITANCE_MODES;
+import static org.molgenis.vcf.inheritance.matcher.checker.PedigreeTestUtil.createFamily;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
-import static org.molgenis.vcf.inheritance.matcher.util.PedigreeTestUtil.createFamily;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
 
 import htsjdk.variant.variantcontext.Genotype;
@@ -30,13 +30,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
-import org.molgenis.vcf.inheritance.matcher.model.Sex;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sex;
 
 @ExtendWith(MockitoExtension.class)
 class AnnotatorTest {

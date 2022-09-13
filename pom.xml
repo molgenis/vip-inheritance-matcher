@@ -12,7 +12,7 @@
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance-matcher</artifactId>
-  <version>2.0.2</version>
+  <version>2.1.0</version>
 
   <name>vip-inheritance-matcher</name>
   <description>Annotates VCF samples with mendelian violation and possible compound flags and
@@ -46,6 +46,7 @@
     <commons.cli.version>1.4</commons.cli.version>
     <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
     <samtools.htsjdk.version>2.21.3</samtools.htsjdk.version>
+    <vip.utils.version>v1.0.0</vip.utils.version>
   </properties>
 
   <profiles>
@@ -118,6 +119,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>com.github.molgenis</groupId>
+        <artifactId>vip-utils</artifactId>
+        <version>${vip.utils.version}</version>
+      </dependency>
+      <dependency>
         <artifactId>commons-cli</artifactId>
         <groupId>commons-cli</groupId>
         <version>${commons.cli.version}</version>
@@ -130,7 +136,18 @@
     </dependencies>
   </dependencyManagement>
 
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
   <dependencies>
+    <dependency>
+      <groupId>com.github.molgenis</groupId>
+      <artifactId>vip-utils</artifactId>
+    </dependency>
     <dependency>
       <artifactId>spring-boot-starter</artifactId>
       <groupId>org.springframework.boot</groupId>

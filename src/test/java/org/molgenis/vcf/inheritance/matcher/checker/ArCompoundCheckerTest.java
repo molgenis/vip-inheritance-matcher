@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,14 +24,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
-import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
-import org.molgenis.vcf.inheritance.matcher.model.Sex;
-import org.molgenis.vcf.inheritance.matcher.util.PedigreeTestUtil;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sex;
 import org.springframework.util.ResourceUtils;
 
 @ExtendWith(MockitoExtension.class)

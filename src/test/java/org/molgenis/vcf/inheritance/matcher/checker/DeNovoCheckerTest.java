@@ -15,12 +15,11 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.molgenis.vcf.inheritance.matcher.model.AffectedStatus;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
-import org.molgenis.vcf.inheritance.matcher.model.Sex;
-import org.molgenis.vcf.inheritance.matcher.util.PedigreeTestUtil;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sample;
+import org.molgenis.vcf.utils.sample.model.Sex;
 import org.springframework.util.ResourceUtils;
 
 class DeNovoCheckerTest {
@@ -30,7 +29,7 @@ class DeNovoCheckerTest {
     @MethodSource("provideTestCases")
     void check(VariantContext variantContext, Pedigree family, boolean expected,
     String displayName) {
-      Individual individual = family.getMembers().get("Patient");
+      Sample individual = family.getMembers().get("Patient");
       assertEquals(expected, deNovoChecker.checkDeNovo(variantContext, family, individual));
     }
 
@@ -49,8 +48,8 @@ class DeNovoCheckerTest {
       boolean expected = Boolean.parseBoolean(line[6]);
 
       Pedigree family = PedigreeTestUtil
-          .createFamily(probandSex, AffectedStatus.UNKNOWN, AffectedStatus.UNKNOWN,
-              AffectedStatus.UNKNOWN, "FAM001");
+          .createFamily(probandSex, AffectedStatus.MISSING, AffectedStatus.MISSING,
+              AffectedStatus.MISSING, "FAM001");
       return Arguments.of(VariantContextTestUtil
           .createVariantContext(Arrays.asList(createGenotype("Patient", probandGt),
               createGenotype("Father", fatherGt),

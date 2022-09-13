@@ -4,37 +4,37 @@ import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromos
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
-import org.molgenis.vcf.inheritance.matcher.model.Sex;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sample;
+import org.molgenis.vcf.utils.sample.model.Sex;
 
 public class DeNovoChecker {
 
   public boolean checkDeNovo(VariantContext variantContext, Pedigree family,
-      Individual individual) {
-    if (!hasParents(individual)) {
+      Sample sample) {
+    if (!hasParents(sample)) {
       return false;
     }
-    if (onChromosomeX(variantContext) && individual.getSex() == Sex.MALE) {
-      Individual motherIndividual = family.getMembers().get(individual.getMaternalId());
+    if (onChromosomeX(variantContext) && sample.getPerson().getSex() == Sex.MALE) {
+      Sample motherIndividual = family.getMembers().get(sample.getPerson().getMaternalId());
       return motherIndividual == null || isHomRefOrMissingVariant(motherIndividual, variantContext);
     } else {
-      return checkRegular(variantContext, family, individual);
+      return checkRegular(variantContext, family, sample);
     }
   }
 
-  private boolean hasParents(Individual individual) {
-    return !(individual.getMaternalId().isEmpty() || individual.getMaternalId().equals("0")) &&
-        !(individual.getPaternalId().isEmpty() || individual.getPaternalId().equals("0"));
+  private boolean hasParents(Sample sample) {
+    return !(sample.getPerson().getMaternalId().isEmpty() || sample.getPerson().getMaternalId().equals("0")) &&
+        !(sample.getPerson().getPaternalId().isEmpty() || sample.getPerson().getPaternalId().equals("0"));
   }
 
   private boolean checkRegular(VariantContext variantContext, Pedigree family,
-      Individual individual) {
-    Individual father = family.getMembers().get(individual.getPaternalId());
-    Individual mother = family.getMembers().get(individual.getMaternalId());
+      Sample sample) {
+    Sample father = family.getMembers().get(sample.getPerson().getPaternalId());
+    Sample mother = family.getMembers().get(sample.getPerson().getMaternalId());
 
-    Genotype genotype = variantContext.getGenotype(individual.getId());
-    boolean sampleHasVariant = !isHomRefOrMissingVariant(individual, variantContext);
+    Genotype genotype = variantContext.getGenotype(sample.getPerson().getIndividualId());
+    boolean sampleHasVariant = !isHomRefOrMissingVariant(sample, variantContext);
     boolean fatherHasVariant =
         father == null || !isHomRefOrMissingVariant(father, variantContext);
     boolean motherHasVariant =
@@ -51,8 +51,8 @@ public class DeNovoChecker {
     return result;
   }
 
-  public boolean isHomRefOrMissingVariant(Individual individual, VariantContext variantContext) {
-    Genotype genotype = variantContext.getGenotype(individual.getId());
+  public boolean isHomRefOrMissingVariant(Sample sample, VariantContext variantContext) {
+    Genotype genotype = variantContext.getGenotype(sample.getPerson().getIndividualId());
     return genotype == null || !genotype.isCalled() || genotype.getAlleles().stream()
         .noneMatch(allele -> allele.isNonReference() || allele.isNoCall());
   }

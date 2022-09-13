@@ -1,22 +1,22 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import htsjdk.variant.variantcontext.Genotype;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
+import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class XldChecker extends XlChecker {
 
-  protected boolean checkIndividual(Individual individual, Genotype genotype) {
+  protected boolean checkIndividual(Sample sample, Genotype genotype) {
     if (genotype == null || !genotype.isCalled()) {
       return true;
     }
 
-    switch (individual.getAffectedStatus()) {
+    switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED:
         // Affected individuals have to be het. or hom. alt.
         return genotype.getAlleles().stream()
             .anyMatch(allele -> allele.isNonReference() || allele.isNoCall());
       case UNAFFECTED:
-        switch (getSex(individual.getSex(), genotype)) {
+        switch (getSex(sample.getPerson().getSex(), genotype)) {
           case MALE:
             // Healthy males cannot carry the variant
             return genotype.getAlleles().stream()
@@ -27,7 +27,7 @@ public class XldChecker extends XlChecker {
           default:
             throw new IllegalArgumentException();
         }
-      case UNKNOWN:
+      case MISSING:
         return true;
       default:
         throw new IllegalArgumentException();

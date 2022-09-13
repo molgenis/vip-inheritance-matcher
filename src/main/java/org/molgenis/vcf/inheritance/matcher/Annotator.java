@@ -14,11 +14,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
-import org.molgenis.vcf.inheritance.matcher.model.Individual;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.Pedigree;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
+import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -60,10 +60,10 @@ public class Annotator {
     GenotypesContext genotypesContext = GenotypesContext.copy(vc.getGenotypes());
     VariantContextBuilder variantContextBuilder = new VariantContextBuilder(vc);
     for (Entry<String, Pedigree> sampleFamilyEntry : familyMap.entrySet()) {
-      for (Individual individual : sampleFamilyEntry.getValue().getMembers().values()) {
-        String sampleId = individual.getId();
+      for (Sample sample : sampleFamilyEntry.getValue().getMembers().values()) {
+        String sampleId = sample.getPerson().getIndividualId();
         if (annotationMap.containsKey(sampleId)) {
-          annotateGenotype(vc, annotationMap.get(sampleId), genotypesContext, individual);
+          annotateGenotype(vc, annotationMap.get(sampleId), genotypesContext, sample);
         }
       }
     }
@@ -71,10 +71,10 @@ public class Annotator {
   }
 
   private void annotateGenotype(VariantContext vc, Annotation annotation,
-      GenotypesContext genotypesContext, Individual individual) {
-    if (vc.getGenotype(individual.getId()) != null) {
+      GenotypesContext genotypesContext, Sample sample) {
+    if (vc.getGenotype(sample.getPerson().getIndividualId()) != null) {
       GenotypeBuilder genotypeBuilder = new GenotypeBuilder(
-          vc.getGenotype(individual.getId()));
+          vc.getGenotype(sample.getPerson().getIndividualId()));
       String inheritanceModes = String
           .join(",", mapInheritanceModes(annotation.getInheritance()));
       if (!inheritanceModes.isEmpty()) {
