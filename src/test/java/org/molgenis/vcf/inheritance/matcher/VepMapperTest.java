@@ -16,6 +16,7 @@ import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,12 +26,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
+import org.molgenis.vcf.utils.metadata.FieldMetadataService;
+import org.molgenis.vcf.utils.model.FieldMetadata;
+import org.molgenis.vcf.utils.model.NestedField;
+import org.molgenis.vcf.utils.model.NumberType;
 
 @ExtendWith(MockitoExtension.class)
 class VepMapperTest {
 
   @Mock
   VariantContext vc;
+  @Mock
+  FieldMetadataService fieldMetadataService;
+
   private VepMapper vepMapper;
 
   @BeforeEach
@@ -41,9 +49,29 @@ class VepMapperTest {
     when(infoHeader.getID()).thenReturn("CSQ");
     when(infoHeader.getDescription()).thenReturn(
         "Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|FLAGS|SYMBOL_SOURCE|HGNC_ID|HGVS_OFFSET|InheritanceModesGene|InheritanceModesPheno|PREFERRED");
+    HashMap<String, NestedField> vepMeta = new HashMap<>();
+
+    vepMeta.put("Gene", org.molgenis.vcf.utils.model.NestedField.builder().index(4).numberCount(1)
+        .numberType(NumberType.NUMBER)
+        .type(org.molgenis.vcf.utils.model.ValueType.STRING).label("Gene").description("Gene")
+        .build());
+    vepMeta.put("SYMBOL_SOURCE", org.molgenis.vcf.utils.model.NestedField.builder().index(21).numberCount(1)
+        .numberType(NumberType.NUMBER)
+        .type(org.molgenis.vcf.utils.model.ValueType.STRING).label("Gene").description("Gene")
+        .build());
+    vepMeta.put("InheritanceModesGene", org.molgenis.vcf.utils.model.NestedField.builder().index(24).numberCount(1)
+        .numberType(NumberType.NUMBER)
+        .type(org.molgenis.vcf.utils.model.ValueType.STRING).label("Gene").description("Gene")
+        .build());
+    vepMeta.put("IncompletePenetrance", org.molgenis.vcf.utils.model.NestedField.builder().index(-1).numberCount(1)
+        .numberType(NumberType.NUMBER)
+        .type(org.molgenis.vcf.utils.model.ValueType.STRING).label("Gene").description("Gene")
+        .build());
+    when(fieldMetadataService.load(infoHeader)).thenReturn(
+        FieldMetadata.builder().nestedFields(vepMeta).build());
     when(header.getInfoHeaderLines()).thenReturn(Collections.singletonList(infoHeader));
     when(vcfFileReader.getFileHeader()).thenReturn(header);
-    vepMapper = new VepMapper(vcfFileReader);
+    vepMapper = new VepMapper(vcfFileReader, fieldMetadataService);
   }
 
   @Test

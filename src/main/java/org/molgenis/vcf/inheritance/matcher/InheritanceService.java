@@ -33,27 +33,33 @@ import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+import org.molgenis.vcf.utils.metadata.FieldMetadataService;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Person;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class InheritanceService {
 
+  private final FieldMetadataService fieldMetadataService;
+  private final Annotator annotator;
+
+  private AdNonPenetranceChecker adNonPenetranceChecker;
+  private ArCompoundChecker arCompoundChecker;
+
   ArChecker arChecker = new ArChecker();
   XldChecker xldChecker = new XldChecker();
   XlrChecker xlrChecker = new XlrChecker();
   DeNovoChecker deNovoChecker = new DeNovoChecker();
-  private AdNonPenetranceChecker adNonPenetranceChecker;
-  private ArCompoundChecker arCompoundChecker;
-  private final Annotator annotator;
-
   public InheritanceService(
-      Annotator annotator) {
+      Annotator annotator,   @Qualifier("vepMetadataService")
+      FieldMetadataService fieldMetadataService) {
     this.annotator = annotator;
+    this.fieldMetadataService = fieldMetadataService;
   }
 
   public void run(Settings settings) {
@@ -62,7 +68,7 @@ public class InheritanceService {
     List<String> probands = settings.getProbands();
     VCFFileReader vcfFileReader = createReader(inputVcf);
 
-    VepMapper vepMapper = new VepMapper(vcfFileReader);
+    VepMapper vepMapper = new VepMapper(vcfFileReader, fieldMetadataService);
     this.adNonPenetranceChecker = new AdNonPenetranceChecker(vepMapper);
     this.arCompoundChecker = new ArCompoundChecker(vepMapper);
 
