@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Set;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
+import org.molgenis.vcf.utils.metadata.FieldMetadataService;
+import org.molgenis.vcf.utils.model.FieldMetadata;
+import org.molgenis.vcf.utils.model.NestedField;
 
 public class VepMapper {
 
@@ -22,14 +25,16 @@ public class VepMapper {
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
-  public static final String INCOMPLETE_PENETRANCE_INDEX = "IncompletePenetrance";
-  private String vepField = null;
+  public static final String INCOMPLETE_PENETRANCE = "IncompletePenetrance";
+  private String vepFieldId = null;
+  private final FieldMetadataService fieldMetadataService;
   private int geneIndex = -1;
   private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
   private int incompletePenetranceIndex = -1;
 
-  public VepMapper(VCFFileReader vcfFileReader) {
+  public VepMapper(VCFFileReader vcfFileReader, FieldMetadataService fieldMetadataService) {
+    this.fieldMetadataService = fieldMetadataService;
     init(vcfFileReader);
   }
 
@@ -39,37 +44,23 @@ public class VepMapper {
     return description.startsWith(INFO_DESCRIPTION_PREFIX);
   }
 
-  private static List<String> getNestedInfoIds(VCFInfoHeaderLine vcfInfoHeaderLine) {
-    String description = vcfInfoHeaderLine.getDescription();
-    String[] infoIds = description.substring(INFO_DESCRIPTION_PREFIX.length()).split("\\|", -1);
-    return asList(infoIds);
-  }
-
   private void init(VCFFileReader vcfFileReader) {
     VCFHeader vcfHeader = vcfFileReader.getFileHeader();
     for (VCFInfoHeaderLine vcfInfoHeaderLine : vcfHeader.getInfoHeaderLines()) {
       if (canMap(vcfInfoHeaderLine)) {
-        this.vepField = vcfInfoHeaderLine.getID();
-        List<String> nestedInfo = getNestedInfoIds(vcfInfoHeaderLine);
-        this.geneIndex = getVepIndex(nestedInfo, GENE);
-        this.geneSourceIndex = getVepIndex(nestedInfo, SYMBOL_SOURCE);
-        this.incompletePenetranceIndex = nestedInfo.indexOf(INCOMPLETE_PENETRANCE_INDEX);
-        this.inheritanceIndex = nestedInfo.indexOf(INHERITANCE);
+        this.vepFieldId = vcfInfoHeaderLine.getID();
+        FieldMetadata fieldMetadata = fieldMetadataService.load(
+            vcfInfoHeaderLine);
+        Map<String, NestedField> nestedFields = fieldMetadata.getNestedFields();
+        geneIndex = nestedFields.get(GENE) != null ? nestedFields.get(GENE).getIndex():-1;
+        geneSourceIndex = nestedFields.get(SYMBOL_SOURCE) != null ? nestedFields.get(SYMBOL_SOURCE).getIndex():-1;
+        inheritanceIndex = nestedFields.get(INHERITANCE) != null ? nestedFields.get(INHERITANCE).getIndex():-1;
+        incompletePenetranceIndex = nestedFields.get(INCOMPLETE_PENETRANCE) != null ? nestedFields.get(INCOMPLETE_PENETRANCE).getIndex():-1;
 
         return;
       }
     }
     throw new MissingInfoException("VEP");
-  }
-
-  private int getVepIndex(List<String> nestedInfo, String vepField) {
-    int index;
-    if (nestedInfo.contains(vepField)) {
-      index = nestedInfo.indexOf(vepField);
-    } else {
-      throw new MissingVepAnnotationException(vepField);
-    }
-    return index;
   }
 
   public Map<String, Gene> getGenes(VariantContext vc) {
@@ -78,7 +69,7 @@ public class VepMapper {
 
   public Map<String, Gene> getGenes(VariantContext vc, Map<String, Gene> knownGenes) {
     Map<String, Gene> genes = new HashMap<>();
-    List<String> vepValues = vc.getAttributeAsStringList(vepField, "");
+    List<String> vepValues = vc.getAttributeAsStringList(vepFieldId, "");
     for (String vepValue : vepValues) {
       String[] vepSplit = vepValue.split("\\|", -1);
       String gene = vepSplit[geneIndex];
