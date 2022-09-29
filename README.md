@@ -9,6 +9,50 @@ annotates VCF samples with denovo and possible compound flags and matching inher
 Input VCF file should contain single ALT alleles per line and be annotated VEP.
 Input should be annotated with [VIP inheritance VEP plugin](https://github.com/molgenis/vip/blob/master/resources/vep/plugins/Inheritance.pm) For full functionality.
 
+
+# Installation
+
+Generate a personal access token in Github with at least the scope "read:packages".
+
+Then add a settings.xml to your mave .m2 folder, or edit it if you already have one. It should
+contain the following:
+
+```
+<?xml version="1.0"?>
+
+<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <activeProfiles>
+    <activeProfile>github</activeProfile>
+  </activeProfiles>
+  <profiles>
+    <profile>
+      <id>github</id>
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>https://repo1.maven.org/maven2</url>
+          </repository>
+          <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/molgenis/vip-utils</url>
+            <snapshots>
+              <enabled>true</enabled>
+            </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <servers>
+    <server>
+      <id>github</id>
+      <username>[YOUR VIP USERNAME]</username>
+      <password>[YOUR PERSONAL ACCESS TOKEN]</password>
+    </server>
+   </servers>
+</settings>
+```
+
 ###Added Sample information
 ```
 ##FORMAT=<ID=VI,Number=.,Type=String,Description="An enumeration of possible inheritance modes.">
