@@ -11,12 +11,10 @@ Input should be annotated with [VIP inheritance VEP plugin](https://github.com/m
 
 
 # Installation
+Generate a personal access token in GitHub with at least the scope "read:packages".
 
-Generate a personal access token in Github with at least the scope "read:packages".
-
-Then add a settings.xml to your mave .m2 folder, or edit it if you already have one. It should
+Then add a settings.xml to your Maven .m2 folder, or edit it if you already have one. It should
 contain the following:
-
 ```
 <?xml version="1.0"?>
 
