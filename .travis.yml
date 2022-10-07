@@ -26,6 +26,7 @@ deploy:
   prerelease: true
   on:
     tags: true
+  edge: true # opt in to dpl v2
 env:
   global:
     secure: HBaGhT8uZ+zt8aPqHkRkPk7mc80bzSwRHV+CbaT9d+Hc6j1snlENdqg3jrz6x1FAHbjnq50veeXkUxgVhVzfX+ip5hjxNzYZGiXv16ywtf0RQy8UGygTkRQtSKfwG9uVjnZ/YnpJhKWn7iuXxz2Rtpwix/Wwv8OyoHLUirq6/m9dpU0TUKG1yF605z/6U5Zyp/OhSY13iwRYW/AoScQCE2sDz7KYEpcknVbkyGy7w5w40EpVcetknu7MZlY3PZVpjpe19Ns+UIjxcAb12DlZ+W3V/tnO4XkQnBuZoe7TZRoMhgaaMETGsUv7g45rBjei/oQHX50/wxT+hv54jAo2rFAjFuHd+HsgT120vhcyifX2IHu22sC947vlj4cKqVElxU93Qx1Bb4Klx8TABNaPMrBPLIJ0yeNe/8DhWqIXtPGhDUSLC6pgMQc211iJwHKREtA3W2hgZJ8v1yUTja2vIhJRTjS9Ov4VCauqsN1XiV9iccbJw7oKQSHN8SmLuM9cYOcZ1RbM0xYuDSocgPpSba9Yakb/0d1TIjTx57vhn9GZylnuVEehPWAHCOBIz3hRxQ6Q8wBnIWj0yDewKZf8+QtLg7fAdpny9G7nWyQ09Cbg2QUJSzhv+S0Foj11dx9PM625TqxRtfm70B1pDCE7JRhbSp4FASMSF3AN4Vfzi3k=
