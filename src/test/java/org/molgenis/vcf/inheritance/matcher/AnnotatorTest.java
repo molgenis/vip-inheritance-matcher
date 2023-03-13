@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.DENOVO;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.INHERITANCE_MATCH;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.INHERITANCE_MODES;
@@ -25,13 +26,14 @@ import htsjdk.variant.vcf.VCFFormatHeaderLine;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.verification.VerificationMode;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
@@ -85,6 +87,58 @@ class AnnotatorTest {
         () -> verify(vcfHeader).getGenotypeSamples());
 
         verifyNoMoreInteractions(vcfHeader);
+  }
+
+  @Test
+  void annotateHeaderEscapedQuotesFormat1() {
+    VCFHeader vcfHeader = mock(VCFHeader.class);
+    when(vcfHeader.getFormatHeaderLines()).thenReturn(
+        Set.of(new VCFFormatHeaderLine("TEST", VCFHeaderLineCount.UNBOUNDED,
+            VCFHeaderLineType.String,
+            "\"test\"")));
+    VCFHeader newHeader = annotator.annotateHeader(vcfHeader);
+    assertEquals(new VCFFormatHeaderLine("TEST", VCFHeaderLineCount.UNBOUNDED,
+        VCFHeaderLineType.String,
+        "\\\"test\"").toString(), newHeader.getFormatHeaderLine("TEST").toString());
+  }
+
+  @Test
+  void annotateHeaderEscapedQuotesFormat2() {
+    VCFHeader vcfHeader = mock(VCFHeader.class);
+    when(vcfHeader.getFormatHeaderLines()).thenReturn(
+        Set.of(new VCFFormatHeaderLine("TEST", 1,
+            VCFHeaderLineType.String,
+            "\"test\"")));
+    VCFHeader newHeader = annotator.annotateHeader(vcfHeader);
+    assertEquals(new VCFFormatHeaderLine("TEST", 1,
+        VCFHeaderLineType.String,
+        "\\\"test\"").toString(), newHeader.getFormatHeaderLine("TEST").toString());
+  }
+
+  @Test
+  void annotateHeaderEscapedQuotesInfo1() {
+    VCFHeader vcfHeader = mock(VCFHeader.class);
+    when(vcfHeader.getInfoHeaderLines()).thenReturn(
+        Set.of(new VCFInfoHeaderLine("TEST", VCFHeaderLineCount.UNBOUNDED,
+            VCFHeaderLineType.String,
+            "\"test\"")));
+    VCFHeader newHeader = annotator.annotateHeader(vcfHeader);
+    assertEquals(new VCFInfoHeaderLine("TEST", VCFHeaderLineCount.UNBOUNDED,
+        VCFHeaderLineType.String,
+        "\\\"test\"").toString(), newHeader.getInfoHeaderLine("TEST").toString());
+  }
+
+  @Test
+  void annotateHeaderEscapedQuotesInfo2() {
+    VCFHeader vcfHeader = mock(VCFHeader.class);
+    when(vcfHeader.getInfoHeaderLines()).thenReturn(
+        Set.of(new VCFInfoHeaderLine("TEST", 1,
+            VCFHeaderLineType.String,
+            "\"test\"")));
+    VCFHeader newHeader = annotator.annotateHeader(vcfHeader);
+    assertEquals(new VCFInfoHeaderLine("TEST", 1,
+        VCFHeaderLineType.String,
+        "\\\"test\"").toString(), newHeader.getInfoHeaderLine("TEST").toString());
   }
 
   @Test
