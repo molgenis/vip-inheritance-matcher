@@ -81,8 +81,8 @@ class AnnotatorTest {
                 "Genes with an inheritance match.")),
         () -> verify(vcfHeader, times(2)).getInfoHeaderLines(),
         () -> verify(vcfHeader, times(2)).getFormatHeaderLines(),
+        () -> verify(vcfHeader, times(2)).getFilterLines(),
         () -> verify(vcfHeader).getContigLines(),
-        () -> verify(vcfHeader).getFilterLines(),
         () -> verify(vcfHeader).getOtherHeaderLines(),
         () -> verify(vcfHeader).getGenotypeSamples());
 

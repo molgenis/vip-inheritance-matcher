@@ -4,6 +4,7 @@ import htsjdk.variant.variantcontext.GenotypeBuilder;
 import htsjdk.variant.variantcontext.GenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.VariantContextBuilder;
+import htsjdk.variant.vcf.VCFFilterHeaderLine;
 import htsjdk.variant.vcf.VCFFormatHeaderLine;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLine;
@@ -63,7 +64,7 @@ public class Annotator {
         vcfHeader));
     headerLines.addAll(fixVcfFormatHeaderLines(
         vcfHeader));
-    headerLines.addAll(vcfHeader.getFilterLines());
+    headerLines.addAll(fixVcfFilterHeaderLines(vcfHeader));
     headerLines.addAll(vcfHeader.getOtherHeaderLines());
     headerLines.addAll(vcfHeader.getContigLines());
 
@@ -111,6 +112,22 @@ public class Annotator {
       }
     }
     return infoHeaderLines;
+  }
+
+  private static Collection<VCFFilterHeaderLine> fixVcfFilterHeaderLines(VCFHeader vcfHeader) {
+    Collection<VCFFilterHeaderLine> filterHeaderLines = new HashSet<>(
+        vcfHeader.getFilterLines());
+    for (VCFFilterHeaderLine vcfHeaderLine : vcfHeader.getFilterLines()) {
+      String description = vcfHeaderLine.getDescription();
+      if (description.startsWith("\"")) {
+        filterHeaderLines.remove(vcfHeaderLine);
+        description = "\\" + description;
+        filterHeaderLines.add(
+            new VCFFilterHeaderLine(vcfHeaderLine.getID(),
+                description));
+      }
+    }
+    return filterHeaderLines;
   }
 
   VariantContext annotateInheritance(VariantContext vc, Map<String, Pedigree> familyMap,
