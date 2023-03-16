@@ -11,7 +11,7 @@
 ##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|SYMBOL_SOURCE|Gene|IncompletePenetrance|InheritanceModesGene">
 ##INFO=<ID=Compounds,Number=.,Type=String,Description="List of compound pairs for this variant.The list is splitted on ',' family id is separated with compoundswith ':'. Compounds are separated with '|'.">
 ##INFO=<ID=GeneticModels,Number=.,Type=String,Description="':'-separated list of genetic models for this variant.">
-##INFO=<ID=ModelScore,Number=.,Type=String,Description="PHRED score for genotype models.">
+##INFO=<ID=ModelScore,Number=.,Type=String,Description="\"PHRED score for genotype models.\"">
 ##InheritanceModesGene=List of inheritance modes for the gene
 ##InheritanceModesPheno=List of inheritance modes for the gene per phenotype
 ##VEP="v98" time="2020-11-19 08:13:30" cache="/home/bart/.vep/homo_sapiens/98_GRCh37" ensembl-io=98.052d23b ensembl-variation=98.5f5ffce ensembl-funcgen=98.36eef94 ensembl=98.e98e194 1000genomes="phase3" COSMIC="86" ClinVar="201810" ESP="20141103" HGMD-PUBLIC="20174" assembly="GRCh37.p13" dbSNP="151" gencode="GENCODE 19" genebuild="2011-04" gnomAD="r2.1" polyphen="2.2.2" regbuild="1.0" sift="sift5.2.2"

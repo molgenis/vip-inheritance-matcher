@@ -1,14 +1,20 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFilterHeaderLines;
+import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
+import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfInfoHeaderLines;
+
 import htsjdk.variant.variantcontext.GenotypeBuilder;
 import htsjdk.variant.variantcontext.GenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.VariantContextBuilder;
 import htsjdk.variant.vcf.VCFFormatHeaderLine;
 import htsjdk.variant.vcf.VCFHeader;
+import htsjdk.variant.vcf.VCFHeaderLine;
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -52,6 +58,19 @@ public class Annotator {
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
         VCFHeaderLineType.String,
         "Genes with an inheritance match."));
+
+    Set<VCFHeaderLine> headerLines = new LinkedHashSet<>();
+    //workaround for "Escaped doublequotes in INFO descriptions result in invalid VCF file"
+    // https://github.com/samtools/htsjdk/issues/1661
+    headerLines.addAll(fixVcfInfoHeaderLines(
+        vcfHeader));
+    headerLines.addAll(fixVcfFormatHeaderLines(
+        vcfHeader));
+    headerLines.addAll(fixVcfFilterHeaderLines(vcfHeader));
+    headerLines.addAll(vcfHeader.getOtherHeaderLines());
+    headerLines.addAll(vcfHeader.getContigLines());
+
+    vcfHeader = new VCFHeader(headerLines, vcfHeader.getGenotypeSamples());
     return vcfHeader;
   }
 
