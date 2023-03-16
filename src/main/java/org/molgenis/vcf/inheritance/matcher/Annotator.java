@@ -14,6 +14,7 @@ import htsjdk.variant.vcf.VCFHeaderLine;
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -58,7 +59,7 @@ public class Annotator {
         VCFHeaderLineType.String,
         "Genes with an inheritance match."));
 
-    Set<VCFHeaderLine> headerLines = new HashSet<>();
+    Set<VCFHeaderLine> headerLines = new LinkedHashSet<>();
     //workaround for "Escaped doublequotes in INFO descriptions result in invalid VCF file"
     // https://github.com/samtools/htsjdk/issues/1661
     headerLines.addAll(fixVcfInfoHeaderLines(
