@@ -14,7 +14,7 @@ class InheritanceUtilsTest {
     @Test
     void testFilterBloodRelatives() {
         Sample sample = Sample.builder().person(Person.builder().individualId("Patient").sex(Sex.MALE).affectedStatus(AffectedStatus.AFFECTED).maternalId("Mother").paternalId("Father").familyId("TEST").build()).build();
-        Pedigree actual = InheritanceUtils.FilterBloodRelatives(PedigreeTestUtil.createExtendedFamily(), sample);
+        Pedigree actual = InheritanceUtils.filterBloodRelatives(PedigreeTestUtil.createExtendedFamily(), sample);
 
         Set<String> expectedMembers = Set.of("Patient","Mother","Father","Brother","Grandmother","Grandfather","GreatGrandfather","GreatGrandmother","Uncle");
         assertEquals(expectedMembers,actual.getMembers().keySet());

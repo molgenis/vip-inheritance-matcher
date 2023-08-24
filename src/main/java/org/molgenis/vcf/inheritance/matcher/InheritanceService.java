@@ -166,7 +166,7 @@ public class InheritanceService {
     Map<String, List<VariantContext>> geneVariantMap,
     VariantContext variantContext, Pedigree family,
     Sample sample) {
-    Pedigree filteredFamily = InheritanceUtils.FilterBloodRelatives(family, sample);
+    Pedigree filteredFamily = InheritanceUtils.filterBloodRelatives(family, sample);
     Inheritance inheritance = Inheritance.builder().build();
     checkAr(geneVariantMap, variantContext, filteredFamily, inheritance);
     checkAd(variantContext, filteredFamily, inheritance);
@@ -224,15 +224,6 @@ public class InheritanceService {
         compound.getReference().getBaseString(),
         compound.getAlternateAlleles().stream().map(Allele::getBaseString)
             .collect(Collectors.joining("/")));
-  }
-
-  private boolean familyContains(List<String> probands, Pedigree family) {
-    for (String proband : probands) {
-      if (family.getMembers().keySet().contains(proband)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private static VCFFileReader createReader(Path vcfPath) {

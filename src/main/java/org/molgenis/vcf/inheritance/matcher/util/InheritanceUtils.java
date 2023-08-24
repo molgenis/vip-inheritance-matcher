@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InheritanceUtils {
-    //protected for testability
-    public static Pedigree FilterBloodRelatives(Pedigree family, Sample sample) {
+    private InheritanceUtils() {
+    }
+
+    public static Pedigree filterBloodRelatives(Pedigree family, Sample sample) {
         Map<String, Sample> filteredFamily = new HashMap<>();
         filteredFamily.put(sample.getPerson().getIndividualId(), sample);
         addParents(family, sample, filteredFamily);
@@ -18,13 +20,11 @@ public class InheritanceUtils {
     }
 
     private static void addChildren(Sample proband, Pedigree family, Map<String, Sample> filteredFamily) {
-        for(Sample sample : family.getMembers().values()){
+        for (Sample sample : family.getMembers().values()) {
             Person person = sample.getPerson();
             Person probandPerson = proband.getPerson();
-            if(person.getPaternalId().equals(probandPerson.getPaternalId()) && person.getMaternalId().equals(probandPerson.getMaternalId())){
-                filteredFamily.put(person.getIndividualId(), sample);
-            }
-            else if (filteredFamily.containsKey(person.getPaternalId()) && filteredFamily.containsKey(person.getMaternalId())) {
+            if (person.getPaternalId().equals(probandPerson.getPaternalId()) && person.getMaternalId().equals(probandPerson.getMaternalId())
+                    || filteredFamily.containsKey(person.getPaternalId()) && filteredFamily.containsKey(person.getMaternalId())) {
                 filteredFamily.put(person.getIndividualId(), sample);
             }
         }
@@ -34,11 +34,11 @@ public class InheritanceUtils {
         Person person = sample.getPerson();
         Sample father = family.getMembers().get(person.getPaternalId());
         Sample mother = family.getMembers().get(person.getMaternalId());
-        if(father != null) {
+        if (father != null) {
             sampleMap.put(father.getPerson().getIndividualId(), father);
             addParents(family, father, sampleMap);
         }
-        if(mother != null) {
+        if (mother != null) {
             sampleMap.put(mother.getPerson().getIndividualId(), mother);
             addParents(family, mother, sampleMap);
         }
