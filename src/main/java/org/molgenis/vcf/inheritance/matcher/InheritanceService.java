@@ -33,6 +33,7 @@ import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils;
 import org.molgenis.vcf.utils.metadata.FieldMetadataService;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -149,33 +150,30 @@ public class InheritanceService {
       List<String> probands) {
     Map<String, Inheritance> result = new HashMap<>();
     for (Pedigree family : familyList.values()) {
-      result.putAll(
-          matchInheritanceForFamily(geneVariantMap, variantContext, family,
-              probands));
+      for (Sample sample : family.getMembers().values()) {
+        if (probands.contains(sample.getPerson().getIndividualId()) || (probands.isEmpty()
+                && sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED)) {
+          result.put(sample.getPerson().getIndividualId(),
+                  matchInheritanceForSample(geneVariantMap, variantContext, family,
+                          sample));
+        }
+      }
     }
     return result;
   }
 
-  private Map<String, Inheritance> matchInheritanceForFamily(
-      Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Pedigree family,
-      List<String> probands) {
-    Map<String, Inheritance> result = new HashMap<>();
+  private Inheritance matchInheritanceForSample(
+    Map<String, List<VariantContext>> geneVariantMap,
+    VariantContext variantContext, Pedigree family,
+    Sample sample) {
+    Pedigree filteredFamily = InheritanceUtils.FilterBloodRelatives(family, sample);
     Inheritance inheritance = Inheritance.builder().build();
+    checkAr(geneVariantMap, variantContext, filteredFamily, inheritance);
+    checkAd(variantContext, filteredFamily, inheritance);
+    checkXl(variantContext, filteredFamily, inheritance);
+    inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, filteredFamily, sample));
 
-    if (familyContains(probands, family) || probands.isEmpty()) {
-      checkAr(geneVariantMap, variantContext, family, inheritance);
-      checkAd(variantContext, family, inheritance);
-      checkXl(variantContext, family, inheritance);
-    }
-    for (Sample sample : family.getMembers().values()) {
-      if (probands.contains(sample.getPerson().getIndividualId()) || (probands.isEmpty()
-          && sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED)) {
-        inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, family, sample));
-        result.put(sample.getPerson().getIndividualId(), inheritance);
-      }
-    }
-    return result;
+    return inheritance;
   }
 
   private void checkXl(VariantContext variantContext, Pedigree family,
