@@ -34,6 +34,23 @@ public class PedigreeTestUtil {
     return Pedigree.builder().id(familyId).members(result).build();
   }
 
+  public static Pedigree createExtendedFamily() {
+    Map<String, Sample> result = new HashMap<>();
+    result.put("Patient", createSample(Sex.MALE, AffectedStatus.AFFECTED, "TEST", "Patient", "Father",
+            "Mother"));
+      result.put("Mother",createSample(Sex.FEMALE, AffectedStatus.UNAFFECTED, "TEST", "Mother", "", ""));
+      result.put("Father",createSample(Sex.MALE, AffectedStatus.UNAFFECTED, "TEST", "Father", "Grandfather", "Grandmother"));
+      result.put("Brother",createSample(Sex.MALE, AffectedStatus.AFFECTED, "TEST", "Brother", "Father", "Mother"));
+      result.put("Grandmother",createSample(Sex.FEMALE, AffectedStatus.UNAFFECTED, "TEST", "Grandmother", "GreatGrandfather", "GreatGrandmother"));
+      result.put("Grandfather",createSample(Sex.MALE, AffectedStatus.UNAFFECTED, "TEST", "Grandfather", "", ""));
+      result.put("GreatGrandfather",createSample(Sex.FEMALE, AffectedStatus.UNAFFECTED, "TEST", "GreatGrandfather", "", ""));
+      result.put("GreatGrandmother",createSample(Sex.MALE, AffectedStatus.UNAFFECTED, "TEST", "GreatGrandmother", "", ""));
+      result.put("Uncle",createSample(Sex.MALE, AffectedStatus.AFFECTED, "TEST", "Uncle", "Grandfather", "Grandmother"));
+      result.put("HalfUncle",createSample(Sex.MALE, AffectedStatus.AFFECTED, "TEST", "Uncle", "Grandfather", "OtherMother"));
+      result.put("UncleInLaw",createSample(Sex.MALE, AffectedStatus.AFFECTED, "TEST", "Uncle", "OtherFather", "OtherMother"));
+    return Pedigree.builder().id("TEST").members(result).build();
+  }
+
   public static Sample createSample(Sex sex, AffectedStatus affectedStatus, String familyId, String patient, String father, String mother) {
     Person person =  Person.builder().individualId(patient).familyId(familyId).paternalId(father)
         .maternalId(mother).sex(sex).affectedStatus(affectedStatus)
