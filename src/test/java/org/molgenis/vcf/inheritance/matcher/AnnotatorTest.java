@@ -1,8 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +15,8 @@ import static org.molgenis.vcf.inheritance.matcher.Annotator.MATCHING_GENES;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.POSSIBLE_COMPOUND;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.SUBINHERITANCE_MODES;
 import static org.molgenis.vcf.inheritance.matcher.checker.PedigreeTestUtil.createFamily;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.FALSE;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
@@ -27,7 +29,6 @@ import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,10 +72,10 @@ class AnnotatorTest {
             "Possible Compound hetrozygote variants.")),
         () -> verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(DENOVO, 1,
             VCFHeaderLineType.Integer,
-            "Inheritance Denovo status.")),
+            "De novo variant.")),
         () -> verify(vcfHeader).addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1,
             VCFHeaderLineType.Integer,
-            "Inheritance Match status.")),
+            "Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match.")),
         () -> verify(vcfHeader)
             .addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
                 VCFHeaderLineType.String,
@@ -151,7 +152,7 @@ class AnnotatorTest {
         AffectedStatus.UNAFFECTED, "FAM");
     Map<String, Pedigree> families = Map.of("FAM", familyMap);
 
-    Inheritance inheritance = Inheritance.builder().denovo(true).inheritanceModes(
+    Inheritance inheritance = Inheritance.builder().match(TRUE).denovo(true).inheritanceModes(
             Set.of(AD, AR))
         .subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C))
         .compounds(singleton("OTHER_VARIANT")).build();
@@ -173,6 +174,67 @@ class AnnotatorTest {
             actual.getGenotype("Patient").getExtendedAttribute(SUBINHERITANCE_MODES)),
         () -> assertEquals("OTHER_VARIANT",
             actual.getGenotype("Patient").getExtendedAttribute(POSSIBLE_COMPOUND))
+    );
+  }
+
+  @Test
+  void annotateInheritanceMissingGeneInheritancePattern() {
+    Genotype genotype = createGenotype("Patient", "1/1");
+    VariantContext vc = new VariantContextBuilder().chr("1").start(1).stop(1).alleles("T", "A")
+            .genotypes(genotype)
+            .make();
+    Pedigree familyMap = createFamily(Sex.MALE, AffectedStatus.AFFECTED, AffectedStatus.UNAFFECTED,
+            AffectedStatus.UNAFFECTED, "FAM");
+    Map<String, Pedigree> families = Map.of("FAM", familyMap);
+
+    Inheritance inheritance = Inheritance.builder().denovo(true).inheritanceModes(
+                    Set.of(AD, AR))
+            .subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C))
+            .compounds(singleton("OTHER_VARIANT")).build();
+    Annotation annotation = Annotation.builder().inheritance(inheritance).build();
+    Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
+
+    VariantContext actual = annotator.annotateInheritance(vc, families, annotationMap);
+
+    assertAll(
+            () -> assertEquals("AR,AD",
+                    actual.getGenotype("Patient").getExtendedAttribute(INHERITANCE_MODES)),
+            () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(INHERITANCE_MATCH)),
+            () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(MATCHING_GENES)),
+            () -> assertEquals("1", actual.getGenotype("Patient").getExtendedAttribute(DENOVO)),
+            () -> assertEquals("AD_IP,AR_C",
+                    actual.getGenotype("Patient").getExtendedAttribute(SUBINHERITANCE_MODES)),
+            () -> assertEquals("OTHER_VARIANT",
+                    actual.getGenotype("Patient").getExtendedAttribute(POSSIBLE_COMPOUND))
+    );
+  }
+
+  @Test
+  void annotateInheritanceNoMatch() {
+    Genotype genotype = createGenotype("Patient", "1/1");
+    VariantContext vc = new VariantContextBuilder().chr("1").start(1).stop(1).alleles("T", "A")
+            .genotypes(genotype)
+            .make();
+    Pedigree familyMap = createFamily(Sex.MALE, AffectedStatus.AFFECTED, AffectedStatus.UNAFFECTED,
+            AffectedStatus.UNAFFECTED, "FAM");
+    Map<String, Pedigree> families = Map.of("FAM", familyMap);
+
+    Inheritance inheritance = Inheritance.builder().match(FALSE).denovo(true).inheritanceModes(
+                    emptySet())
+            .subInheritanceModes(emptySet())
+            .compounds(emptySet()).build();
+    Annotation annotation = Annotation.builder().inheritance(inheritance).build();
+    Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
+
+    VariantContext actual = annotator.annotateInheritance(vc, families, annotationMap);
+
+    assertAll(
+            () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(INHERITANCE_MODES)),
+            () -> assertEquals("0", actual.getGenotype("Patient").getExtendedAttribute(INHERITANCE_MATCH)),
+            () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(MATCHING_GENES)),
+            () -> assertEquals("1", actual.getGenotype("Patient").getExtendedAttribute(DENOVO)),
+            () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(SUBINHERITANCE_MODES)),
+            () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(POSSIBLE_COMPOUND))
     );
   }
 }

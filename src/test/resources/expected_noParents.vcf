@@ -4,9 +4,9 @@
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=VI,Number=.,Type=String,Description="An enumeration of possible inheritance modes.">
 ##FORMAT=<ID=VIC,Number=1,Type=String,Description="Possible Compound hetrozygote variants.">
-##FORMAT=<ID=VID,Number=1,Type=Integer,Description="Inheritance Denovo status.">
+##FORMAT=<ID=VID,Number=1,Type=Integer,Description="De novo variant.">
 ##FORMAT=<ID=VIG,Number=.,Type=String,Description="Genes with an inheritance match.">
-##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match status.">
+##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match.">
 ##FORMAT=<ID=VIS,Number=.,Type=String,Description="An enumeration of possible sub inheritance modes like e.g. compound, non penetrance.">
 ##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|SYMBOL_SOURCE|Gene|IncompletePenetrance|InheritanceModesGene">
 ##INFO=<ID=Compounds,Number=.,Type=String,Description="List of compound pairs for this variant.The list is splitted on ',' family id is separated with compoundswith ':'. Compounds are separated with '|'.">
@@ -51,5 +51,5 @@
 2	1	empty_gene	C	G	.	PASS	CSQ=G|UNUSED_GENE_NAME||||AD	GT:DP:VI:VIC:VID:VIM	1/0:50:.:.:0:0	0/0:50	1/0:50	1/0:50:AD:.:0:0	1/0:50	0/0:50
 3	2	empty_gene	C	G	.	PASS	CSQ=G|UNUSED_GENE_NAME||||AD	GT:DP:VI:VIC:VID:VIM	1/0:50:.:.:0:0	0/0:50	1/0:50	1/0:50:AD:.:0:0	1/0:50	0/0:50
 X	123457	.	C	G	.	PASS	CSQ=G|GENE5|EntrezGene|ID5||XLR,G|GENE7|EntrezGene|ID7||XLD	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/0:50:XLD,XL,XLR:.:0:ID5,ID7:1:XLD,XLR	0/0:50	0/0:50	1/0:50:.:.:0:.:0	0/0:50	1/0:50
-X	123458	.	C	G	.	PASS	CSQ=G|GENE6|EntrezGene|ID6||	GT:DP:VI:VIC:VID:VIM:VIS	1/0:50:XLD,XL,XLR:.:0:0:XLD,XLR	./.:50	0/0:50	1/0:50:XLD,XL,XLR:.:0:0:XLD,XLR	1/0:50	0/0:50
+X	123458	.	C	G	.	PASS	CSQ=G|GENE6|EntrezGene|ID6||	GT:DP:VI:VIC:VID:VIM:VIS	1/0:50:XLD,XL,XLR:.:0:.:XLD,XLR	./.:50	0/0:50	1/0:50:XLD,XL,XLR:.:0:.:XLD,XLR	1/0:50	0/0:50
 X	123459	.	C	G	.	PASS	CSQ=G|GENE6|EntrezGene|ID6||XLR	GT:DP:VI:VIC:VID:VIG:VIM:VIS	1/1:50:.:.:0:.:0	0/1:50	0/1:50	1/0:50:XLD,XL,XLR:.:0:ID6:1:XLD,XLR	1/0:50	0/0:50

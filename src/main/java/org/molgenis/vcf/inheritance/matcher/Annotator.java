@@ -1,5 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFilterHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfInfoHeaderLines;
@@ -19,10 +20,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.molgenis.vcf.inheritance.matcher.model.Annotation;
-import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+
+import org.molgenis.vcf.inheritance.matcher.model.*;
+import org.molgenis.vcf.utils.UnexpectedEnumException;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
@@ -51,10 +51,10 @@ public class Annotator {
         "Possible Compound hetrozygote variants."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(DENOVO, 1,
         VCFHeaderLineType.Integer,
-        "Inheritance Denovo status."));
+        "De novo variant."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1,
         VCFHeaderLineType.Integer,
-        "Inheritance Match status."));
+        "Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
         VCFHeaderLineType.String,
         "Genes with an inheritance match."));
@@ -108,13 +108,11 @@ public class Annotator {
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
       genotypeBuilder.attribute(DENOVO, annotation.getInheritance().isDenovo() ? "1" : "0");
-      Set<String> genes = annotation.getMatchingGenes();
-      boolean isMatch = !(genes == null || genes.isEmpty());
+      InheritanceMatch match = annotation.getInheritance().getMatch();
+      String inheritanceMatch = mapInheritanceMatch(match);
       genotypeBuilder
-          .attribute(INHERITANCE_MATCH,
-              isMatch
-                  ? "1" : "0");
-      if (isMatch) {
+              .attribute(INHERITANCE_MATCH, inheritanceMatch);
+      if (match == TRUE) {
         genotypeBuilder
             .attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
                 Collectors.joining(",")));
@@ -122,6 +120,17 @@ public class Annotator {
 
       genotypesContext.replace(genotypeBuilder.make());
     }
+  }
+
+  private static String mapInheritanceMatch(InheritanceMatch match) {
+    String inheritanceMatch;
+    switch (match){
+      case TRUE -> inheritanceMatch = "1";
+      case FALSE -> inheritanceMatch = "0";
+      case UNKNOWN -> inheritanceMatch = null;
+      default -> throw new UnexpectedEnumException(match);
+    }
+    return inheritanceMatch;
   }
 
   private Set<String> mapSubinheritanceModes(Inheritance inheritance) {
