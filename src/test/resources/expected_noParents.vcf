@@ -4,7 +4,7 @@
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=VI,Number=.,Type=String,Description="An enumeration of possible inheritance modes.">
 ##FORMAT=<ID=VIC,Number=1,Type=String,Description="Possible Compound hetrozygote variants.">
-##FORMAT=<ID=VID,Number=1,Type=Integer,Description="Inheritance Denovo status.">
+##FORMAT=<ID=VID,Number=1,Type=Integer,Description="De novo variant.">
 ##FORMAT=<ID=VIG,Number=.,Type=String,Description="Genes with an inheritance match.">
 ##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match.">
 ##FORMAT=<ID=VIS,Number=.,Type=String,Description="An enumeration of possible sub inheritance modes like e.g. compound, non penetrance.">

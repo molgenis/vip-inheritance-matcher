@@ -51,7 +51,7 @@ public class Annotator {
         "Possible Compound hetrozygote variants."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(DENOVO, 1,
         VCFHeaderLineType.Integer,
-        "Inheritance Denovo status."));
+        "De novo variant."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1,
         VCFHeaderLineType.Integer,
         "Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match."));
