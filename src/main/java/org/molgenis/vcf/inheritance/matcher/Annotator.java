@@ -1,5 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFilterHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfInfoHeaderLines;
@@ -19,10 +20,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.molgenis.vcf.inheritance.matcher.model.Annotation;
-import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+
+import org.molgenis.vcf.inheritance.matcher.model.*;
+import org.molgenis.vcf.utils.UnexpectedEnumException;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
@@ -108,23 +108,29 @@ public class Annotator {
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
       genotypeBuilder.attribute(DENOVO, annotation.getInheritance().isDenovo() ? "1" : "0");
-      annotateMatch(annotation, genotypeBuilder, inheritanceModes);
+      InheritanceMatch match = annotation.getInheritance().getMatch();
+      String inheritanceMatch = mapInheritanceMatch(match);
+      genotypeBuilder
+              .attribute(INHERITANCE_MATCH, inheritanceMatch);
+      if (match == TRUE) {
+        genotypeBuilder
+            .attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
+                Collectors.joining(",")));
+      }
 
       genotypesContext.replace(genotypeBuilder.make());
     }
   }
 
-  private static void annotateMatch(Annotation annotation, GenotypeBuilder genotypeBuilder, String inheritanceModes) {
-    Set<String> genes = annotation.getMatchingGenes();
-    boolean isMatch = !(genes == null || genes.isEmpty());
-    if (isMatch) {
-      genotypeBuilder.attribute(INHERITANCE_MATCH, "1");
-      genotypeBuilder
-          .attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
-              Collectors.joining(",")));
-    } else {
-      genotypeBuilder.attribute(INHERITANCE_MATCH, (inheritanceModes.isEmpty() ? "0" : null));
+  private static String mapInheritanceMatch(InheritanceMatch match) {
+    String inheritanceMatch;
+    switch (match){
+      case TRUE -> inheritanceMatch = "1";
+      case FALSE -> inheritanceMatch = "0";
+      case UNKNOWN -> inheritanceMatch = null;
+      default -> throw new UnexpectedEnumException(match);
     }
+    return inheritanceMatch;
   }
 
   private Set<String> mapSubinheritanceModes(Inheritance inheritance) {

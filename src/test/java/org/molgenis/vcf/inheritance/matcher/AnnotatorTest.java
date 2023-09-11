@@ -15,6 +15,8 @@ import static org.molgenis.vcf.inheritance.matcher.Annotator.MATCHING_GENES;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.POSSIBLE_COMPOUND;
 import static org.molgenis.vcf.inheritance.matcher.Annotator.SUBINHERITANCE_MODES;
 import static org.molgenis.vcf.inheritance.matcher.checker.PedigreeTestUtil.createFamily;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.FALSE;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
@@ -150,7 +152,7 @@ class AnnotatorTest {
         AffectedStatus.UNAFFECTED, "FAM");
     Map<String, Pedigree> families = Map.of("FAM", familyMap);
 
-    Inheritance inheritance = Inheritance.builder().denovo(true).inheritanceModes(
+    Inheritance inheritance = Inheritance.builder().match(TRUE).denovo(true).inheritanceModes(
             Set.of(AD, AR))
         .subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C))
         .compounds(singleton("OTHER_VARIANT")).build();
@@ -217,7 +219,7 @@ class AnnotatorTest {
             AffectedStatus.UNAFFECTED, "FAM");
     Map<String, Pedigree> families = Map.of("FAM", familyMap);
 
-    Inheritance inheritance = Inheritance.builder().denovo(true).inheritanceModes(
+    Inheritance inheritance = Inheritance.builder().match(FALSE).denovo(true).inheritanceModes(
                     emptySet())
             .subInheritanceModes(emptySet())
             .compounds(emptySet()).build();

@@ -8,13 +8,16 @@ import lombok.Data;
 @Data
 @Builder
 public class Inheritance {
-
   @Builder.Default
   Set<InheritanceMode> inheritanceModes = new HashSet<>();
   @Builder.Default
   Set<SubInheritanceMode> subInheritanceModes = new HashSet<>();
   @Builder.Default
   Set<String> compounds = new HashSet<>();
+
+  @Builder.Default
+  InheritanceMatch match = InheritanceMatch.UNKNOWN;
+
   @Builder.Default
   boolean denovo = false;
 
