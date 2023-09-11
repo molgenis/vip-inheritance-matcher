@@ -54,7 +54,7 @@ public class Annotator {
         "Inheritance Denovo status."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1,
         VCFHeaderLineType.Integer,
-        "Inheritance Match status."));
+        "Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
         VCFHeaderLineType.String,
         "Genes with an inheritance match."));
@@ -108,19 +108,22 @@ public class Annotator {
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
       genotypeBuilder.attribute(DENOVO, annotation.getInheritance().isDenovo() ? "1" : "0");
-      Set<String> genes = annotation.getMatchingGenes();
-      boolean isMatch = !(genes == null || genes.isEmpty());
-      genotypeBuilder
-          .attribute(INHERITANCE_MATCH,
-              isMatch
-                  ? "1" : "0");
-      if (isMatch) {
-        genotypeBuilder
-            .attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
-                Collectors.joining(",")));
-      }
+      annotateMatch(annotation, genotypeBuilder, inheritanceModes);
 
       genotypesContext.replace(genotypeBuilder.make());
+    }
+  }
+
+  private static void annotateMatch(Annotation annotation, GenotypeBuilder genotypeBuilder, String inheritanceModes) {
+    Set<String> genes = annotation.getMatchingGenes();
+    boolean isMatch = !(genes == null || genes.isEmpty());
+    if (isMatch) {
+      genotypeBuilder.attribute(INHERITANCE_MATCH, "1");
+      genotypeBuilder
+          .attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
+              Collectors.joining(",")));
+    } else {
+      genotypeBuilder.attribute(INHERITANCE_MATCH, (inheritanceModes.isEmpty() ? "0" : null));
     }
   }
 
