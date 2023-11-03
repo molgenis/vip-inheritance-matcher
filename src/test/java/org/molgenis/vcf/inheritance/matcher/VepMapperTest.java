@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.vcf.inheritance.matcher.VepMapper.EMPTY_GENE_VALUE;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.XLD;
@@ -14,12 +15,9 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,7 +96,7 @@ class VepMapperTest {
 
     Map<String, Gene> expected = Map
         .of("ENSG00000123457", new Gene("ENSG00000123457","HGNC", false,  Set.of(XLD, XLR)), "ENSG00000123456",
-            new Gene("ENSG00000123456","HGNC", false,  Set.of(AD, AR)));
+            new Gene("ENSG00000123456","HGNC", false,  Set.of(AD, AR)), EMPTY_GENE_VALUE, new Gene(EMPTY_GENE_VALUE, "", false, new HashSet<>()));
     assertEquals(expected, vepMapper.getGenes(vc2));
   }
 
@@ -108,6 +106,6 @@ class VepMapperTest {
     when(variantContext.getAttributeAsStringList(eq("CSQ"), any())).thenReturn(List.of(
         "G|missense_variant|MODERATE|TEST1|ENSG00000123456|Transcript|ENST00000377205|protein_coding|5/5||ENST00000377205.1:c.619C>G|ENSP00000366410.1:p.Arg207Gly|763|619|207|R/G|Cgg/Ggg|||1|||17877||AD&AR|Leber_congenital_amaurosis_9:AR|"));
 
-    assertEquals(Map.of(), vepMapper.getGenes(variantContext));
+    assertEquals(Map.of(EMPTY_GENE_VALUE, new Gene(EMPTY_GENE_VALUE, "", false, new HashSet<>())), vepMapper.getGenes(variantContext));
   }
 }

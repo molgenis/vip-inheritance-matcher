@@ -26,6 +26,7 @@ public class VepMapper {
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
   public static final String INCOMPLETE_PENETRANCE = "IncompletePenetrance";
+  public static final String EMPTY_GENE_VALUE = "EMPTY_GENE_VALUE";
   private String vepFieldId = null;
   private final FieldMetadataService fieldMetadataService;
   private int geneIndex = -1;
@@ -75,26 +76,30 @@ public class VepMapper {
       String gene = vepSplit[geneIndex];
       String source = vepSplit[geneSourceIndex];
       if (gene.isEmpty() || source.isEmpty()) {
-        continue;
-      }
-
-      if (!knownGenes.containsKey(gene)) {
-        Set<InheritanceMode> modes = new HashSet<>();
-        if (inheritanceIndex != -1) {
-          String[] inheritanceModes
-              = vepSplit[inheritanceIndex].split("&");
-          mapGeneInheritance(modes, inheritanceModes);
-        }
-        boolean isIncompletePenetrance = false;
-        if (incompletePenetranceIndex != -1) {
-          isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
-        }
-        genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
+        genes.put(EMPTY_GENE_VALUE, new Gene(EMPTY_GENE_VALUE, "", false, new HashSet<>()));
       } else {
-        genes.put(gene, knownGenes.get(gene));
+        getGenes(knownGenes, genes, vepSplit, gene, source);
       }
     }
     return genes;
+  }
+
+  private void getGenes(Map<String, Gene> knownGenes, Map<String, Gene> genes, String[] vepSplit, String gene, String source) {
+    if (!knownGenes.containsKey(gene)) {
+      Set<InheritanceMode> modes = new HashSet<>();
+      if (inheritanceIndex != -1) {
+        String[] inheritanceModes
+                = vepSplit[inheritanceIndex].split("&");
+        mapGeneInheritance(modes, inheritanceModes);
+      }
+      boolean isIncompletePenetrance = false;
+      if (incompletePenetranceIndex != -1) {
+        isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
+      }
+      genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
+    } else {
+      genes.put(gene, knownGenes.get(gene));
+    }
   }
 
   private void mapGeneInheritance(Set<InheritanceMode> modes, String[] inheritanceModes) {

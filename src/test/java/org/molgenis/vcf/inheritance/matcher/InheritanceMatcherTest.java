@@ -3,6 +3,7 @@ package org.molgenis.vcf.inheritance.matcher;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.vcf.inheritance.matcher.VepMapper.EMPTY_GENE_VALUE;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.*;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
@@ -88,6 +89,23 @@ class InheritanceMatcherTest {
 
     Inheritance expectedInheritance = Inheritance.builder().match(UNKNOWN).inheritanceModes(
             Set.of(AR, AD)).subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
+    Annotation expectedAnnotation = Annotation.builder().inheritance(expectedInheritance).matchingGenes(emptySet()).build();
+    Map<String, Annotation> expected = Map.of("sample1",expectedAnnotation);
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  void matchInheritanceMissingGene() {
+    Inheritance inheritance1 = Inheritance.builder().inheritanceModes(
+            Set.of(AD,AR)).subInheritanceModes(Set.of(SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
+    Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
+    Collection<Gene> genes = Set.of(new Gene(EMPTY_GENE_VALUE,"", false, emptySet()));
+
+    Map<String, Annotation> actual = InheritanceMatcher
+            .matchInheritance(inheritanceMap, genes);
+
+    Inheritance expectedInheritance = Inheritance.builder().match(UNKNOWN).inheritanceModes(
+            Set.of(AR, AD)).subInheritanceModes(Set.of(SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
     Annotation expectedAnnotation = Annotation.builder().inheritance(expectedInheritance).matchingGenes(emptySet()).build();
     Map<String, Annotation> expected = Map.of("sample1",expectedAnnotation);
     assertEquals(expected, actual);
