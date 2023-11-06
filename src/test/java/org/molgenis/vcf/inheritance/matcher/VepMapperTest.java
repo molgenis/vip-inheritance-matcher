@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
+import org.molgenis.vcf.inheritance.matcher.model.VariantContextGenes;
 import org.molgenis.vcf.utils.metadata.FieldMetadataService;
 import org.molgenis.vcf.utils.model.FieldMetadata;
 import org.molgenis.vcf.utils.model.NestedField;
@@ -81,10 +82,10 @@ class VepMapperTest {
         "T|missense_variant|MODERATE|TEST2|ENSG00000123457|Transcript|ENST00000377205|protein_coding|5/5||ENST00000377205.1:c.619C>T|ENSP00000366410.1:p.Arg207Trp|763|619|207|R/W|Cgg/Tgg|||1||HGNC|17877||XL&ICI|Leber_congenital_amaurosis_9:AR|",
         "T|missense_variant|MODERATE|TEST2|ENSG00000123458|Transcript|ENST00000377205|protein_coding|5/5||ENST00000377205.1:c.619C>T|ENSP00000366410.1:p.Arg207Trp|763|619|207|R/W|Cgg/Tgg|||1||HGNC|17877||XLR&XLD|Leber_congenital_amaurosis_9:AR|"));
 
-    Map<String, Gene> expected = Map
-        .of("ENSG00000123457", new Gene("ENSG00000123457","HGNC", false,  Set.of(XLD, XLR)), "ENSG00000123456",
+    VariantContextGenes expected = VariantContextGenes.builder()
+            .genes(Map.of("ENSG00000123457", new Gene("ENSG00000123457","HGNC", false,  Set.of(XLD, XLR)), "ENSG00000123456",
             new Gene("ENSG00000123456","HGNC", false,  Set.of(AD, AR)), "ENSG00000123458",
-            new Gene("ENSG00000123458","HGNC", false,  Set.of(XLD, XLR)));
+            new Gene("ENSG00000123458","HGNC", false,  Set.of(XLD, XLR)))).build();
     assertEquals(expected, vepMapper.getGenes(vc));
   }
 
@@ -96,9 +97,9 @@ class VepMapperTest {
         "T|missense_variant|MODERATE||ENSG00000123457|Transcript|ENST00000377205|protein_coding|5/5||ENST00000377205.1:c.619C>T|ENSP00000366410.1:p.Arg207Trp|763|619|207|R/W|Cgg/Tgg|||1||HGNC|17877||XL&ICI|Leber_congenital_amaurosis_9:AR|",
         "T|missense_variant|MODERATE|||Transcript|ENST00000377205|protein_coding|5/5||ENST00000377205.1:c.619C>T|ENSP00000366410.1:p.Arg207Trp|763|619|207|R/W|Cgg/Tgg|||1||HGNC|17877||XLR&XLD|Leber_congenital_amaurosis_9:AR|"));
 
-    Map<String, Gene> expected = Map
-        .of("ENSG00000123457", new Gene("ENSG00000123457","HGNC", false,  Set.of(XLD, XLR)), "ENSG00000123456",
-            new Gene("ENSG00000123456","HGNC", false,  Set.of(AD, AR)));
+    VariantContextGenes expected = VariantContextGenes.builder().containsVcWithoutGene(true).genes(Map
+            .of("ENSG00000123457", new Gene("ENSG00000123457", "HGNC", false, Set.of(XLD, XLR)), "ENSG00000123456",
+                    new Gene("ENSG00000123456", "HGNC", false, Set.of(AD, AR)))).build();
     assertEquals(expected, vepMapper.getGenes(vc2));
   }
 
@@ -108,6 +109,6 @@ class VepMapperTest {
     when(variantContext.getAttributeAsStringList(eq("CSQ"), any())).thenReturn(List.of(
         "G|missense_variant|MODERATE|TEST1|ENSG00000123456|Transcript|ENST00000377205|protein_coding|5/5||ENST00000377205.1:c.619C>G|ENSP00000366410.1:p.Arg207Gly|763|619|207|R/G|Cgg/Ggg|||1|||17877||AD&AR|Leber_congenital_amaurosis_9:AR|"));
 
-    assertEquals(Map.of(), vepMapper.getGenes(variantContext));
+    assertEquals(VariantContextGenes.builder().genes(Map.of()).containsVcWithoutGene(true).build(), vepMapper.getGenes(variantContext));
   }
 }

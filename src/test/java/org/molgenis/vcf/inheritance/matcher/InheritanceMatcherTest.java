@@ -11,10 +11,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.molgenis.vcf.inheritance.matcher.model.Annotation;
-import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
-import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.model.*;
 
 class InheritanceMatcherTest {
 
@@ -26,7 +23,7 @@ class InheritanceMatcherTest {
         Set.of(AR)).subInheritanceModes(emptySet()).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1, "sample2",
         inheritance2);
-    Collection<Gene> genes = Set.of(new Gene("GENE1","EntrezGene", true, Set.of(AR,AD)),new Gene("GENE2","EntrezGene", true, Set.of(AD)));
+    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", true, Set.of(AR,AD)), "GENE2", new Gene("GENE2","EntrezGene", true, Set.of(AD)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
         .matchInheritance(inheritanceMap, genes);
@@ -46,7 +43,7 @@ class InheritanceMatcherTest {
     Inheritance inheritance = Inheritance.builder().inheritanceModes(
             Set.of(AD)).subInheritanceModes(Set.of(SubInheritanceMode.AD_IP)).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance);
-    Collection<Gene> genes = Set.of(new Gene("GENE1","EntrezGene", true, Set.of(AR)));
+    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", true, Set.of(AR)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -64,7 +61,7 @@ class InheritanceMatcherTest {
     Inheritance inheritance1 = Inheritance.builder().match(FALSE).inheritanceModes(
             emptySet()).subInheritanceModes(emptySet()).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    Collection<Gene> genes = Set.of(new Gene("GENE1","EntrezGene", false, Set.of(AR,AD)),new Gene("GENE2","EntrezGene", false, Set.of(AD)));
+    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", false, Set.of(AR,AD)),"GENE2",new Gene("GENE2","EntrezGene", false, Set.of(AD)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -81,7 +78,7 @@ class InheritanceMatcherTest {
     Inheritance inheritance1 = Inheritance.builder().inheritanceModes(
             Set.of(AD,AR)).subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    Collection<Gene> genes = Set.of(new Gene("GENE1","EntrezGene", true, emptySet()));
+    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", true, emptySet()))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -98,7 +95,7 @@ class InheritanceMatcherTest {
     Inheritance inheritance1 = Inheritance.builder().inheritanceModes(
             Set.of(AR)).subInheritanceModes(Set.of(SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    Collection<Gene> genes = Set.of(new Gene("GENE1","EntrezGene", false, emptySet()),new Gene("GENE2","EntrezGene", false, Set.of(AR)));
+    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", false, emptySet()),"GENE2",new Gene("GENE2","EntrezGene", false, Set.of(AR)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -116,7 +113,7 @@ class InheritanceMatcherTest {
             Set.of(AD)).subInheritanceModes(emptySet()).compounds(emptySet()).build();
 
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    Collection<Gene> genes = Set.of(new Gene("GENE1","EntrezGene", false, emptySet()),new Gene("GENE2","EntrezGene", false, Set.of(AR)));
+    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", false, emptySet()),"GENE2", new Gene("GENE2","EntrezGene", false, Set.of(AR)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);

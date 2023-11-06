@@ -17,7 +17,7 @@ public class InheritanceMatcher {
   }
 
   public static Map<String, Annotation> matchInheritance(
-      Map<String, Inheritance> inheritanceMap, Collection<Gene> genes) {
+      Map<String, Inheritance> inheritanceMap, VariantContextGenes genes) {
     Map<String, Annotation> sampleAnnotationMap = new HashMap<>();
     for (Entry<String, Inheritance> entry : inheritanceMap.entrySet()) {
       Set<String> matchingGenes = new HashSet<>();
@@ -44,9 +44,9 @@ public class InheritanceMatcher {
      *  - inheritance match is unknown if any genes for the variant have unknown inheritance pattern.
      *  - inheritance match is false if all genes for the variant have known (but mismatching) inheritance pattern.
      */
-    private static void matchGeneInheritance(Collection<Gene> genes, Set<String> matchingGenes, Inheritance inheritance) {
+    private static void matchGeneInheritance(VariantContextGenes genes, Set<String> matchingGenes, Inheritance inheritance) {
         boolean containsUnknownGene = false;
-        for (Gene gene : genes) {
+        for (Gene gene : genes.getGenes().values()) {
           Set<InheritanceMode> geneInheritanceModes = gene
                   .getInheritanceModes();
           if( geneInheritanceModes.isEmpty() ){
@@ -59,7 +59,7 @@ public class InheritanceMatcher {
           }
         }
         if(matchingGenes.isEmpty()) {
-            if (containsUnknownGene) {
+            if (containsUnknownGene || genes.isContainsVcWithoutGene()) {
                 inheritance.setMatch(UNKNOWN);
             } else {
                 inheritance.setMatch(FALSE);

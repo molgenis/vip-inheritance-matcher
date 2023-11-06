@@ -26,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.model.VariantContextGenes;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -45,7 +46,7 @@ class ArCompoundCheckerTest {
       Pedigree family, boolean expected,
       String displayName) {
     ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMapper);
-    when(vepMapper.getGenes(variantContext)).thenReturn(singletonMap("GENE1", gene1));
+    when(vepMapper.getGenes(variantContext)).thenReturn(VariantContextGenes.builder().genes(singletonMap("GENE1", gene1)).build());
     assertEquals(expected, !arCompoundChecker.check(geneVariantMap, variantContext, family).isEmpty());
   }
 
