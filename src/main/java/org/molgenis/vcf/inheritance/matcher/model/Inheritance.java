@@ -16,10 +16,13 @@ public class Inheritance {
   Set<String> compounds = new HashSet<>();
 
   @Builder.Default
-  InheritanceMatch match = InheritanceMatch.UNKNOWN;
+  InheritanceMatch match = InheritanceMatch.POTENTIAL;
 
   @Builder.Default
   boolean denovo = false;
+
+  @Builder.Default
+  boolean isFamilyWithMissingGT = false;
 
   public void addInheritanceMode(InheritanceMode inheritanceMode) {
     inheritanceModes.add(inheritanceMode);

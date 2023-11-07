@@ -79,7 +79,7 @@ class AnnotatorTest {
         () -> verify(vcfHeader)
             .addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
                 VCFHeaderLineType.String,
-                "Genes with an inheritance match.")),
+                "Genes with a (potential) inheritance match.")),
         () -> verify(vcfHeader, times(2)).getInfoHeaderLines(),
         () -> verify(vcfHeader, times(2)).getFormatHeaderLines(),
         () -> verify(vcfHeader, times(2)).getFilterLines(),

@@ -6,6 +6,7 @@ import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInher
 import static org.molgenis.vcf.utils.sample.mapper.PedToSamplesMapper.mapPedFileToPedigrees;
 
 import htsjdk.variant.variantcontext.Allele;
+import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
@@ -27,12 +28,7 @@ import org.molgenis.vcf.inheritance.matcher.checker.ArCompoundChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.DeNovoChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.XldChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.XlrChecker;
-import org.molgenis.vcf.inheritance.matcher.model.Annotation;
-import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.Settings;
-import org.molgenis.vcf.inheritance.matcher.model.SubInheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils;
 import org.molgenis.vcf.utils.metadata.FieldMetadataService;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -103,7 +99,7 @@ public class InheritanceService {
     Map<String, Inheritance> inheritanceMap = matchInheritanceForVariant(geneVariantMap,
         vc, pedigreeList, probands);
     Map<String, Annotation> annotationMap = matchInheritance(inheritanceMap,
-        vepMapper.getGenes(vc).values());
+        vepMapper.getGenes(vc));
     return annotator.annotateInheritance(vc, pedigreeList, annotationMap);
   }
 
@@ -112,9 +108,9 @@ public class InheritanceService {
       List<VariantContext> variantContextList) {
     Map<String, List<VariantContext>> geneVariantMap = new HashMap<>();
     for (VariantContext vc : variantContextList) {
-      Map<String, Gene> genes = vepMapper.getGenes(vc, knownGenes);
-      knownGenes.putAll(genes);
-      for (Gene gene : genes.values()) {
+      VariantContextGenes variantContextGenes = vepMapper.getGenes(vc, knownGenes);
+      knownGenes.putAll(variantContextGenes.getGenes());
+      for (Gene gene : variantContextGenes.getGenes().values()) {
         List<VariantContext> geneVariantList;
         if (geneVariantMap.containsKey(gene.getId())) {
           geneVariantList = geneVariantMap.get(gene.getId());
@@ -172,8 +168,16 @@ public class InheritanceService {
     checkAd(variantContext, filteredFamily, inheritance);
     checkXl(variantContext, filteredFamily, inheritance);
     inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, filteredFamily, sample));
+    inheritance.setFamilyWithMissingGT(checkMissingGTs(filteredFamily, variantContext));
 
     return inheritance;
+  }
+
+  private boolean checkMissingGTs(Pedigree filteredFamily,VariantContext variantContext) {
+    return filteredFamily.getMembers().values().stream().anyMatch(sample -> {
+      Genotype gt = variantContext.getGenotype(sample.getPerson().getIndividualId());
+      return gt == null || !gt.isCalled();
+    });
   }
 
   private void checkXl(VariantContext variantContext, Pedigree family,

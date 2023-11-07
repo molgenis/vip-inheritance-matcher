@@ -1,6 +1,5 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 
 import htsjdk.variant.variantcontext.VariantContext;
@@ -14,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.model.VariantContextGenes;
 import org.molgenis.vcf.utils.metadata.FieldMetadataService;
 import org.molgenis.vcf.utils.model.FieldMetadata;
 import org.molgenis.vcf.utils.model.NestedField;
@@ -63,11 +63,12 @@ public class VepMapper {
     throw new MissingInfoException("VEP");
   }
 
-  public Map<String, Gene> getGenes(VariantContext vc) {
+  public VariantContextGenes getGenes(VariantContext vc) {
     return getGenes(vc, emptyMap());
   }
 
-  public Map<String, Gene> getGenes(VariantContext vc, Map<String, Gene> knownGenes) {
+  public VariantContextGenes getGenes(VariantContext vc, Map<String, Gene> knownGenes) {
+    VariantContextGenes.VariantContextGenesBuilder genesBuilder = VariantContextGenes.builder();
     Map<String, Gene> genes = new HashMap<>();
     List<String> vepValues = vc.getAttributeAsStringList(vepFieldId, "");
     for (String vepValue : vepValues) {
@@ -75,6 +76,7 @@ public class VepMapper {
       String gene = vepSplit[geneIndex];
       String source = vepSplit[geneSourceIndex];
       if (gene.isEmpty() || source.isEmpty()) {
+        genesBuilder.containsVcWithoutGene(true);
         continue;
       }
 
@@ -94,7 +96,8 @@ public class VepMapper {
         genes.put(gene, knownGenes.get(gene));
       }
     }
-    return genes;
+    genesBuilder.genes(genes);
+    return genesBuilder.build();
   }
 
   private void mapGeneInheritance(Set<InheritanceMode> modes, String[] inheritanceModes) {
@@ -123,7 +126,7 @@ public class VepMapper {
   }
 
   public boolean containsIncompletePenetrance(VariantContext variantContext) {
-    Map<String, Gene> genes = getGenes(variantContext);
+    Map<String, Gene> genes = getGenes(variantContext).getGenes();
     return genes.values().stream().anyMatch(Gene::isIncompletePenetrance);
   }
 }

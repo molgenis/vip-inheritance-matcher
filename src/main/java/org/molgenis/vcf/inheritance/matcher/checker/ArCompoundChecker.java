@@ -27,7 +27,7 @@ public class ArCompoundChecker {
       VariantContext variantContext, Pedigree family) {
     if (onAutosome(variantContext)) {
       List<VariantContext> compounds = new ArrayList<>();
-      Map<String, Gene> genes = vepMapper.getGenes(variantContext);
+      Map<String, Gene> genes = vepMapper.getGenes(variantContext).getGenes();
       for (Gene gene : genes.values()) {
         checkForGene(geneVariantMap, variantContext, family, compounds, gene);
       }
