@@ -7,7 +7,6 @@ import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.*;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -83,7 +82,7 @@ class InheritanceMatcherTest {
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
 
-    Inheritance expectedInheritance = Inheritance.builder().match(UNKNOWN).inheritanceModes(
+    Inheritance expectedInheritance = Inheritance.builder().match(POTENTIAL).inheritanceModes(
             Set.of(AR, AD)).subInheritanceModes(Set.of(SubInheritanceMode.AD_IP, SubInheritanceMode.AR_C)).compounds(singleton("OTHER_VARIANT")).build();
     Annotation expectedAnnotation = Annotation.builder().inheritance(expectedInheritance).matchingGenes(emptySet()).build();
     Map<String, Annotation> expected = Map.of("sample1",expectedAnnotation);
@@ -118,7 +117,7 @@ class InheritanceMatcherTest {
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
 
-    Inheritance expectedInheritance = Inheritance.builder().match(UNKNOWN).inheritanceModes(
+    Inheritance expectedInheritance = Inheritance.builder().match(POTENTIAL).inheritanceModes(
             Set.of(AD)).subInheritanceModes(emptySet()).compounds(emptySet()).build();
     Annotation expectedAnnotation = Annotation.builder().inheritance(expectedInheritance).matchingGenes(emptySet()).build();
     Map<String, Annotation> expected = Map.of("sample1",expectedAnnotation);

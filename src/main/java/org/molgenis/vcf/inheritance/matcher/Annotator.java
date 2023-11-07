@@ -1,6 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.POTENTIAL;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFilterHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfInfoHeaderLines;
@@ -57,7 +58,7 @@ public class Annotator {
         "Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match."));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED,
         VCFHeaderLineType.String,
-        "Genes with an inheritance match."));
+        "Genes with a (potential) inheritance match."));
 
     Set<VCFHeaderLine> headerLines = new LinkedHashSet<>();
     //workaround for "Escaped doublequotes in INFO descriptions result in invalid VCF file"
@@ -112,7 +113,7 @@ public class Annotator {
       String inheritanceMatch = mapInheritanceMatch(match);
       genotypeBuilder
               .attribute(INHERITANCE_MATCH, inheritanceMatch);
-      if (match == TRUE) {
+      if ((match == TRUE || match == POTENTIAL) && annotation.getMatchingGenes() != null && !annotation.getMatchingGenes().isEmpty()) {
         genotypeBuilder
             .attribute(MATCHING_GENES, annotation.getMatchingGenes().stream().sorted().collect(
                 Collectors.joining(",")));
@@ -127,7 +128,7 @@ public class Annotator {
     switch (match){
       case TRUE -> inheritanceMatch = "1";
       case FALSE -> inheritanceMatch = "0";
-      case UNKNOWN -> inheritanceMatch = null;
+      case POTENTIAL -> inheritanceMatch = null;
       default -> throw new UnexpectedEnumException(match);
     }
     return inheritanceMatch;

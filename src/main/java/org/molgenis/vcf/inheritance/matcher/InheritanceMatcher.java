@@ -1,6 +1,5 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -55,12 +54,16 @@ public class InheritanceMatcher {
           if (geneInheritanceModes.stream()
                       .anyMatch(mode -> inheritance.getInheritanceModes().contains(mode))) {
               matchingGenes.add(gene.getId());
-              inheritance.setMatch(TRUE);
+              if(inheritance.isFamilyWithMissingGT()){
+                  inheritance.setMatch(POTENTIAL);
+              }else {
+                  inheritance.setMatch(TRUE);
+              }
           }
         }
         if(matchingGenes.isEmpty()) {
             if (containsUnknownGene || genes.isContainsVcWithoutGene()) {
-                inheritance.setMatch(UNKNOWN);
+                inheritance.setMatch(POTENTIAL);
             } else {
                 inheritance.setMatch(FALSE);
             }
