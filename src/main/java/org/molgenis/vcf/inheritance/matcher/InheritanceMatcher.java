@@ -73,25 +73,26 @@ public class InheritanceMatcher {
     }
 
     private static boolean isMatch(Set<InheritanceMode> pedigreeInheritanceModes, InheritanceMode geneInheritanceMode) {
-        for(InheritanceMode pedigreeInheritanceMode : pedigreeInheritanceModes)
-        switch(pedigreeInheritanceMode) {
-            case AD,AD_IP:
-                if(geneInheritanceMode == AD){
-                    return true;
-                }
-                break;
-            case AR,AR_C:
-                if(geneInheritanceMode == AR){
-                    return true;
-                }
-                break;
-            case XLR,XLD:
-                if(geneInheritanceMode == XL){
-                    return true;
-                }
-                break;
-            default:
-                throw new UnexpectedEnumException(pedigreeInheritanceMode);
+        for(InheritanceMode pedigreeInheritanceMode : pedigreeInheritanceModes) {
+            switch (pedigreeInheritanceMode) {
+                case AD, AD_IP:
+                    if (geneInheritanceMode == AD) {
+                        return true;
+                    }
+                    break;
+                case AR, AR_C:
+                    if (geneInheritanceMode == AR) {
+                        return true;
+                    }
+                    break;
+                case XLR, XLD:
+                    if (geneInheritanceMode == XL) {
+                        return true;
+                    }
+                    break;
+                default:
+                    throw new UnexpectedEnumException(pedigreeInheritanceMode);
+            }
         }
         return false;
     }

@@ -6,7 +6,6 @@ import static org.molgenis.vcf.utils.sample.model.AffectedStatus.UNAFFECTED;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 

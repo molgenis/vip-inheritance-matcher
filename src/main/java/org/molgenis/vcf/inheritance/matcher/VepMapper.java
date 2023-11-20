@@ -29,7 +29,6 @@ public class VepMapper {
   private int geneIndex = -1;
   private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
-  private int incompletePenetranceIndex = -1;
 
   public VepMapper(VCFFileReader vcfFileReader, FieldMetadataService fieldMetadataService) {
     this.fieldMetadataService = fieldMetadataService;
@@ -53,8 +52,6 @@ public class VepMapper {
         geneIndex = nestedFields.get(GENE) != null ? nestedFields.get(GENE).getIndex():-1;
         geneSourceIndex = nestedFields.get(SYMBOL_SOURCE) != null ? nestedFields.get(SYMBOL_SOURCE).getIndex():-1;
         inheritanceIndex = nestedFields.get(INHERITANCE) != null ? nestedFields.get(INHERITANCE).getIndex():-1;
-        incompletePenetranceIndex = nestedFields.get(INCOMPLETE_PENETRANCE) != null ? nestedFields.get(INCOMPLETE_PENETRANCE).getIndex():-1;
-
         return;
       }
     }
@@ -84,10 +81,6 @@ public class VepMapper {
           String[] inheritanceModes
               = vepSplit[inheritanceIndex].split("&");
           mapGeneInheritance(modes, inheritanceModes);
-        }
-        boolean isIncompletePenetrance = false;
-        if (incompletePenetranceIndex != -1) {
-          isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
         }
         genes.put(gene, new Gene(gene, source, modes));
       } else {

@@ -95,8 +95,6 @@ public class Annotator {
       if (!inheritanceModes.isEmpty()) {
         genotypeBuilder.attribute(INHERITANCE_MODES, inheritanceModes);
       }
-      String subinheritanceModes = String
-          .join(",", mapSubinheritanceModes(annotation.getInheritance()));
       String compounds = annotation.getInheritance().getCompounds().isEmpty() ? null : String
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
@@ -124,14 +122,6 @@ public class Annotator {
       default -> throw new UnexpectedEnumException(match);
     }
     return inheritanceMatch;
-  }
-
-  private Set<String> mapSubinheritanceModes(Inheritance inheritance) {
-    Set<String> result = new HashSet<>();
-    for (InheritanceMode inheritanceModeEnum : inheritance.getInheritanceModes()) {
-      result.add(inheritanceModeEnum.name());
-    }
-    return result;
   }
 
   private Set<String> mapInheritanceModes(Inheritance inheritance) {
