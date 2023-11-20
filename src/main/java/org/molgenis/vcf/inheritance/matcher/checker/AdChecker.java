@@ -43,7 +43,7 @@ public class AdChecker {
 
     switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED:
-        return genotype.isHet() || genotype.isMixed();
+        return !genotype.isHomRef() || genotype.isMixed();
       case UNAFFECTED:
         return genotype.getAlleles().stream()
             .allMatch(allele -> allele.isReference() || allele.isNoCall());
