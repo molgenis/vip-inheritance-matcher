@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 public class Annotator {
 
   public static final String INHERITANCE_MODES = "VI";
-  public static final String SUBINHERITANCE_MODES = "VIS";
   public static final String POSSIBLE_COMPOUND = "VIC";
   public static final String DENOVO = "VID";
   public static final String INHERITANCE_MATCH = "VIM";
@@ -42,11 +41,7 @@ public class Annotator {
     vcfHeader
         .addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED,
             VCFHeaderLineType.String,
-            "An enumeration of possible inheritance modes."));
-    vcfHeader
-        .addMetaDataLine(new VCFFormatHeaderLine(SUBINHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED,
-            VCFHeaderLineType.String,
-            "An enumeration of possible sub inheritance modes like e.g. compound, non penetrance."));
+            "An enumeration of possible inheritance modes based on the pedigree of the sample. Potential values: AD, AD_IP, AR, AR_C, XLR, XLD"));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(POSSIBLE_COMPOUND, 1,
         VCFHeaderLineType.String,
         "Possible Compound hetrozygote variants."));
@@ -102,9 +97,6 @@ public class Annotator {
       }
       String subinheritanceModes = String
           .join(",", mapSubinheritanceModes(annotation.getInheritance()));
-      if (!subinheritanceModes.isEmpty()) {
-        genotypeBuilder.attribute(SUBINHERITANCE_MODES, subinheritanceModes);
-      }
       String compounds = annotation.getInheritance().getCompounds().isEmpty() ? null : String
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
@@ -136,7 +128,7 @@ public class Annotator {
 
   private Set<String> mapSubinheritanceModes(Inheritance inheritance) {
     Set<String> result = new HashSet<>();
-    for (SubInheritanceMode inheritanceModeEnum : inheritance.getSubInheritanceModes()) {
+    for (InheritanceMode inheritanceModeEnum : inheritance.getInheritanceModes()) {
       result.add(inheritanceModeEnum.name());
     }
     return result;

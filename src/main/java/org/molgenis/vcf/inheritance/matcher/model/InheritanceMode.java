@@ -1,5 +1,5 @@
 package org.molgenis.vcf.inheritance.matcher.model;
 
 public enum InheritanceMode {
-  AR, AD, XLD, XLR, XL
+  AD, AR, AR_C, AD_IP, XL, XLR, XLD
 }

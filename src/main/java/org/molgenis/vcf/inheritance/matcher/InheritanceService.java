@@ -44,8 +44,6 @@ public class InheritanceService {
 
   private final FieldMetadataService fieldMetadataService;
   private final Annotator annotator;
-
-  private AdNonPenetranceChecker adNonPenetranceChecker;
   private ArCompoundChecker arCompoundChecker;
 
   ArChecker arChecker = new ArChecker();
@@ -66,7 +64,6 @@ public class InheritanceService {
     VCFFileReader vcfFileReader = createReader(inputVcf);
 
     VepMapper vepMapper = new VepMapper(vcfFileReader, fieldMetadataService);
-    this.adNonPenetranceChecker = new AdNonPenetranceChecker(vepMapper);
     this.arCompoundChecker = new ArCompoundChecker(vepMapper);
 
     Map<String, Gene> knownGenes = new HashMap<>();
@@ -183,14 +180,10 @@ public class InheritanceService {
   private void checkXl(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
     if (xldChecker.check(variantContext, family)) {
-      inheritance.addSubInheritanceMode(SubInheritanceMode.XLD);
       inheritance.addInheritanceMode(InheritanceMode.XLD);
-      inheritance.addInheritanceMode(InheritanceMode.XL);
     }
     if (xlrChecker.check(variantContext, family)) {
-      inheritance.addSubInheritanceMode(SubInheritanceMode.XLR);
       inheritance.addInheritanceMode(InheritanceMode.XLR);
-      inheritance.addInheritanceMode(InheritanceMode.XL);
     }
   }
 
@@ -199,9 +192,8 @@ public class InheritanceService {
     if (AdChecker.check(variantContext, family)) {
       inheritance.addInheritanceMode(InheritanceMode.AD);
     } else {
-      if (adNonPenetranceChecker.check(variantContext, family)) {
-        inheritance.addSubInheritanceMode(SubInheritanceMode.AD_IP);
-        inheritance.addInheritanceMode(InheritanceMode.AD);
+      if (AdNonPenetranceChecker.check(variantContext, family)) {
+        inheritance.addInheritanceMode(InheritanceMode.AD_IP);
       }
     }
   }
@@ -215,8 +207,7 @@ public class InheritanceService {
       List<VariantContext> compounds = arCompoundChecker
           .check(geneVariantMap, variantContext, family);
       if (!compounds.isEmpty()) {
-        inheritance.addSubInheritanceMode(SubInheritanceMode.AR_C);
-        inheritance.addInheritanceMode(InheritanceMode.AR);
+        inheritance.addInheritanceMode(InheritanceMode.AR_C);
         inheritance.setCompounds(compounds.stream().map(this::createKey).collect(
             Collectors.toSet()));
       }

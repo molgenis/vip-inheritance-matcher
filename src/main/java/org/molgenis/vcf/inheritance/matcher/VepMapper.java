@@ -6,11 +6,9 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.VariantContextGenes;
@@ -91,7 +89,7 @@ public class VepMapper {
         if (incompletePenetranceIndex != -1) {
           isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
         }
-        genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
+        genes.put(gene, new Gene(gene, source, modes));
       } else {
         genes.put(gene, knownGenes.get(gene));
       }
@@ -123,10 +121,5 @@ public class VepMapper {
           //We ignore all the modes that are not used for matching.
       }
     }
-  }
-
-  public boolean containsIncompletePenetrance(VariantContext variantContext) {
-    Map<String, Gene> genes = getGenes(variantContext).getGenes();
-    return genes.values().stream().anyMatch(Gene::isIncompletePenetrance);
   }
 }

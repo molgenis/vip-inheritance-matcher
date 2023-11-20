@@ -11,16 +11,10 @@ import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class AdNonPenetranceChecker {
+  private AdNonPenetranceChecker(){}
 
-  private final VepMapper vepMapper;
-
-  public AdNonPenetranceChecker(VepMapper vepMapper) {
-    this.vepMapper = vepMapper;
-  }
-
-  public boolean check(VariantContext variantContext, Pedigree family) {
-    if (onAutosome(variantContext) && vepMapper.containsIncompletePenetrance(variantContext)
-        && !AdChecker.check(variantContext, family)) {
+  public static boolean check(VariantContext variantContext, Pedigree family) {
+    if (onAutosome(variantContext) && !AdChecker.check(variantContext, family)) {
       for (Sample currentSample : family.getMembers().values()) {
         Genotype genotype = variantContext.getGenotype(currentSample.getPerson().getIndividualId());
         if (!checkSample(currentSample, genotype)) {
@@ -32,10 +26,10 @@ public class AdNonPenetranceChecker {
     return false;
   }
 
-  private boolean checkSample(Sample sample, Genotype genotype) {
+  private static boolean checkSample(Sample sample, Genotype genotype) {
 
-    if (genotype == null || !genotype.isCalled() || genotype.isHet() || genotype.isMixed()) {
-      //Due to the incomplete penetrance individuals can be HET indepent of their affected status
+    if (genotype == null || !genotype.isCalled() || !genotype.isHomRef() || genotype.isMixed()) {
+      //Due to the incomplete penetrance individuals can have the variant independent of their affected status
       return true;
     }
 

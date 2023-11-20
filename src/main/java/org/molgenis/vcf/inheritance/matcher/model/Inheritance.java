@@ -11,8 +11,6 @@ public class Inheritance {
   @Builder.Default
   Set<InheritanceMode> inheritanceModes = new HashSet<>();
   @Builder.Default
-  Set<SubInheritanceMode> subInheritanceModes = new HashSet<>();
-  @Builder.Default
   Set<String> compounds = new HashSet<>();
 
   @Builder.Default
@@ -26,9 +24,5 @@ public class Inheritance {
 
   public void addInheritanceMode(InheritanceMode inheritanceMode) {
     inheritanceModes.add(inheritanceMode);
-  }
-
-  public void addSubInheritanceMode(SubInheritanceMode subInheritanceMode) {
-    subInheritanceModes.add(subInheritanceMode);
   }
 }

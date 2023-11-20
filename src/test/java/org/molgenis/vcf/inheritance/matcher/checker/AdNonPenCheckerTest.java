@@ -1,7 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
 
 import htsjdk.variant.variantcontext.Genotype;
@@ -10,9 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,14 +33,9 @@ class AdNonPenCheckerTest {
 
   @ParameterizedTest(name = "{index} {4}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Pedigree family,
-      boolean isIncompletePenetrance, boolean expected,
+  void check(VariantContext variantContext, Pedigree family, boolean expected,
       String displayName) {
-    AdNonPenetranceChecker adNonPenChecker = new AdNonPenetranceChecker(vepMapper);
-    when(vepMapper
-        .containsIncompletePenetrance(variantContext))
-        .thenReturn(isIncompletePenetrance);
-    assertEquals(expected, adNonPenChecker.check(variantContext, family));
+    assertEquals(expected, AdNonPenetranceChecker.check(variantContext, family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
@@ -60,11 +52,10 @@ class AdNonPenCheckerTest {
       AffectedStatus fatherAffectedStatus = AffectedStatus.valueOf(line[5]);
       String motherGt = line[6];
       AffectedStatus motherAffectedStatus = AffectedStatus.valueOf(line[7]);
-      boolean isIncompletePenetrance = Boolean.parseBoolean(line[10]);
       String brotherGt = line[8];
       AffectedStatus brotherAffectedStatus =
           line[9].isEmpty() ? null : AffectedStatus.valueOf(line[9]);
-      boolean expected = Boolean.parseBoolean(line[11]);
+      boolean expected = Boolean.parseBoolean(line[10]);
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,
@@ -82,7 +73,7 @@ class AdNonPenCheckerTest {
       }
       return Arguments.of(VariantContextTestUtil
           .createVariantContext(genotypes,
-              ""), family, isIncompletePenetrance, expected, testName);
+              ""), family, expected, testName);
 
     });
   }
