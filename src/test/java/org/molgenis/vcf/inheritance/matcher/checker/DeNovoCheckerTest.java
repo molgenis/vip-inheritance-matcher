@@ -27,10 +27,11 @@ class DeNovoCheckerTest {
 
     @ParameterizedTest(name = "{index} {3}")
     @MethodSource("provideTestCases")
-    void check(VariantContext variantContext, Pedigree family, boolean expected,
+    void check(VariantContext variantContext, Pedigree family, String expectedString,
     String displayName) {
+      Boolean expected = expectedString.equals("possible") ? null : Boolean.parseBoolean(expectedString);
       Sample individual = family.getMembers().get("Patient");
-      assertEquals(expected, deNovoChecker.checkDeNovo(variantContext, family, individual));
+      assertEquals(expected, deNovoChecker.checkDeNovo(variantContext, individual));
     }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
@@ -45,7 +46,7 @@ class DeNovoCheckerTest {
       String fatherGt = line[3];
       String motherGt = line[4];
       String chrom = line[5];
-      boolean expected = Boolean.parseBoolean(line[6]);
+      String expected = line[6];
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, AffectedStatus.MISSING, AffectedStatus.MISSING,

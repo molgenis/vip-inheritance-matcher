@@ -18,3 +18,15 @@ XFatherHasItF	1/0	FEMALE	1	0/0	X	false
 XFatherHasItHomAltF	1/1	FEMALE	1	0/0	X	true
 XMotherHasItF	1/0	FEMALE	0	1/0	X	false
 XHomRefF	0/0	FEMALE	0	1/0	X	false
+XMotherPartialAltFatherMissing	1/0	FEMALE	.	./1	X	false
+XMotherPartialRefFatherMissing	1/0	FEMALE	.	./0	X	possible
+XMotherHomRefFatherMissing	1/0	FEMALE	.	0/0	X	possible
+XMotherMissingFatherMissing	1/0	FEMALE	.	./.	X	possible
+XMotherMotherPartialRefFatherAlt	1/0	FEMALE	1	./0	X	false
+ProbandPartial1	1/.	FEMALE	0	0/0	X	true
+ProbandPartial2	1/.	FEMALE	0	1/0	X	possible
+ProbandPartial3	1/.	FEMALE	0	1/.	X	possible
+ProbandPartial4	1/.	FEMALE	1	1/.	X	false
+ProbandPartial5	1/.	FEMALE	0	0/.	X	possible
+ProbandPartial6	./0	FEMALE	0	0/0	X	possible
+ProbandMissing	./.	FEMALE	0	0/0	X	possible

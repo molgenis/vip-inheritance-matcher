@@ -164,7 +164,7 @@ public class InheritanceService {
     checkAr(geneVariantMap, variantContext, filteredFamily, inheritance);
     checkAd(variantContext, filteredFamily, inheritance);
     checkXl(variantContext, filteredFamily, inheritance);
-    inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, filteredFamily, sample));
+    inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, sample));
     inheritance.setFamilyWithMissingGT(checkMissingGTs(filteredFamily, variantContext));
 
     return inheritance;

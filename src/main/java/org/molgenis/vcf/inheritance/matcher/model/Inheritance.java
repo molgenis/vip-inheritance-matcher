@@ -17,7 +17,7 @@ public class Inheritance {
   InheritanceMatch match = InheritanceMatch.POTENTIAL;
 
   @Builder.Default
-  boolean denovo = false;
+  Boolean denovo = null;
 
   @Builder.Default
   boolean isFamilyWithMissingGT = false;
