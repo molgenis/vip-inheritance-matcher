@@ -25,7 +25,7 @@ public class InheritanceMatcher {
       String sample = entry.getKey();
       Inheritance inheritance = entry.getValue();
       //If no inheritance pattern is suitable for the sample, regardless of the gene: inheritance match is false.
-      if(inheritance.getInheritanceModes().isEmpty()){
+      if(inheritance.getPedigreeInheritanceMatches().isEmpty()){
         inheritance.setMatch(FALSE);
       }
       else {
@@ -54,12 +54,12 @@ public class InheritanceMatcher {
               containsUnknownGene = true;
           }
           if (geneInheritanceModes.stream()
-                      .anyMatch(geneInheritanceMode -> isMatch(pedigreeInheritance.getInheritanceModes(), geneInheritanceMode))) {
+                      .anyMatch(geneInheritanceMode -> isMatch(pedigreeInheritance.getPedigreeInheritanceMatches(), geneInheritanceMode))) {
               matchingGenes.add(gene.getId());
-              if(pedigreeInheritance.isFamilyWithMissingGT()){
-                  pedigreeInheritance.setMatch(POTENTIAL);
-              }else {
+              if(pedigreeInheritance.getPedigreeInheritanceMatches().stream().anyMatch(pedigreeInheritanceMatch -> !pedigreeInheritanceMatch.isUncertain())){
                   pedigreeInheritance.setMatch(TRUE);
+              }else {
+                  pedigreeInheritance.setMatch(POTENTIAL);
               }
           }
         }
@@ -72,9 +72,9 @@ public class InheritanceMatcher {
         }
     }
 
-    private static boolean isMatch(Set<InheritanceMode> pedigreeInheritanceModes, InheritanceMode geneInheritanceMode) {
-        for(InheritanceMode pedigreeInheritanceMode : pedigreeInheritanceModes) {
-            switch (pedigreeInheritanceMode) {
+    private static Boolean isMatch(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, InheritanceMode geneInheritanceMode) {
+        for(PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
+            switch (pedigreeInheritanceMatch.getInheritanceMode()) {
                 case AD, AD_IP:
                     if (geneInheritanceMode == AD) {
                         return true;
@@ -91,7 +91,7 @@ public class InheritanceMatcher {
                     }
                     break;
                 default:
-                    throw new UnexpectedEnumException(pedigreeInheritanceMode);
+                    throw new UnexpectedEnumException(pedigreeInheritanceMatch.getInheritanceMode());
             }
         }
         return false;

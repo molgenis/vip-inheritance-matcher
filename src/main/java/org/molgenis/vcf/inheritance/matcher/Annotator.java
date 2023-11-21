@@ -132,8 +132,8 @@ public class Annotator {
 
   private Set<String> mapInheritanceModes(Inheritance inheritance) {
     Set<String> result = new HashSet<>();
-    for (InheritanceMode inheritanceMode : inheritance.getInheritanceModes()) {
-      result.add(inheritanceMode.name());
+    for (PedigreeInheritanceMatch pedigreeInheritanceMatch : inheritance.getPedigreeInheritanceMatches()) {
+      result.add(pedigreeInheritanceMatch.getInheritanceMode().name());
     }
     return result;
   }

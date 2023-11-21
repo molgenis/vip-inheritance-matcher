@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 public class Inheritance {
   @Builder.Default
-  Set<InheritanceMode> inheritanceModes = new HashSet<>();
+  Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = new HashSet<>();
   @Builder.Default
   Set<String> compounds = new HashSet<>();
 
@@ -22,7 +22,7 @@ public class Inheritance {
   @Builder.Default
   boolean isFamilyWithMissingGT = false;
 
-  public void addInheritanceMode(InheritanceMode inheritanceMode) {
-    inheritanceModes.add(inheritanceMode);
+  public void addInheritanceMode(PedigreeInheritanceMatch pedigreeInheritanceMatch) {
+    pedigreeInheritanceMatches.add(pedigreeInheritanceMatch);
   }
 }

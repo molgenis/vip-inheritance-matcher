@@ -9,9 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,8 +28,9 @@ class AdCheckerTest {
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Pedigree family, boolean expected,
+  void check(VariantContext variantContext, Pedigree family, String expectedString,
       String displayName) {
+    Boolean expected = expectedString.equals("possible") ? null : Boolean.parseBoolean(expectedString);
     assertEquals(expected, AdChecker.check(variantContext, family));
   }
 
@@ -52,7 +51,7 @@ class AdCheckerTest {
       String brotherGt = line[8];
       AffectedStatus brotherAffectedStatus =
           line[9].isEmpty() ? null : AffectedStatus.valueOf(line[9]);
-      boolean expected = Boolean.parseBoolean(line[10]);
+      String expected = line[10];
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,

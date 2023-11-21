@@ -179,21 +179,25 @@ public class InheritanceService {
 
   private void checkXl(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    if (xldChecker.check(variantContext, family)) {
-      inheritance.addInheritanceMode(InheritanceMode.XLD);
+    Boolean isXld = xldChecker.check(variantContext, family);
+    if (isXld != Boolean.FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLD, isXld == null));
     }
-    if (xlrChecker.check(variantContext, family)) {
-      inheritance.addInheritanceMode(InheritanceMode.XLR);
+    Boolean isXlr = xlrChecker.check(variantContext, family);
+    if (isXlr != Boolean.FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLR, isXlr == null));
     }
   }
 
   private void checkAd(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    if (AdChecker.check(variantContext, family)) {
-      inheritance.addInheritanceMode(InheritanceMode.AD);
+    Boolean isAd = AdChecker.check(variantContext, family);
+    if (isAd != Boolean.FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == null));
     } else {
-      if (AdNonPenetranceChecker.check(variantContext, family)) {
-        inheritance.addInheritanceMode(InheritanceMode.AD_IP);
+      Boolean isAdNonPenetrance = AdNonPenetranceChecker.check(variantContext, family);
+      if (isAdNonPenetrance != false) {
+        inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == null));
       }
     }
   }
@@ -201,13 +205,15 @@ public class InheritanceService {
   private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    if (arChecker.check(variantContext, family)) {
-      inheritance.addInheritanceMode(InheritanceMode.AR);
+    Boolean isAr = arChecker.check(variantContext, family);
+    if (isAr != Boolean.FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == null));
     } else {
       List<VariantContext> compounds = arCompoundChecker
           .check(geneVariantMap, variantContext, family);
       if (!compounds.isEmpty()) {
-        inheritance.addInheritanceMode(InheritanceMode.AR_C);
+        //FIXME
+        inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, true));
         inheritance.setCompounds(compounds.stream().map(this::createKey).collect(
             Collectors.toSet()));
       }

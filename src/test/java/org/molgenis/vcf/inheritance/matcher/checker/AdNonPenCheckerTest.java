@@ -31,10 +31,11 @@ class AdNonPenCheckerTest {
   @Mock
   private VepMapper vepMapper;
 
-  @ParameterizedTest(name = "{index} {4}")
+  @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Pedigree family, boolean expected,
+  void check(VariantContext variantContext, Pedigree family, String expectedString,
       String displayName) {
+    Boolean expected = expectedString.equals("possible") ? null : Boolean.parseBoolean(expectedString);
     assertEquals(expected, AdNonPenetranceChecker.check(variantContext, family));
   }
 
@@ -55,7 +56,7 @@ class AdNonPenCheckerTest {
       String brotherGt = line[8];
       AffectedStatus brotherAffectedStatus =
           line[9].isEmpty() ? null : AffectedStatus.valueOf(line[9]);
-      boolean expected = Boolean.parseBoolean(line[10]);
+      String expected = line[10];
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,

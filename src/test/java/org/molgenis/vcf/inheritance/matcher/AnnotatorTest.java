@@ -16,8 +16,7 @@ import static org.molgenis.vcf.inheritance.matcher.Annotator.POSSIBLE_COMPOUND;
 import static org.molgenis.vcf.inheritance.matcher.checker.PedigreeTestUtil.createFamily;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.FALSE;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AR;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.AD;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.*;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
 
 import htsjdk.variant.variantcontext.Genotype;
@@ -37,6 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
+import org.molgenis.vcf.inheritance.matcher.model.PedigreeInheritanceMatch;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sex;
@@ -146,9 +146,8 @@ class AnnotatorTest {
         AffectedStatus.UNAFFECTED, "FAM");
     Map<String, Pedigree> families = Map.of("FAM", familyMap);
 
-    Inheritance inheritance = Inheritance.builder().match(TRUE).denovo(true).inheritanceModes(
-            Set.of(AD, AR))
-        .inheritanceModes(Set.of(InheritanceMode.AD_IP, InheritanceMode.AR_C))
+    Inheritance inheritance = Inheritance.builder().match(TRUE).denovo(true).pedigreeInheritanceMatches(
+            Set.of(new PedigreeInheritanceMatch(AD_IP, false), new PedigreeInheritanceMatch(AR_C, false)))
         .compounds(singleton("OTHER_VARIANT")).build();
     Annotation annotation = Annotation.builder().inheritance(inheritance).matchingGenes(
         Set.of("GENE1", "GENE2")).build();
@@ -179,9 +178,8 @@ class AnnotatorTest {
             AffectedStatus.UNAFFECTED, "FAM");
     Map<String, Pedigree> families = Map.of("FAM", familyMap);
 
-    Inheritance inheritance = Inheritance.builder().denovo(true).inheritanceModes(
-                    Set.of(AD, AR))
-            .inheritanceModes(Set.of(InheritanceMode.AD_IP, InheritanceMode.AR_C))
+    Inheritance inheritance = Inheritance.builder().denovo(true)
+            .pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(AD_IP, false), new PedigreeInheritanceMatch(AR_C, false)))
             .compounds(singleton("OTHER_VARIANT")).build();
     Annotation annotation = Annotation.builder().inheritance(inheritance).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
@@ -209,9 +207,8 @@ class AnnotatorTest {
             AffectedStatus.UNAFFECTED, "FAM");
     Map<String, Pedigree> families = Map.of("FAM", familyMap);
 
-    Inheritance inheritance = Inheritance.builder().match(FALSE).denovo(true).inheritanceModes(
+    Inheritance inheritance = Inheritance.builder().match(FALSE).denovo(true).pedigreeInheritanceMatches(
                     emptySet())
-            .inheritanceModes(emptySet())
             .compounds(emptySet()).build();
     Annotation annotation = Annotation.builder().inheritance(inheritance).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
