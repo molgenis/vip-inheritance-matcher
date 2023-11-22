@@ -8,6 +8,9 @@ import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class AdNonPenetranceChecker {
   private AdNonPenetranceChecker(){}
 
@@ -17,13 +20,18 @@ public class AdNonPenetranceChecker {
       return false;
     }
 
+    return checkFamily(variantContext, family);
+  }
+
+  public static Boolean checkFamily(VariantContext variantContext, Pedigree family) {
+    Set<Boolean> results = new HashSet<>();
     for (Sample sample : family.getMembers().values()) {
-      Boolean result = checkSample(sample, variantContext);
-      if(result == null){
-        return null;
-      } else if(result == false){
-        return false;
-      }
+      results.add(checkSample(sample, variantContext));
+    }
+    if(results.contains(false)){
+      return false;
+    }else if(results.contains(null)){
+      return null;
     }
     return true;
   }
