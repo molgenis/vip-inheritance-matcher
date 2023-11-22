@@ -209,12 +209,12 @@ public class InheritanceService {
     if (isAr != Boolean.FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == null));
     } else {
-      List<VariantContext> compounds = arCompoundChecker
+      List<CompoundCheckResult> compounds = arCompoundChecker
           .check(geneVariantMap, variantContext, family);
       if (!compounds.isEmpty()) {
-        //FIXME
-        inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, true));
-        inheritance.setCompounds(compounds.stream().map(this::createKey).collect(
+        boolean isCertain = compounds.stream().anyMatch(compoundCheckResult -> compoundCheckResult.isCertain() == true);
+        inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, !isCertain));
+        inheritance.setCompounds(compounds.stream().map(compoundCheckResult -> createKey(compoundCheckResult.getPossibleCompound())).collect(
             Collectors.toSet()));
       }
     }

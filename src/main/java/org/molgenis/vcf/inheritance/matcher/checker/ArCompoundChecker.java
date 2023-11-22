@@ -1,128 +1,163 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
+import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
+import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class ArCompoundChecker {
 
-  private final VepMapper vepMapper;
+    private final VepMapper vepMapper;
 
-  public ArCompoundChecker(VepMapper vepMapper) {
-    this.vepMapper = vepMapper;
-  }
-
-  public List<VariantContext> check(
-      Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Pedigree family) {
-    if (onAutosome(variantContext)) {
-      List<VariantContext> compounds = new ArrayList<>();
-      Map<String, Gene> genes = vepMapper.getGenes(variantContext).getGenes();
-      for (Gene gene : genes.values()) {
-        checkForGene(geneVariantMap, variantContext, family, compounds, gene);
-      }
-      return compounds;
+    public ArCompoundChecker(VepMapper vepMapper) {
+        this.vepMapper = vepMapper;
     }
-    return Collections.emptyList();
-  }
 
-  private void checkForGene(Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Pedigree family, List<VariantContext> compounds,
-      Gene gene) {
-    List<VariantContext> variantContexts = geneVariantMap.get(gene.getId());
-    if (variantContexts != null) {
-      for (VariantContext otherVariantContext : variantContexts) {
-        if (!otherVariantContext.equals(variantContext) && checkFamily(family, variantContext,
-            otherVariantContext)) {
-          compounds.add(otherVariantContext);
+    public List<CompoundCheckResult> check(
+            Map<String, List<VariantContext>> geneVariantMap,
+            VariantContext variantContext, Pedigree family) {
+        if (onAutosome(variantContext)) {
+            List<CompoundCheckResult> compounds = new ArrayList<>();
+            Map<String, Gene> genes = vepMapper.getGenes(variantContext).getGenes();
+            for (Gene gene : genes.values()) {
+                checkForGene(geneVariantMap, variantContext, family, compounds, gene);
+            }
+            return compounds;
         }
-      }
+        return Collections.emptyList();
     }
-  }
 
-  private boolean checkFamily(Pedigree family, VariantContext variantContext,
-      VariantContext otherVariantContext) {
-    for (Sample sample : family.getMembers().values()) {
-      if (!checkIndividual(variantContext, otherVariantContext, sample)) {
-        return false;
-      }
+    private void checkForGene(Map<String, List<VariantContext>> geneVariantMap,
+                              VariantContext variantContext, Pedigree family, List<CompoundCheckResult> compounds,
+                              Gene gene) {
+        List<VariantContext> variantContexts = geneVariantMap.get(gene.getId());
+        if (variantContexts != null) {
+            for (VariantContext otherVariantContext : variantContexts) {
+                if (!otherVariantContext.equals(variantContext)) {
+                    Boolean isPossibleCompound = checkFamily(family, variantContext, otherVariantContext);
+                    if (isPossibleCompound != Boolean.FALSE) {
+                        CompoundCheckResult result = CompoundCheckResult.builder().possibleCompound(otherVariantContext).isCertain(isPossibleCompound != null).build();
+                        compounds.add(result);
+                    }
+                }
+            }
+        }
     }
-    return true;
-  }
 
-  private boolean checkIndividual(VariantContext variantContext, VariantContext otherVariantContext,
-      Sample sample) {
-    //Affected individuals have to be het. for both variants
-    //Healthy individuals can be het. for one of the variants but cannot have both variants
-    Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
-    Genotype sampleOtherGt = otherVariantContext.getGenotype(sample.getPerson().getIndividualId());
-
-    switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED:
-        return checkAffectedSample(sampleGt, sampleOtherGt);
-      case UNAFFECTED:
-        return checkUnaffectedSample(sampleGt, sampleOtherGt);
-      case MISSING:
+    private Boolean checkFamily(Pedigree family, VariantContext variantContext,
+                                VariantContext otherVariantContext) {
+        Set<Boolean> results = new HashSet<>();
+        for (Sample sample : family.getMembers().values()) {
+            results.add(checkSample(sample, variantContext, otherVariantContext));
+        }
+        if (results.contains(false)) {
+            return false;
+        } else if (results.contains(null)) {
+            return null;
+        }
         return true;
-      default:
-        throw new IllegalArgumentException();
     }
-  }
 
-  private boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-    if(sampleGt == null || sampleOtherGt == null){
-      return true;
+    private Boolean checkSample(Sample sample, VariantContext variantContext, VariantContext otherVariantContext) {
+        //Affected individuals have to be het. for both variants
+        //Healthy individuals can be het. for one of the variants but cannot have both variants
+        Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
+        Genotype sampleOtherGt = otherVariantContext.getGenotype(sample.getPerson().getIndividualId());
+
+        switch (sample.getPerson().getAffectedStatus()) {
+            case AFFECTED:
+                return checkAffectedSample(sampleGt, sampleOtherGt);
+            case UNAFFECTED:
+                return checkUnaffectedSample(sampleGt, sampleOtherGt);
+            case MISSING:
+                return null;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
-    boolean sampleContainsAlt = !sampleGt.getAlleles().stream()
-        .allMatch(allele -> allele.isReference() || allele
-            .isNoCall());
-    boolean sampleOtherGtContainsAlt = !sampleOtherGt.getAlleles().stream()
-        .allMatch(allele -> allele.isReference() || allele
-            .isNoCall());
-    //Check if one or both of the variants might not be present (REF or missing) in a unaffected individual.
-    //Only if both are present the check fails.
-    if (sampleContainsAlt && sampleOtherGtContainsAlt) {
-      if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
-        return checkPhasedUnaffected(sampleGt, sampleOtherGt);
-      }
-      return false;
+
+    private Boolean checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+        if (sampleGt.isHomRef() || sampleOtherGt.isHomRef()) {
+            return false;
+        } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
+            return checkAffectedSamplePhased(sampleGt, sampleOtherGt);
+        }
+        return checkAffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
-    return true;
-  }
 
-  private boolean checkPhasedUnaffected(Genotype sampleGt, Genotype sampleOtherGt) {
-    Allele allele1 = sampleGt.getAllele(0);
-    Allele allele2 = sampleGt.getAllele(1);
-    Allele otherAllele1 = sampleOtherGt.getAllele(0);
-    Allele otherAllele2 = sampleOtherGt.getAllele(1);
-    //For phased data both variants can be present in a unaffected individual if both are on the same allele
-    return !(bothAlt(allele1, otherAllele2) || bothAlt(allele2, otherAllele1));
-  }
+    private Boolean checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+        if (sampleGt == null || sampleOtherGt == null) {
+            return null;
+        } else if (isHomAlt(sampleGt) || isHomAlt(sampleOtherGt)) {
+            return false;
+        }
+        if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
+            return checkUnaffectedSamplePhased(sampleGt, sampleOtherGt);
+        }
+        return checkUnaffectedSampleUnphased(sampleGt, sampleOtherGt);
+    }
 
-  private boolean bothAlt(Allele allele1, Allele allele2) {
-    return allele1.isNonReference() && allele2.isNonReference();
-  }
+    private Boolean checkUnaffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
+        boolean sampleContainsAlt = hasVariant(sampleGt);
+        boolean sampleOtherGtContainsAlt = hasVariant(sampleOtherGt);
+        if (sampleContainsAlt && sampleOtherGtContainsAlt) {
+            return false;
+        } else if ((sampleContainsAlt || sampleGt.isMixed() || sampleGt.isNoCall()) &&
+                (sampleOtherGtContainsAlt || sampleOtherGt.isMixed() || sampleOtherGt.isNoCall())) {
+            return null;
+        }
+        return true;
+    }
 
-  private boolean checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-    if (!((sampleGt.isHet() || sampleGt.isMixed()) && (sampleOtherGt.isHet() || sampleOtherGt
-        .isMixed()))) {
-      return false;
-    } else {
-      if (sampleGt.isPhased() && sampleOtherGt.isPhased() && sampleGt.getAllele(0)
-          .equals(sampleOtherGt.getAllele(0))) {
+    private Boolean checkUnaffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
+        Allele allele1 = sampleGt.getAllele(0);
+        Allele allele2 = sampleGt.getAllele(1);
+        Allele otherAllele1 = sampleOtherGt.getAllele(0);
+        Allele otherAllele2 = sampleOtherGt.getAllele(1);
+        //For phased data both variants can be present in an unaffected individual if both are on the same allele
+        if ((isAlt(allele1) && isAlt(otherAllele2)) || isAlt(allele2) && isAlt(otherAllele1)) {
+            return false;
+        }
+        if ((allele1.isReference() && otherAllele2.isReference()) || (allele2.isReference() && otherAllele1.isReference())) {
+            return true;
+        }
+        return null;
+    }
+
+    private Boolean checkAffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
+        if (hasVariant(sampleGt) && hasVariant(sampleOtherGt)) {
+            return true;
+        }
+        if ((hasVariant(sampleGt) && sampleOtherGt.isMixed())
+                || (sampleGt.isMixed() && hasVariant(sampleOtherGt)
+                || sampleGt.isMixed() && sampleOtherGt.isMixed())) {
+            return null;
+        }
         return false;
-      }
     }
-    return true;
-  }
+
+    private Boolean checkAffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
+        Allele allele1 = sampleGt.getAllele(0);
+        Allele allele2 = sampleGt.getAllele(1);
+        Allele otherAllele1 = sampleOtherGt.getAllele(0);
+        Allele otherAllele2 = sampleOtherGt.getAllele(1);
+        //For phased data both variants can be present in an unaffected individual if both are on the same allele
+        if ((isAlt(allele1) && isAlt(otherAllele2)) || isAlt(allele2) && isAlt(otherAllele1)) {
+            return true;
+        }
+        if ((allele1.isReference() && otherAllele2.isReference()) || (allele2.isReference() && otherAllele1.isReference())) {
+            return false;
+        }
+        return null;
+    }
 }
