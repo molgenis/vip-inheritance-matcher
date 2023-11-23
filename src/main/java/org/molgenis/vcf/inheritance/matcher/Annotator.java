@@ -97,7 +97,8 @@ public class Annotator {
       }
       String compounds = annotation.getInheritance().getCompounds().isEmpty() ? null : String
           .join(",", annotation.getInheritance().getCompounds());
-      genotypeBuilder.attribute(DENOVO, mapDenovoValue(annotation, genotypeBuilder, compounds));
+      genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
+      genotypeBuilder.attribute(DENOVO, mapDenovoValue(annotation));
       InheritanceMatch match = annotation.getInheritance().getMatch();
       String inheritanceMatch = mapInheritanceMatch(match);
       genotypeBuilder
@@ -112,8 +113,7 @@ public class Annotator {
     }
   }
 
-  private static String mapDenovoValue(Annotation annotation, GenotypeBuilder genotypeBuilder, String compounds) {
-    genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
+  private static String mapDenovoValue(Annotation annotation) {
     Boolean isDenovo = annotation.getInheritance().getDenovo();
     String denovoValue = isDenovo == null ? null : isDenovo? "1" : "0";
     return denovoValue;
