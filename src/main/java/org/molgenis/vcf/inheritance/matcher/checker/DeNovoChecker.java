@@ -6,7 +6,6 @@ import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVari
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
 

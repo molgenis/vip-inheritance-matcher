@@ -75,23 +75,22 @@ public class InheritanceMatcher {
     private static Boolean isMatch(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, InheritanceMode geneInheritanceMode) {
         for(PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
             switch (pedigreeInheritanceMatch.getInheritanceMode()) {
-                case AD, AD_IP:
+                case AD, AD_IP -> {
                     if (geneInheritanceMode == AD) {
                         return true;
                     }
-                    break;
-                case AR, AR_C:
+                }
+                case AR, AR_C -> {
                     if (geneInheritanceMode == AR) {
                         return true;
                     }
-                    break;
-                case XLR, XLD:
+                }
+                case XLR, XLD -> {
                     if (geneInheritanceMode == XL) {
                         return true;
                     }
-                    break;
-                default:
-                    throw new UnexpectedEnumException(pedigreeInheritanceMatch.getInheritanceMode());
+                }
+                default -> throw new UnexpectedEnumException(pedigreeInheritanceMatch.getInheritanceMode());
             }
         }
         return false;

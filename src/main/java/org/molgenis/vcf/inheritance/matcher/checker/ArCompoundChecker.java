@@ -74,16 +74,12 @@ public class ArCompoundChecker {
         Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
         Genotype sampleOtherGt = otherVariantContext.getGenotype(sample.getPerson().getIndividualId());
 
-        switch (sample.getPerson().getAffectedStatus()) {
-            case AFFECTED:
-                return checkAffectedSample(sampleGt, sampleOtherGt);
-            case UNAFFECTED:
-                return checkUnaffectedSample(sampleGt, sampleOtherGt);
-            case MISSING:
-                return null;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (sample.getPerson().getAffectedStatus()) {
+            case AFFECTED -> checkAffectedSample(sampleGt, sampleOtherGt);
+            case UNAFFECTED -> checkUnaffectedSample(sampleGt, sampleOtherGt);
+            case MISSING -> null;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     private Boolean checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {

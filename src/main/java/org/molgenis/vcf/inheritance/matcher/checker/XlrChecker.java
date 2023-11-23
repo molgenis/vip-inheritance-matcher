@@ -15,7 +15,7 @@ public class XlrChecker extends XlChecker {
         }
 
         switch (sample.getPerson().getAffectedStatus()) {
-            case AFFECTED:
+            case AFFECTED -> {
                 switch (getSex(sample.getPerson().getSex(), genotype)) {
                     case MALE:
                         // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).
@@ -26,40 +26,43 @@ public class XlrChecker extends XlChecker {
                         }
                     case FEMALE:
                         // Affected females have to be hom. alt.
-                        if(genotype.isHomRef()){
+                        if (genotype.isHomRef()) {
                             return false;
-                        }else if(hasVariant(genotype) && genotype.isMixed()){
+                        } else if (hasVariant(genotype) && genotype.isMixed()) {
                             return null;
                         }
                         return genotype.isHom();
                     default:
                         throw new IllegalArgumentException();
                 }
-            case UNAFFECTED:
+            }
+            case UNAFFECTED -> {
                 switch (getSex(sample.getPerson().getSex(), genotype)) {
-                    case MALE:
+                    case MALE -> {
                         // Healthy males cannot carry the variant.
-                        if(hasVariant(genotype)){
+                        if (hasVariant(genotype)) {
                             return false;
-                        }else if(genotype.isHomRef()){
+                        } else if (genotype.isHomRef()) {
                             return true;
                         }
                         return null;
-                    case FEMALE:
+                    }
+                    case FEMALE -> {
                         // Healthy females cannot be hom. alt.
-                        if(hasVariant(genotype) && genotype.isHom()){
+                        if (hasVariant(genotype) && genotype.isHom()) {
                             return false;
-                        }else if(hasVariant(genotype) && genotype.isMixed()){
+                        } else if (hasVariant(genotype) && genotype.isMixed()) {
                             return null;
                         }
                         return true;
-                    default:
-                        throw new IllegalArgumentException();
+                    }
+                    default -> throw new IllegalArgumentException();
                 }
-            case MISSING:
+            }
+            case MISSING -> {
                 return null;
-            default:
-                throw new IllegalArgumentException();
+            }
+            default -> throw new IllegalArgumentException();
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -15,7 +16,7 @@ public class XldChecker extends XlChecker {
         }
 
         switch (sample.getPerson().getAffectedStatus()) {
-            case AFFECTED:
+            case AFFECTED -> {
                 // Affected individuals have to be het. or hom. alt.
                 if (hasVariant(genotype)) {
                     return true;
@@ -23,32 +24,33 @@ public class XldChecker extends XlChecker {
                     //homRef? then XLD==false, is any allele is missing than the match is "potential"
                     return genotype.isHomRef() ? false : null;
                 }
-
-            case UNAFFECTED:
+            }
+            case UNAFFECTED -> {
                 switch (getSex(sample.getPerson().getSex(), genotype)) {
-                    case MALE:
+                    case MALE -> {
                         // Healthy males cannot carry the variant
-                        if(genotype.getAlleles().stream()
-                                .allMatch(allele -> allele.isReference())){
+                        if (genotype.getAlleles().stream()
+                                .allMatch(Allele::isReference)) {
                             return true;
-                        }
-                        else if(hasVariant(genotype)){
+                        } else if (hasVariant(genotype)) {
                             return false;
                         }
                         return null;
-                    case FEMALE:
+                    }
+                    case FEMALE -> {
                         // Healthy females can carry the variant (because of X inactivation)
-                        if(genotype.isMixed() && hasVariant(genotype)){
+                        if (genotype.isMixed() && hasVariant(genotype)) {
                             return null;
                         }
                         return genotype.isHet() || genotype.isMixed() || genotype.isHomRef();
-                    default:
-                        throw new IllegalArgumentException();
+                    }
+                    default -> throw new IllegalArgumentException();
                 }
-            case MISSING:
+            }
+            case MISSING -> {
                 return null;
-            default:
-                throw new IllegalArgumentException();
+            }
+            default -> throw new IllegalArgumentException();
         }
     }
 }

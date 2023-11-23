@@ -63,16 +63,12 @@ public class AdChecker {
     }
 
     private static Boolean checkSampleWithoutVariant(Sample sample) {
-        switch (sample.getPerson().getAffectedStatus()) {
-            case AFFECTED:
-                return false;
-            case UNAFFECTED:
-                return true;
-            case MISSING:
-                return null;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (sample.getPerson().getAffectedStatus()) {
+            case AFFECTED -> false;
+            case UNAFFECTED -> true;
+            case MISSING -> null;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     private static Boolean checkSampleWithVariant(Sample sample) {
@@ -90,21 +86,22 @@ public class AdChecker {
 
     private static Boolean checkMixed(Sample sample, Genotype sampleGt) {
         switch (sample.getPerson().getAffectedStatus()) {
-            case AFFECTED:
+            case AFFECTED -> {
                 if (!hasVariant(sampleGt)) {
                     return null;
                 }
-                break;
-            case UNAFFECTED:
+            }
+            case UNAFFECTED -> {
                 if (hasVariant(sampleGt)) {
                     return false;
-                }else{
+                } else {
                     return null;
                 }
-            case MISSING:
+            }
+            case MISSING -> {
                 return null;
-            default:
-                throw new IllegalArgumentException();
+            }
+            default -> throw new IllegalArgumentException();
         }
         return true;
     }

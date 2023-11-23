@@ -39,17 +39,19 @@ public class AdNonPenetranceChecker {
   private static Boolean checkSample(Sample sample, VariantContext variantContext) {
     Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
     switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED:
-        if(sampleGt.isMixed()){
+      case AFFECTED -> {
+        if (sampleGt.isMixed()) {
           return hasVariant(sampleGt) ? true : null;
         }
         return sampleGt.isNoCall() ? null : !sampleGt.isHomRef();
-      case UNAFFECTED:
+      }
+      case UNAFFECTED -> {
         return true;
-      case MISSING:
+      }
+      case MISSING -> {
         return null;
-      default:
-        throw new IllegalArgumentException();
+      }
+      default -> throw new IllegalArgumentException();
     }
   }
 }

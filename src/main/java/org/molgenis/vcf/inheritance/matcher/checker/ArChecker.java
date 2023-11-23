@@ -53,43 +53,36 @@ public class ArChecker {
   }
 
   private static Boolean checkSampleWithoutVariant(Sample sample) {
-    switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED:
-        return false;
-      case UNAFFECTED:
-        return true;
-      case MISSING:
-        return null;
-      default:
-        throw new IllegalArgumentException();
-    }
+    return switch (sample.getPerson().getAffectedStatus()) {
+      case AFFECTED -> false;
+      case UNAFFECTED -> true;
+      case MISSING -> null;
+      default -> throw new IllegalArgumentException();
+    };
   }
 
   private static Boolean checkSampleWithVariant(Sample sample, Genotype sampleGt) {
-    switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED:
-        return sampleGt.isHom();
-      case UNAFFECTED:
-        return sampleGt.isHet();
-      case MISSING:
-        return null;
-      default:
-        throw new IllegalArgumentException();
-    }
+    return switch (sample.getPerson().getAffectedStatus()) {
+      case AFFECTED -> sampleGt.isHom();
+      case UNAFFECTED -> sampleGt.isHet();
+      case MISSING -> null;
+      default -> throw new IllegalArgumentException();
+    };
   }
 
   private static Boolean checkMixed(Sample sample, Genotype sampleGt) {
     switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED:
+      case AFFECTED -> {
         if (!hasVariant(sampleGt)) {
           return false;
-        }else{
+        } else {
           return null;
         }
-      case UNAFFECTED, MISSING:
-          return null;
-      default:
-        throw new IllegalArgumentException();
+      }
+      case UNAFFECTED, MISSING -> {
+        return null;
+      }
+      default -> throw new IllegalArgumentException();
     }
   }
 }

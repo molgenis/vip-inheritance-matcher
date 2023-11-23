@@ -3,7 +3,6 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
@@ -55,9 +54,9 @@ class ArCompoundCheckerTest {
     if(expected == Boolean.FALSE) {
       assertTrue(compounds.isEmpty());
     }else if(expected == Boolean.TRUE){
-      assertTrue(compounds.stream().anyMatch(compoundCheckResult -> compoundCheckResult.isCertain()));
+      assertTrue(compounds.stream().anyMatch(CompoundCheckResult::isCertain));
     }else{
-      assertTrue(!compounds.isEmpty() && compounds.stream().noneMatch(compoundCheckResult -> compoundCheckResult.isCertain()));
+      assertTrue(!compounds.isEmpty() && compounds.stream().noneMatch(CompoundCheckResult::isCertain));
     }
   }
 

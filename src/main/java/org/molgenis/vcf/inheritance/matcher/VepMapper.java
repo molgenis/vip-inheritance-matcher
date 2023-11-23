@@ -94,24 +94,17 @@ public class VepMapper {
   private void mapGeneInheritance(Set<InheritanceMode> modes, String[] inheritanceModes) {
     for (String mode : inheritanceModes) {
       switch (mode) {
-        case "AR":
-          modes.add(InheritanceMode.AR);
-          break;
-        case "AD":
-          modes.add(InheritanceMode.AD);
-          break;
-        case "XLR":
-          modes.add(InheritanceMode.XLR);
-          break;
-        case "XLD":
-          modes.add(InheritanceMode.XLD);
-          break;
-        case "XL":
+        case "AR" -> modes.add(InheritanceMode.AR);
+        case "AD" -> modes.add(InheritanceMode.AD);
+        case "XLR" -> modes.add(InheritanceMode.XLR);
+        case "XLD" -> modes.add(InheritanceMode.XLD);
+        case "XL" -> {
           modes.add(InheritanceMode.XLR);
           modes.add(InheritanceMode.XLD);
-          break;
-        default:
-          //We ignore all the modes that are not used for matching.
+        }
+        default -> {
+        }
+        //We ignore all the modes that are not used for matching.
       }
     }
   }

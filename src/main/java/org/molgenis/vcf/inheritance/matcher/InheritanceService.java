@@ -45,8 +45,6 @@ public class InheritanceService {
   private final FieldMetadataService fieldMetadataService;
   private final Annotator annotator;
   private ArCompoundChecker arCompoundChecker;
-
-  ArChecker arChecker = new ArChecker();
   XldChecker xldChecker = new XldChecker();
   XlrChecker xlrChecker = new XlrChecker();
   DeNovoChecker deNovoChecker = new DeNovoChecker();
@@ -196,7 +194,7 @@ public class InheritanceService {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == null));
     } else {
       Boolean isAdNonPenetrance = AdNonPenetranceChecker.check(variantContext, family);
-      if (isAdNonPenetrance != false) {
+      if (isAdNonPenetrance != Boolean.FALSE) {
         inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == null));
       }
     }
@@ -205,7 +203,7 @@ public class InheritanceService {
   private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    Boolean isAr = arChecker.check(variantContext, family);
+    Boolean isAr = ArChecker.check(variantContext, family);
     if (isAr != Boolean.FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == null));
     } else {

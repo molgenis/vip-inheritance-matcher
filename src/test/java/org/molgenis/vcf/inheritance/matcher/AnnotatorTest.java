@@ -35,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.PedigreeInheritanceMatch;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
