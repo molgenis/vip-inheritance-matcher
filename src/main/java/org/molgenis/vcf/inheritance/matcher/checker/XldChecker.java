@@ -1,36 +1,54 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.utils.sample.model.Sample;
+
+import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 public class XldChecker extends XlChecker {
 
-  protected boolean checkIndividual(Sample sample, Genotype genotype) {
-    if (genotype == null || !genotype.isCalled()) {
-      return true;
-    }
-
-    switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED:
-        // Affected individuals have to be het. or hom. alt.
-        return genotype.getAlleles().stream()
-            .anyMatch(allele -> allele.isNonReference() || allele.isNoCall());
-      case UNAFFECTED:
-        switch (getSex(sample.getPerson().getSex(), genotype)) {
-          case MALE:
-            // Healthy males cannot carry the variant
-            return genotype.getAlleles().stream()
-                .allMatch(allele -> allele.isReference() || allele.isNoCall());
-          case FEMALE:
-            // Healthy females can carry the variant (because of X inactivation)
-            return genotype.isHet() || genotype.isMixed() || genotype.isHomRef();
-          default:
-            throw new IllegalArgumentException();
+    protected Boolean checkSample(Sample sample, VariantContext variantContext) {
+        Genotype genotype = variantContext.getGenotype(sample.getPerson().getIndividualId());
+        if (genotype == null || !genotype.isCalled()) {
+            return null;
         }
-      case MISSING:
-        return true;
-      default:
-        throw new IllegalArgumentException();
+
+        switch (sample.getPerson().getAffectedStatus()) {
+            case AFFECTED:
+                // Affected individuals have to be het. or hom. alt.
+                if (hasVariant(genotype)) {
+                    return true;
+                } else {
+                    //homRef? then XLD==false, is any allele is missing than the match is "potential"
+                    return genotype.isHomRef() ? false : null;
+                }
+
+            case UNAFFECTED:
+                switch (getSex(sample.getPerson().getSex(), genotype)) {
+                    case MALE:
+                        // Healthy males cannot carry the variant
+                        if(genotype.getAlleles().stream()
+                                .allMatch(allele -> allele.isReference())){
+                            return true;
+                        }
+                        else if(hasVariant(genotype)){
+                            return false;
+                        }
+                        return null;
+                    case FEMALE:
+                        // Healthy females can carry the variant (because of X inactivation)
+                        if(genotype.isMixed() && hasVariant(genotype)){
+                            return null;
+                        }
+                        return genotype.isHet() || genotype.isMixed() || genotype.isHomRef();
+                    default:
+                        throw new IllegalArgumentException();
+                }
+            case MISSING:
+                return null;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
-  }
 }
