@@ -19,9 +19,6 @@ public class Inheritance {
   @Builder.Default
   Boolean denovo = null;
 
-  @Builder.Default
-  boolean isFamilyWithMissingGT = false;
-
   public void addInheritanceMode(PedigreeInheritanceMatch pedigreeInheritanceMatch) {
     pedigreeInheritanceMatches.add(pedigreeInheritanceMatch);
   }

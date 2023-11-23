@@ -5,9 +5,13 @@ import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.GenotypeBuilder;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.VariantContextBuilder;
+import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
 
 public class VariantContextTestUtil {
 
@@ -61,6 +65,15 @@ public class VariantContextTestUtil {
     } else {
       return ALT;
     }
+  }
+
+  public static InheritanceResult mapExpectedString(String expectedString) {
+    return switch (expectedString) {
+      case "true" -> TRUE;
+      case "false" -> FALSE;
+      case "possible" -> POTENTIAL;
+      default -> throw new IllegalArgumentException("Value should be true, false or possible.");
+    };
   }
 
 }

@@ -3,6 +3,7 @@ package org.molgenis.vcf.inheritance.matcher;
 import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
 import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
 import static org.molgenis.vcf.utils.sample.mapper.PedToSamplesMapper.mapPedFileToPedigrees;
 
 import htsjdk.variant.variantcontext.Allele;
@@ -162,40 +163,40 @@ public class InheritanceService {
     checkAr(geneVariantMap, variantContext, filteredFamily, inheritance);
     checkAd(variantContext, filteredFamily, inheritance);
     checkXl(variantContext, filteredFamily, inheritance);
-    inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, sample));
-    inheritance.setFamilyWithMissingGT(checkMissingGTs(filteredFamily, variantContext));
+    inheritance.setDenovo(mapDenovo(deNovoChecker.checkDeNovo(variantContext, sample)));
 
     return inheritance;
   }
 
-  private boolean checkMissingGTs(Pedigree filteredFamily,VariantContext variantContext) {
-    return filteredFamily.getMembers().values().stream().anyMatch(sample -> {
-      Genotype gt = variantContext.getGenotype(sample.getPerson().getIndividualId());
-      return gt == null || !gt.isCalled();
-    });
+  private Boolean mapDenovo(InheritanceResult checkDeNovo) {
+    return switch (checkDeNovo) {
+      case FALSE -> false;
+      case TRUE -> true;
+      case POTENTIAL -> null;
+    };
   }
 
   private void checkXl(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    Boolean isXld = xldChecker.check(variantContext, family);
-    if (isXld != Boolean.FALSE) {
-      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLD, isXld == null));
+    InheritanceResult isXld = xldChecker.check(variantContext, family);
+    if (isXld != FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLD, isXld == POTENTIAL));
     }
-    Boolean isXlr = xlrChecker.check(variantContext, family);
-    if (isXlr != Boolean.FALSE) {
-      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLR, isXlr == null));
+    InheritanceResult isXlr = xlrChecker.check(variantContext, family);
+    if (isXlr != FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLR, isXlr == POTENTIAL));
     }
   }
 
   private void checkAd(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    Boolean isAd = AdChecker.check(variantContext, family);
-    if (isAd != Boolean.FALSE) {
-      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == null));
+    InheritanceResult isAd = AdChecker.check(variantContext, family);
+    if (isAd != FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == POTENTIAL));
     } else {
-      Boolean isAdNonPenetrance = AdNonPenetranceChecker.check(variantContext, family);
-      if (isAdNonPenetrance != Boolean.FALSE) {
-        inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == null));
+      InheritanceResult isAdNonPenetrance = AdNonPenetranceChecker.check(variantContext, family);
+      if (isAdNonPenetrance != FALSE) {
+        inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == POTENTIAL));
       }
     }
   }
@@ -203,9 +204,9 @@ public class InheritanceService {
   private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    Boolean isAr = ArChecker.check(variantContext, family);
-    if (isAr != Boolean.FALSE) {
-      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == null));
+    InheritanceResult isAr = ArChecker.check(variantContext, family);
+    if (isAr != FALSE) {
+      inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == POTENTIAL));
     } else {
       List<CompoundCheckResult> compounds = arCompoundChecker
           .check(geneVariantMap, variantContext, family);

@@ -6,6 +6,7 @@ import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
+import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -24,10 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
-import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
-import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.VariantContextGenes;
+import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -46,14 +44,14 @@ class ArCompoundCheckerTest {
   void check(VariantContext variantContext, Map<String, List<VariantContext>> geneVariantMap,
       Pedigree family, String expectedString,
       String displayName) {
-    Boolean expected = expectedString.equals("possible") ? null : Boolean.parseBoolean(expectedString);
+    InheritanceResult expected = mapExpectedString(expectedString);
     ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMapper);
     when(vepMapper.getGenes(variantContext)).thenReturn(VariantContextGenes.builder().genes(singletonMap("GENE1", gene1)).build());
     Boolean actual = false;
     List<CompoundCheckResult> compounds = arCompoundChecker.check(geneVariantMap, variantContext, family);
-    if(expected == Boolean.FALSE) {
+    if(expected == InheritanceResult.FALSE) {
       assertTrue(compounds.isEmpty());
-    }else if(expected == Boolean.TRUE){
+    }else if(expected == InheritanceResult.TRUE){
       assertTrue(compounds.stream().anyMatch(CompoundCheckResult::isCertain));
     }else{
       assertTrue(!compounds.isEmpty() && compounds.stream().noneMatch(CompoundCheckResult::isCertain));

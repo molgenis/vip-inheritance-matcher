@@ -1,42 +1,44 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasParents;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
+import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
 
 public class DeNovoChecker {
 
-    public Boolean checkDeNovo(VariantContext variantContext, Sample proband) {
+    public InheritanceResult checkDeNovo(VariantContext variantContext, Sample proband) {
         Genotype probandGt = variantContext.getGenotype(proband.getPerson().getIndividualId());
         Genotype fatherGt = variantContext.getGenotype(proband.getPerson().getPaternalId());
         Genotype motherGt = variantContext.getGenotype(proband.getPerson().getMaternalId());
 
         if (!hasParents(proband)) {
-            return null;
+            return POTENTIAL;
         }
         if (onChromosomeX(variantContext) && proband.getPerson().getSex() == Sex.MALE) {
             if (hasVariant(probandGt)) {
                 if (hasVariant(motherGt)) {
-                    return false;
+                    return FALSE;
                 } else if (motherGt.isHomRef()) {
-                    return true;
+                    return TRUE;
                 } else {
-                    return null;
+                    return POTENTIAL;
                 }
             }
-            return probandGt.isNoCall() ? null : false;
+            return probandGt.isNoCall() ? POTENTIAL : FALSE;
         } else {
             return checkRegular(probandGt, fatherGt, motherGt);
         }
     }
 
-    private Boolean checkRegular(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        Boolean result = false;
+    private InheritanceResult checkRegular(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        InheritanceResult result = FALSE;
         if (probandGt != null) {
             if (probandGt.isHom()) {
                 result = checkHomozygote(probandGt, fatherGt, motherGt);
@@ -45,55 +47,55 @@ public class DeNovoChecker {
             } else if (probandGt.isMixed()) {
                 result = checkMixed(probandGt, fatherGt, motherGt);
             } else {
-                result = (hasVariant(motherGt) && hasVariant(fatherGt)) ? false: null;
+                result = (hasVariant(motherGt) && hasVariant(fatherGt)) ? FALSE: POTENTIAL;
             }
         }
         return result;
     }
 
-    private static Boolean checkMixed(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        Boolean result;
+    private static InheritanceResult checkMixed(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        InheritanceResult result;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
-                result = true;
+                result = TRUE;
             } else if (hasVariant(motherGt) && hasVariant(fatherGt)) {
-                result = false;
+                result = FALSE;
             } else {
-                result = null;
+                result = POTENTIAL;
             }
         } else {
             if (hasVariant(motherGt) || hasVariant(fatherGt)) {
-                result = false;
+                result = FALSE;
             } else {
-                result = null;
+                result = POTENTIAL;
             }
         }
         return result;
     }
 
-    private static Boolean checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        Boolean result = false;
+    private static InheritanceResult checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        InheritanceResult result = FALSE;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
-                result = true;
+                result = TRUE;
             } else if (hasVariant(motherGt) || hasVariant(fatherGt)) {
-                result = false;
+                result = FALSE;
             } else {
-                result = null;
+                result = POTENTIAL;
             }
         }
         return result;
     }
 
-    private static Boolean checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        Boolean result = false;
+    private static InheritanceResult checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        InheritanceResult result = FALSE;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() || fatherGt.isHomRef()) {
-                result = true;
+                result = TRUE;
             } else if (hasVariant(motherGt) && hasVariant(fatherGt)) {
-                result = false;
+                result = FALSE;
             } else {
-                result = null;
+                result = POTENTIAL;
             }
         }
         return result;
