@@ -135,7 +135,7 @@ public class ArCompoundChecker {
     }
 
     private Boolean checkAffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
-        if (hasVariant(sampleGt) && hasVariant(sampleOtherGt)) {
+        if (hasVariant(sampleGt) && !sampleGt.isHom() && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom()) {
             return true;
         }
         if ((hasVariant(sampleGt) && sampleOtherGt.isMixed())
