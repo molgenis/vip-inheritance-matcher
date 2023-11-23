@@ -40,9 +40,9 @@ public class DeNovoChecker {
         Boolean result = false;
         if (probandGt != null) {
             if (probandGt.isHom()) {
-                result = checkHomozygote(probandGt, fatherGt, motherGt, result);
+                result = checkHomozygote(probandGt, fatherGt, motherGt);
             } else if (probandGt.isHet()) {
-                result = checkHetrozygote(probandGt, fatherGt, motherGt, result);
+                result = checkHetrozygote(probandGt, fatherGt, motherGt);
             } else if (probandGt.isMixed()) {
                 result = checkMixed(probandGt, fatherGt, motherGt);
             } else {
@@ -72,7 +72,8 @@ public class DeNovoChecker {
         return result;
     }
 
-    private static Boolean checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt, Boolean result) {
+    private static Boolean checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        Boolean result = false;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
                 result = true;
@@ -81,13 +82,12 @@ public class DeNovoChecker {
             } else {
                 result = null;
             }
-        }else{
-            result = false;
         }
         return result;
     }
 
-    private static Boolean checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt, Boolean result) {
+    private static Boolean checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        Boolean result = false;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() || fatherGt.isHomRef()) {
                 result = true;
@@ -96,8 +96,6 @@ public class DeNovoChecker {
             } else {
                 result = null;
             }
-        }else{
-            result = false;
         }
         return result;
     }
