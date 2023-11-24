@@ -7,6 +7,7 @@ import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
+import org.springframework.stereotype.Component;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
@@ -14,6 +15,7 @@ import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVari
 /**
  * Autosomal dominant (AD) inheritance pattern matcher
  */
+@Component
 public class AdChecker extends InheritanceChecker{
     /**
      * Check whether the AD inheritance pattern could match for a variant in a pedigree

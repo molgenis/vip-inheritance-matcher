@@ -10,7 +10,9 @@ import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DeNovoChecker {
 
     public MatchEnum checkDeNovo(VariantContext variantContext, Sample proband) {

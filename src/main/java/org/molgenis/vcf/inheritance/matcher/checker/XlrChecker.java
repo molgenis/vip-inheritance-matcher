@@ -4,10 +4,12 @@ import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
+import org.springframework.stereotype.Component;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
+@Component
 public class XlrChecker extends XlChecker {
 
     protected MatchEnum checkSample(Sample sample, VariantContext variantContext) {

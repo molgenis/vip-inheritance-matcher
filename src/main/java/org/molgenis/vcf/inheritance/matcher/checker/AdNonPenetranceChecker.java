@@ -9,7 +9,9 @@ import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AdNonPenetranceChecker extends InheritanceChecker{
 
   public MatchEnum check(
