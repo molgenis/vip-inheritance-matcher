@@ -1,13 +1,13 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.utils.sample.model.Sex.FEMALE;
 import static org.molgenis.vcf.utils.sample.model.Sex.MALE;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
@@ -17,15 +17,15 @@ import java.util.Set;
 
 public abstract class XlChecker {
 
-  public InheritanceResult check(VariantContext variantContext, Pedigree family) {
+  public MatchEnum check(VariantContext variantContext, Pedigree family) {
     if (!onChromosomeX(variantContext)) {
       return FALSE;
     }
     return checkFamily(variantContext, family);
   }
 
-  public InheritanceResult checkFamily(VariantContext variantContext, Pedigree family) {
-    Set<InheritanceResult> results = new HashSet<>();
+  public MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
+    Set<MatchEnum> results = new HashSet<>();
 
     for (Sample sample : family.getMembers().values()) {
       results.add(checkSample(sample, variantContext));
@@ -37,7 +37,7 @@ public abstract class XlChecker {
     }
     return TRUE;
   }
-  protected abstract InheritanceResult checkSample(Sample currentSample, VariantContext variantContext);
+  protected abstract MatchEnum checkSample(Sample currentSample, VariantContext variantContext);
 
   protected Sex getSex(Sex sex, Genotype genotype) {
     if (sex == Sex.UNKNOWN) {

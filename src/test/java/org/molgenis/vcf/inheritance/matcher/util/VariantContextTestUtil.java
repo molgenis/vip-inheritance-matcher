@@ -5,13 +5,13 @@ import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.GenotypeBuilder;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.VariantContextBuilder;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 public class VariantContextTestUtil {
 
@@ -67,7 +67,7 @@ public class VariantContextTestUtil {
     }
   }
 
-  public static InheritanceResult mapExpectedString(String expectedString) {
+  public static MatchEnum mapExpectedString(String expectedString) {
     return switch (expectedString) {
       case "true" -> TRUE;
       case "false" -> FALSE;

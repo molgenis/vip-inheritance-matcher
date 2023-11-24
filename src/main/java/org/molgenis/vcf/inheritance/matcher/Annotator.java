@@ -1,7 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.POTENTIAL;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.TRUE;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.POTENTIAL;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFilterHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfInfoHeaderLines;
@@ -99,7 +99,7 @@ public class Annotator {
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
       genotypeBuilder.attribute(DENOVO, mapDenovoValue(annotation));
-      InheritanceMatch match = annotation.getInheritance().getMatch();
+      MatchEnum match = annotation.getInheritance().getMatch();
       String inheritanceMatch = mapInheritanceMatch(match);
       genotypeBuilder
               .attribute(INHERITANCE_MATCH, inheritanceMatch);
@@ -114,12 +114,14 @@ public class Annotator {
   }
 
   private static String mapDenovoValue(Annotation annotation) {
-    Boolean isDenovo = annotation.getInheritance().getDenovo();
-    String denovoValue = isDenovo == null ? null : isDenovo? "1" : "0";
-    return denovoValue;
+    return switch (annotation.getInheritance().getDenovo()){
+      case TRUE -> "1";
+      case FALSE -> "0";
+      case POTENTIAL -> null;
+    };
   }
 
-  private static String mapInheritanceMatch(InheritanceMatch match) {
+  private static String mapInheritanceMatch(MatchEnum match) {
     String inheritanceMatch;
     switch (match){
       case TRUE -> inheritanceMatch = "1";

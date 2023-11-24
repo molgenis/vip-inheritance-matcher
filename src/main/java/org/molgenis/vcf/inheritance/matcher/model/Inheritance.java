@@ -14,10 +14,10 @@ public class Inheritance {
   Set<String> compounds = new HashSet<>();
 
   @Builder.Default
-  InheritanceMatch match = InheritanceMatch.POTENTIAL;
+  MatchEnum match = MatchEnum.POTENTIAL;
 
   @Builder.Default
-  Boolean denovo = null;
+  MatchEnum denovo = MatchEnum.POTENTIAL;
 
   public void addInheritanceMode(PedigreeInheritanceMatch pedigreeInheritanceMatch) {
     pedigreeInheritanceMatches.add(pedigreeInheritanceMatch);

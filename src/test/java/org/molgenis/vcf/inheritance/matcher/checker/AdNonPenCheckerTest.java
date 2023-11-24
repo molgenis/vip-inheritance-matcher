@@ -20,7 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -37,7 +37,7 @@ class AdNonPenCheckerTest {
   @MethodSource("provideTestCases")
   void check(VariantContext variantContext, Pedigree family, String expectedString,
       String displayName) {
-    InheritanceResult expected = mapExpectedString(expectedString);
+    MatchEnum expected = mapExpectedString(expectedString);
     assertEquals(expected, AdNonPenetranceChecker.check(variantContext, family));
   }
 

@@ -3,7 +3,7 @@ package org.molgenis.vcf.inheritance.matcher;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.*;
 
 import java.util.Map;
@@ -15,8 +15,8 @@ class InheritanceMatcherTest {
 
   @Test
   void matchInheritanceMatch() {
-    Inheritance inheritance1 = Inheritance.builder().denovo(true).pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(AD_IP,false), new PedigreeInheritanceMatch(InheritanceMode.AR_C,false))).compounds(singleton("OTHER_VARIANT")).build();
-    Inheritance inheritance2 = Inheritance.builder().denovo(false).pedigreeInheritanceMatches(
+    Inheritance inheritance1 = Inheritance.builder().denovo(TRUE).pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(AD_IP,false), new PedigreeInheritanceMatch(InheritanceMode.AR_C,false))).compounds(singleton("OTHER_VARIANT")).build();
+    Inheritance inheritance2 = Inheritance.builder().denovo(FALSE).pedigreeInheritanceMatches(
         Set.of(new PedigreeInheritanceMatch(AR,false))).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1, "sample2",
         inheritance2);
@@ -25,8 +25,8 @@ class InheritanceMatcherTest {
     Map<String, Annotation> actual = InheritanceMatcher
         .matchInheritance(inheritanceMap, genes);
 
-    Inheritance expectedInheritance1 = Inheritance.builder().match(TRUE).denovo(true).pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(AD_IP,false), new PedigreeInheritanceMatch(InheritanceMode.AR_C,false))).compounds(singleton("OTHER_VARIANT")).build();
-    Inheritance expectedInheritance2 = Inheritance.builder().match(TRUE).denovo(false).pedigreeInheritanceMatches(
+    Inheritance expectedInheritance1 = Inheritance.builder().match(TRUE).denovo(TRUE).pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(AD_IP,false), new PedigreeInheritanceMatch(InheritanceMode.AR_C,false))).compounds(singleton("OTHER_VARIANT")).build();
+    Inheritance expectedInheritance2 = Inheritance.builder().match(TRUE).denovo(FALSE).pedigreeInheritanceMatches(
             Set.of(new PedigreeInheritanceMatch(AR,false))).compounds(singleton("OTHER_VARIANT")).build();
     Annotation annotation1 = Annotation.builder().inheritance(expectedInheritance1).matchingGenes(Set.of("GENE1","GENE2")).build();
     Annotation annotation2 = Annotation.builder().inheritance(expectedInheritance2).matchingGenes(Set.of("GENE1")).build();

@@ -3,11 +3,11 @@ package org.molgenis.vcf.inheritance.matcher;
 import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
 import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.FALSE;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.POTENTIAL;
 import static org.molgenis.vcf.utils.sample.mapper.PedToSamplesMapper.mapPedFileToPedigrees;
 
 import htsjdk.variant.variantcontext.Allele;
-import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
@@ -163,26 +163,19 @@ public class InheritanceService {
     checkAr(geneVariantMap, variantContext, filteredFamily, inheritance);
     checkAd(variantContext, filteredFamily, inheritance);
     checkXl(variantContext, filteredFamily, inheritance);
-    inheritance.setDenovo(mapDenovo(deNovoChecker.checkDeNovo(variantContext, sample)));
+    inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, sample));
 
     return inheritance;
   }
 
-  private Boolean mapDenovo(InheritanceResult checkDeNovo) {
-    return switch (checkDeNovo) {
-      case FALSE -> false;
-      case TRUE -> true;
-      case POTENTIAL -> null;
-    };
-  }
 
   private void checkXl(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    InheritanceResult isXld = xldChecker.check(variantContext, family);
+    MatchEnum isXld = xldChecker.check(variantContext, family);
     if (isXld != FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLD, isXld == POTENTIAL));
     }
-    InheritanceResult isXlr = xlrChecker.check(variantContext, family);
+    MatchEnum isXlr = xlrChecker.check(variantContext, family);
     if (isXlr != FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLR, isXlr == POTENTIAL));
     }
@@ -190,11 +183,11 @@ public class InheritanceService {
 
   private void checkAd(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    InheritanceResult isAd = AdChecker.check(variantContext, family);
+    MatchEnum isAd = AdChecker.check(variantContext, family);
     if (isAd != FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == POTENTIAL));
     } else {
-      InheritanceResult isAdNonPenetrance = AdNonPenetranceChecker.check(variantContext, family);
+      MatchEnum isAdNonPenetrance = AdNonPenetranceChecker.check(variantContext, family);
       if (isAdNonPenetrance != FALSE) {
         inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == POTENTIAL));
       }
@@ -204,7 +197,7 @@ public class InheritanceService {
   private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    InheritanceResult isAr = ArChecker.check(variantContext, family);
+    MatchEnum isAr = ArChecker.check(variantContext, family);
     if (isAr != FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == POTENTIAL));
     } else {

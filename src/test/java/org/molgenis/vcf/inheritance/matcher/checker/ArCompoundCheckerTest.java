@@ -5,6 +5,8 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.FALSE;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.TRUE;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
@@ -44,14 +46,14 @@ class ArCompoundCheckerTest {
   void check(VariantContext variantContext, Map<String, List<VariantContext>> geneVariantMap,
       Pedigree family, String expectedString,
       String displayName) {
-    InheritanceResult expected = mapExpectedString(expectedString);
+    MatchEnum expected = mapExpectedString(expectedString);
     ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMapper);
     when(vepMapper.getGenes(variantContext)).thenReturn(VariantContextGenes.builder().genes(singletonMap("GENE1", gene1)).build());
     Boolean actual = false;
     List<CompoundCheckResult> compounds = arCompoundChecker.check(geneVariantMap, variantContext, family);
-    if(expected == InheritanceResult.FALSE) {
+    if(expected == FALSE) {
       assertTrue(compounds.isEmpty());
-    }else if(expected == InheritanceResult.TRUE){
+    }else if(expected == TRUE){
       assertTrue(compounds.stream().anyMatch(CompoundCheckResult::isCertain));
     }else{
       assertTrue(!compounds.isEmpty() && compounds.stream().noneMatch(CompoundCheckResult::isCertain));

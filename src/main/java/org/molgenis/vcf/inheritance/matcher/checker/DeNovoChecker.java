@@ -1,19 +1,19 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasParents;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
 
 public class DeNovoChecker {
 
-    public InheritanceResult checkDeNovo(VariantContext variantContext, Sample proband) {
+    public MatchEnum checkDeNovo(VariantContext variantContext, Sample proband) {
         Genotype probandGt = variantContext.getGenotype(proband.getPerson().getIndividualId());
         Genotype fatherGt = variantContext.getGenotype(proband.getPerson().getPaternalId());
         Genotype motherGt = variantContext.getGenotype(proband.getPerson().getMaternalId());
@@ -37,8 +37,8 @@ public class DeNovoChecker {
         }
     }
 
-    private InheritanceResult checkRegular(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        InheritanceResult result = FALSE;
+    private MatchEnum checkRegular(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        MatchEnum result = FALSE;
         if (probandGt != null) {
             if (probandGt.isHom()) {
                 result = checkHomozygote(probandGt, fatherGt, motherGt);
@@ -53,8 +53,8 @@ public class DeNovoChecker {
         return result;
     }
 
-    private static InheritanceResult checkMixed(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        InheritanceResult result;
+    private static MatchEnum checkMixed(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        MatchEnum result;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
                 result = TRUE;
@@ -73,8 +73,8 @@ public class DeNovoChecker {
         return result;
     }
 
-    private static InheritanceResult checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        InheritanceResult result = FALSE;
+    private static MatchEnum checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        MatchEnum result = FALSE;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
                 result = TRUE;
@@ -87,8 +87,8 @@ public class DeNovoChecker {
         return result;
     }
 
-    private static InheritanceResult checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        InheritanceResult result = FALSE;
+    private static MatchEnum checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
+        MatchEnum result = FALSE;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() || fatherGt.isHomRef()) {
                 result = TRUE;

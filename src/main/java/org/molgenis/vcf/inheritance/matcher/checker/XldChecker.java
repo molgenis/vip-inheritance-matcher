@@ -3,15 +3,15 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 public class XldChecker extends XlChecker {
 
-    protected InheritanceResult checkSample(Sample sample, VariantContext variantContext) {
+    protected MatchEnum checkSample(Sample sample, VariantContext variantContext) {
         Genotype genotype = variantContext.getGenotype(sample.getPerson().getIndividualId());
         if (genotype == null || !genotype.isCalled()) {
             return POTENTIAL;

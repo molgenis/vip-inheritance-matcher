@@ -1,7 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Allele;
@@ -13,7 +13,7 @@ import java.util.*;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
@@ -46,7 +46,7 @@ public class ArCompoundChecker {
         if (variantContexts != null) {
             for (VariantContext otherVariantContext : variantContexts) {
                 if (!otherVariantContext.equals(variantContext)) {
-                    InheritanceResult isPossibleCompound = checkFamily(family, variantContext, otherVariantContext);
+                    MatchEnum isPossibleCompound = checkFamily(family, variantContext, otherVariantContext);
                     if (isPossibleCompound != FALSE) {
                         CompoundCheckResult result = CompoundCheckResult.builder().possibleCompound(otherVariantContext).isCertain(isPossibleCompound != POTENTIAL).build();
                         compounds.add(result);
@@ -56,9 +56,9 @@ public class ArCompoundChecker {
         }
     }
 
-    private InheritanceResult checkFamily(Pedigree family, VariantContext variantContext,
+    private MatchEnum checkFamily(Pedigree family, VariantContext variantContext,
                                 VariantContext otherVariantContext) {
-        Set<InheritanceResult> results = new HashSet<>();
+        Set<MatchEnum> results = new HashSet<>();
         for (Sample sample : family.getMembers().values()) {
             results.add(checkSample(sample, variantContext, otherVariantContext));
         }
@@ -70,7 +70,7 @@ public class ArCompoundChecker {
         return TRUE;
     }
 
-    private InheritanceResult checkSample(Sample sample, VariantContext variantContext, VariantContext otherVariantContext) {
+    private MatchEnum checkSample(Sample sample, VariantContext variantContext, VariantContext otherVariantContext) {
         //Affected individuals have to be het. for both variants
         //Healthy individuals can be het. for one of the variants but cannot have both variants
         Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
@@ -83,7 +83,7 @@ public class ArCompoundChecker {
         };
     }
 
-    private InheritanceResult checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
         if (sampleGt.isHomRef() || sampleOtherGt.isHomRef()) {
             return FALSE;
         } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
@@ -92,7 +92,7 @@ public class ArCompoundChecker {
         return checkAffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
 
-    private InheritanceResult checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
         if (sampleGt == null || sampleOtherGt == null) {
             return POTENTIAL;
         } else if (isHomAlt(sampleGt) || isHomAlt(sampleOtherGt)) {
@@ -104,7 +104,7 @@ public class ArCompoundChecker {
         return checkUnaffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
 
-    private InheritanceResult checkUnaffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkUnaffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
         boolean sampleContainsAlt = hasVariant(sampleGt);
         boolean sampleOtherGtContainsAlt = hasVariant(sampleOtherGt);
         if (sampleContainsAlt && sampleOtherGtContainsAlt) {
@@ -116,7 +116,7 @@ public class ArCompoundChecker {
         return TRUE;
     }
 
-    private InheritanceResult checkUnaffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkUnaffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
         Allele allele1 = sampleGt.getAllele(0);
         Allele allele2 = sampleGt.getAllele(1);
         Allele otherAllele1 = sampleOtherGt.getAllele(0);
@@ -131,7 +131,7 @@ public class ArCompoundChecker {
         return POTENTIAL;
     }
 
-    private InheritanceResult checkAffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkAffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
         if (hasVariant(sampleGt) && !sampleGt.isHom() && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom()) {
             return TRUE;
         }
@@ -143,7 +143,7 @@ public class ArCompoundChecker {
         return FALSE;
     }
 
-    private InheritanceResult checkAffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkAffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
         Allele allele1 = sampleGt.getAllele(0);
         Allele allele2 = sampleGt.getAllele(1);
         Allele otherAllele1 = sampleOtherGt.getAllele(0);

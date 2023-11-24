@@ -1,12 +1,12 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class ArChecker {
 
-  public static InheritanceResult check(
+  public static MatchEnum check(
           VariantContext variantContext, Pedigree family) {
     if (!onAutosome(variantContext)) {
       return FALSE;
@@ -24,8 +24,8 @@ public class ArChecker {
     return checkFamily(variantContext, family);
   }
 
-  public static InheritanceResult checkFamily(VariantContext variantContext, Pedigree family) {
-    Set<InheritanceResult> results = new HashSet<>();
+  public static MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
+    Set<MatchEnum> results = new HashSet<>();
     for (Sample sample : family.getMembers().values()) {
       results.add(checkSample(sample, variantContext));
     }
@@ -37,7 +37,7 @@ public class ArChecker {
     return TRUE;
   }
 
-  private static InheritanceResult checkSample(Sample sample, VariantContext variantContext) {
+  private static MatchEnum checkSample(Sample sample, VariantContext variantContext) {
     Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
     if (sampleGt == null || sampleGt.isNoCall()) {
       return POTENTIAL;
@@ -54,7 +54,7 @@ public class ArChecker {
     }
   }
 
-  private static InheritanceResult checkSampleWithoutVariant(Sample sample) {
+  private static MatchEnum checkSampleWithoutVariant(Sample sample) {
     return switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> FALSE;
       case UNAFFECTED -> TRUE;
@@ -62,7 +62,7 @@ public class ArChecker {
     };
   }
 
-  private static InheritanceResult checkSampleWithVariant(Sample sample, Genotype sampleGt) {
+  private static MatchEnum checkSampleWithVariant(Sample sample, Genotype sampleGt) {
     return switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> sampleGt.isHom() ? TRUE : FALSE;
       case UNAFFECTED -> sampleGt.isHet() ? TRUE : FALSE;
@@ -70,7 +70,7 @@ public class ArChecker {
     };
   }
 
-  private static InheritanceResult checkMixed(Sample sample, Genotype sampleGt) {
+  private static MatchEnum checkMixed(Sample sample, Genotype sampleGt) {
     switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> {
         if (!hasVariant(sampleGt)) {

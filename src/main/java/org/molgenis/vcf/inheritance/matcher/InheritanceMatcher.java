@@ -9,7 +9,7 @@ import java.util.Set;
 import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.utils.UnexpectedEnumException;
 
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.*;
 
 public class InheritanceMatcher {

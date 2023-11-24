@@ -1,12 +1,12 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceResult.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
@@ -16,7 +16,7 @@ import java.util.Set;
 public class AdNonPenetranceChecker {
   private AdNonPenetranceChecker(){}
 
-  public static InheritanceResult check(
+  public static MatchEnum check(
           VariantContext variantContext, Pedigree family) {
     if (!VariantContextUtils.onAutosome(variantContext) || AdChecker.check(variantContext, family) == TRUE) {
       return FALSE;
@@ -25,8 +25,8 @@ public class AdNonPenetranceChecker {
     return checkFamily(variantContext, family);
   }
 
-  public static InheritanceResult checkFamily(VariantContext variantContext, Pedigree family) {
-    Set<InheritanceResult> results = new HashSet<>();
+  public static MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
+    Set<MatchEnum> results = new HashSet<>();
     for (Sample sample : family.getMembers().values()) {
       results.add(checkSample(sample, variantContext));
     }
@@ -38,7 +38,7 @@ public class AdNonPenetranceChecker {
     return TRUE;
   }
 
-  private static InheritanceResult checkSample(Sample sample, VariantContext variantContext) {
+  private static MatchEnum checkSample(Sample sample, VariantContext variantContext) {
     Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
     switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> {
