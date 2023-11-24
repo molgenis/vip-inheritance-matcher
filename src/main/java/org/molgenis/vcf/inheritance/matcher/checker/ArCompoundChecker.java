@@ -6,6 +6,7 @@ import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.GenotypeBuilder;
 import htsjdk.variant.variantcontext.VariantContext;
 
 import java.util.*;
@@ -73,9 +74,12 @@ public class ArCompoundChecker {
     private MatchEnum checkSample(Sample sample, VariantContext variantContext, VariantContext otherVariantContext) {
         //Affected individuals have to be het. for both variants
         //Healthy individuals can be het. for one of the variants but cannot have both variants
+        Genotype missingGenotype = GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2);
+
         Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
         Genotype sampleOtherGt = otherVariantContext.getGenotype(sample.getPerson().getIndividualId());
-
+        sampleGt = sampleGt != null ? sampleGt : missingGenotype;
+        sampleOtherGt = sampleOtherGt != null ? sampleOtherGt : missingGenotype;
         return switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> checkAffectedSample(sampleGt, sampleOtherGt);
             case UNAFFECTED -> checkUnaffectedSample(sampleGt, sampleOtherGt);
@@ -84,44 +88,30 @@ public class ArCompoundChecker {
     }
 
     private MatchEnum checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-        if ((sampleGt != null && sampleGt.isHomRef()) || (sampleOtherGt != null && sampleOtherGt.isHomRef())) {
+        if (sampleGt.isHomRef() || sampleOtherGt.isHomRef()) {
             return FALSE;
-        } else if (sampleGt != null && (isHomAlt(sampleGt))
-                || (sampleOtherGt != null && isHomAlt(sampleOtherGt))) {
+        } else if (isHomAlt(sampleGt)
+                || isHomAlt(sampleOtherGt)) {
             return FALSE;
-        } else if ((sampleGt != null && sampleGt.isPhased()) && (sampleOtherGt != null && sampleOtherGt.isPhased())) {
+        } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
             return checkAffectedSamplePhased(sampleGt, sampleOtherGt);
         }
         return checkAffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
 
     private MatchEnum checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-        if ((sampleGt == null && (hasVariant(sampleOtherGt) || sampleOtherGt ==null))
-                || sampleOtherGt == null && (hasVariant(sampleGt))) {
+        if ((sampleGt.isNoCall() && (hasVariant(sampleOtherGt) || sampleOtherGt.isNoCall()))
+                || sampleOtherGt.isNoCall() && (hasVariant(sampleGt))) {
             return POTENTIAL;
-        } else if (sampleGt != null && (isHomAlt(sampleGt))
-                || (sampleOtherGt!= null && isHomAlt(sampleOtherGt))) {
+        } else if (isHomAlt(sampleGt) || isHomAlt(sampleOtherGt)) {
             return FALSE;
-        } else if ((sampleGt != null && sampleGt.isPhased()) && (sampleOtherGt != null && sampleOtherGt.isPhased())) {
+        } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
             return checkUnaffectedSamplePhased(sampleGt, sampleOtherGt);
         }
         return checkUnaffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
 
     private MatchEnum checkUnaffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
-        if(sampleGt == null && sampleOtherGt == null){
-            return POTENTIAL;
-        } else if(sampleGt == null){
-            if(hasVariant(sampleOtherGt) && !sampleOtherGt.isHom()){
-                return POTENTIAL;
-            }
-            return FALSE;
-        } else if(sampleOtherGt == null){
-            if(hasVariant(sampleGt) && !sampleGt.isHom()){
-                return POTENTIAL;
-            }
-            return FALSE;
-        }
         boolean sampleContainsAlt = hasVariant(sampleGt);
         boolean sampleOtherGtContainsAlt = hasVariant(sampleOtherGt);
         if (sampleContainsAlt && sampleOtherGtContainsAlt) {
@@ -149,24 +139,11 @@ public class ArCompoundChecker {
     }
 
     private MatchEnum checkAffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
-        if(sampleGt == null && sampleOtherGt == null){
-            return POTENTIAL;
-        } else if(sampleGt == null){
-            if(hasVariant(sampleOtherGt) && !sampleOtherGt.isHom()){
-                return POTENTIAL;
-            }
-            return FALSE;
-        } else if(sampleOtherGt == null){
-            if(hasVariant(sampleGt) && !sampleGt.isHom()){
-                return POTENTIAL;
-            }
-            return FALSE;
-        } else if (hasVariant(sampleGt) && !sampleGt.isHom() && hasVariant(sampleOtherGt) &&
-                !sampleOtherGt.isHom()) {
+        if (hasVariant(sampleGt) && !sampleGt.isHom() && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom()) {
             return TRUE;
         }
-        boolean gtMissingOrMixed = (sampleGt.isNoCall() || sampleGt.isMixed());
-        boolean otherGtMissingOrMixed = (sampleOtherGt.isNoCall() || sampleOtherGt.isMixed());
+        boolean gtMissingOrMixed = sampleGt.isNoCall() || sampleGt.isMixed();
+        boolean otherGtMissingOrMixed = sampleOtherGt.isNoCall() || sampleOtherGt.isMixed();
         boolean hasVariantAndOtherGtMissing = (hasVariant(sampleGt) && !sampleGt.isHom() && otherGtMissingOrMixed);
         boolean hasOtherVariantAndGtMissing = (gtMissingOrMixed && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom());
         if (hasVariantAndOtherGtMissing
