@@ -150,9 +150,7 @@ public class InheritanceService {
     VariantContext variantContext, Pedigree family,
     Sample sample) {
     Pedigree filteredFamily = InheritanceUtils.filterBloodRelatives(family, sample);
-    Inheritance inheritance = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneVariantMap, variantContext, sample, filteredFamily, arCompoundChecker);
-
-    return inheritance;
+    return pedigreeInheritanceChecker.calculatePedigreeInheritance(geneVariantMap, variantContext, sample, filteredFamily, arCompoundChecker);
   }
 
   private static VCFFileReader createReader(Path vcfPath) {
