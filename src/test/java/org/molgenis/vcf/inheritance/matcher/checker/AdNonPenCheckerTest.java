@@ -1,6 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.FALSE;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
@@ -29,16 +31,20 @@ import org.springframework.util.ResourceUtils;
 
 @ExtendWith(MockitoExtension.class)
 class AdNonPenCheckerTest {
-
-  @Mock
-  private VepMapper vepMapper;
+  private AdNonPenetranceChecker adNonPenetranceChecker = new AdNonPenetranceChecker();
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
   void check(VariantContext variantContext, Pedigree family, String expectedString,
       String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, AdNonPenetranceChecker.check(variantContext, family));
+    assertEquals(expected, adNonPenetranceChecker.check(variantContext, family, FALSE));
+  }
+
+  void checkAd() {
+    VariantContext variantContext = mock(VariantContext.class);
+    Pedigree family = mock(Pedigree.class);
+    assertEquals(FALSE, adNonPenetranceChecker.check(variantContext, family, MatchEnum.TRUE));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {

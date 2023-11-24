@@ -9,13 +9,9 @@ import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
-import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public abstract class XlChecker {
+public abstract class XlChecker extends InheritanceChecker{
 
   public MatchEnum check(VariantContext variantContext, Pedigree family) {
     if (!onChromosomeX(variantContext)) {
@@ -23,21 +19,6 @@ public abstract class XlChecker {
     }
     return checkFamily(variantContext, family);
   }
-
-  public MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
-    Set<MatchEnum> results = new HashSet<>();
-
-    for (Sample sample : family.getMembers().values()) {
-      results.add(checkSample(sample, variantContext));
-    }
-    if(results.contains(FALSE)){
-      return FALSE;
-    }else if(results.contains(POTENTIAL)){
-      return POTENTIAL;
-    }
-    return TRUE;
-  }
-  protected abstract MatchEnum checkSample(Sample currentSample, VariantContext variantContext);
 
   protected Sex getSex(Sex sex, Genotype genotype) {
     if (sex == Sex.UNKNOWN) {

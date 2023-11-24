@@ -10,12 +10,9 @@ import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
-import java.util.HashSet;
-import java.util.Set;
+public class ArChecker extends InheritanceChecker{
 
-public class ArChecker {
-
-  public static MatchEnum check(
+  public MatchEnum check(
           VariantContext variantContext, Pedigree family) {
     if (!onAutosome(variantContext)) {
       return FALSE;
@@ -24,20 +21,8 @@ public class ArChecker {
     return checkFamily(variantContext, family);
   }
 
-  public static MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
-    Set<MatchEnum> results = new HashSet<>();
-    for (Sample sample : family.getMembers().values()) {
-      results.add(checkSample(sample, variantContext));
-    }
-    if(results.contains(FALSE)){
-      return FALSE;
-    }else if(results.contains(POTENTIAL)){
-      return POTENTIAL;
-    }
-    return TRUE;
-  }
-
-  private static MatchEnum checkSample(Sample sample, VariantContext variantContext) {
+  @Override
+  MatchEnum checkSample(Sample sample, VariantContext variantContext) {
     Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
     if (sampleGt == null || sampleGt.isNoCall()) {
       return POTENTIAL;

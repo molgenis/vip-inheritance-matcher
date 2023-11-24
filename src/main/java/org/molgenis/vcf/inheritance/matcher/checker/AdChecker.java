@@ -3,9 +3,6 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -17,15 +14,11 @@ import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVari
 /**
  * Autosomal dominant (AD) inheritance pattern matcher
  */
-public class AdChecker {
-
-    private AdChecker() {
-    }
-
+public class AdChecker extends InheritanceChecker{
     /**
      * Check whether the AD inheritance pattern could match for a variant in a pedigree
      */
-    public static MatchEnum check(
+    public MatchEnum check(
             VariantContext variantContext, Pedigree family) {
         if (!VariantContextUtils.onAutosome(variantContext)) {
             return FALSE;
@@ -34,20 +27,7 @@ public class AdChecker {
         return checkFamily(variantContext, family);
     }
 
-    public static MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
-        Set<MatchEnum> results = new HashSet<>();
-        for (Sample sample : family.getMembers().values()) {
-            results.add(checkSample(sample, variantContext));
-        }
-        if(results.contains(FALSE)){
-            return FALSE;
-        }else if(results.contains(POTENTIAL)){
-            return POTENTIAL;
-        }
-        return TRUE;
-    }
-
-    private static MatchEnum checkSample(Sample sample, VariantContext variantContext) {
+    MatchEnum checkSample(Sample sample, VariantContext variantContext) {
         Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
         if (sampleGt == null || sampleGt.isNoCall()) {
             return POTENTIAL;

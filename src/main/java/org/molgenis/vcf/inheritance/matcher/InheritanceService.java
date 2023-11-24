@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.molgenis.vcf.inheritance.matcher.checker.AdChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.AdNonPenetranceChecker;
 import org.molgenis.vcf.inheritance.matcher.checker.ArChecker;
@@ -48,6 +49,10 @@ public class InheritanceService {
   private ArCompoundChecker arCompoundChecker;
   XldChecker xldChecker = new XldChecker();
   XlrChecker xlrChecker = new XlrChecker();
+
+  AdChecker adChecker = new AdChecker();
+  AdNonPenetranceChecker adNonPenetranceChecker = new AdNonPenetranceChecker();
+  ArChecker arChecker = new ArChecker();
   DeNovoChecker deNovoChecker = new DeNovoChecker();
   public InheritanceService(
       Annotator annotator,   @Qualifier("vepMetadataService")
@@ -183,11 +188,11 @@ public class InheritanceService {
 
   private void checkAd(VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    MatchEnum isAd = AdChecker.check(variantContext, family);
+    MatchEnum isAd = adChecker.check(variantContext, family);
     if (isAd != FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == POTENTIAL));
     } else {
-      MatchEnum isAdNonPenetrance = AdNonPenetranceChecker.check(variantContext, family);
+      MatchEnum isAdNonPenetrance = adNonPenetranceChecker.check(variantContext, family, isAd);
       if (isAdNonPenetrance != FALSE) {
         inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == POTENTIAL));
       }
@@ -197,14 +202,14 @@ public class InheritanceService {
   private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
       VariantContext variantContext, Pedigree family,
       Inheritance inheritance) {
-    MatchEnum isAr = ArChecker.check(variantContext, family);
+    MatchEnum isAr = arChecker.check(variantContext, family);
     if (isAr != FALSE) {
       inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == POTENTIAL));
     } else {
       List<CompoundCheckResult> compounds = arCompoundChecker
           .check(geneVariantMap, variantContext, family);
       if (!compounds.isEmpty()) {
-        boolean isCertain = compounds.stream().anyMatch(compoundCheckResult -> compoundCheckResult.isCertain() == true);
+        boolean isCertain = compounds.stream().anyMatch(compoundCheckResult -> compoundCheckResult.isCertain());
         inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR_C, !isCertain));
         inheritance.setCompounds(compounds.stream().map(compoundCheckResult -> createKey(compoundCheckResult.getPossibleCompound())).collect(
             Collectors.toSet()));

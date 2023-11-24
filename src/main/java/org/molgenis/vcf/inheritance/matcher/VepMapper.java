@@ -23,7 +23,6 @@ public class VepMapper {
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
-  public static final String INCOMPLETE_PENETRANCE = "IncompletePenetrance";
   private String vepFieldId = null;
   private final FieldMetadataService fieldMetadataService;
   private int geneIndex = -1;
@@ -101,8 +100,6 @@ public class VepMapper {
         case "XL" -> {
           modes.add(InheritanceMode.XLR);
           modes.add(InheritanceMode.XLD);
-        }
-        default -> {
         }
         //We ignore all the modes that are not used for matching.
       }

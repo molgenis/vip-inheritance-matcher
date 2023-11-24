@@ -28,12 +28,13 @@ import org.springframework.util.ResourceUtils;
 @ExtendWith(MockitoExtension.class)
 class ArCheckerTest {
 
+  ArChecker arChecker = new ArChecker();
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
   void check(VariantContext variantContext, Pedigree family, String expectedString,
       String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, ArChecker.check(variantContext, family));
+    assertEquals(expected, arChecker.check(variantContext, family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
