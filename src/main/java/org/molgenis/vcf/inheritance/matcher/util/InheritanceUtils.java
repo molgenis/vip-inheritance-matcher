@@ -26,7 +26,7 @@ public class InheritanceUtils {
                 !(sample.getPerson().getPaternalId().isEmpty() || sample.getPerson().getPaternalId().equals("0"));
     }
     public static boolean hasVariant(Genotype genotype) {
-        return genotype.getAlleles().stream()
+        return genotype != null && genotype.getAlleles().stream()
                 .anyMatch(allele -> allele.isCalled() && allele.isNonReference());
     }
     public static boolean isHomAlt(Genotype genotype) {

@@ -75,15 +75,14 @@ public class PedigreeInheritanceChecker {
         MatchEnum isAr = arChecker.check(variantContext, family);
         if (isAr != FALSE) {
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == POTENTIAL));
-        } else {
-            List<CompoundCheckResult> compounds = arCompoundChecker
-                    .check(geneVariantMap, variantContext, family);
-            if (!compounds.isEmpty()) {
-                boolean isCertain = compounds.stream().anyMatch(compoundCheckResult -> compoundCheckResult.isCertain());
-                inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR_C, !isCertain));
-                inheritance.setCompounds(compounds.stream().map(compoundCheckResult -> createKey(compoundCheckResult.getPossibleCompound())).collect(
-                        Collectors.toSet()));
-            }
+        }
+        List<CompoundCheckResult> compounds = arCompoundChecker
+                .check(geneVariantMap, variantContext, family, isAr);
+        if (!compounds.isEmpty()) {
+            boolean isCertain = compounds.stream().anyMatch(compoundCheckResult -> compoundCheckResult.isCertain());
+            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR_C, !isCertain));
+            inheritance.setCompounds(compounds.stream().map(compoundCheckResult -> createKey(compoundCheckResult.getPossibleCompound())).collect(
+                    Collectors.toSet()));
         }
     }
 

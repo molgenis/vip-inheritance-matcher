@@ -49,8 +49,7 @@ class ArCompoundCheckerTest {
     MatchEnum expected = mapExpectedString(expectedString);
     ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMapper);
     when(vepMapper.getGenes(variantContext)).thenReturn(VariantContextGenes.builder().genes(singletonMap("GENE1", gene1)).build());
-    Boolean actual = false;
-    List<CompoundCheckResult> compounds = arCompoundChecker.check(geneVariantMap, variantContext, family);
+    List<CompoundCheckResult> compounds = arCompoundChecker.check(geneVariantMap, variantContext, family, FALSE);
     if(expected == FALSE) {
       assertTrue(compounds.isEmpty());
     }else if(expected == TRUE){

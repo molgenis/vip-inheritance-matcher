@@ -61,7 +61,7 @@ class PedigreeInheritanceCheckerTest {
         when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(POTENTIAL);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family)).thenReturn(emptyList());
+        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
 
         Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, true))).denovo(FALSE).build();
@@ -82,7 +82,7 @@ class PedigreeInheritanceCheckerTest {
         when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family)).thenReturn(emptyList());
+        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
 
         Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(
@@ -125,7 +125,7 @@ class PedigreeInheritanceCheckerTest {
         when(arChecker.check(vc, family)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(TRUE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family)).thenReturn(emptyList());
+        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
 
         Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(
@@ -156,7 +156,7 @@ class PedigreeInheritanceCheckerTest {
         when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family)).thenReturn(List.of(CompoundCheckResult.builder().possibleCompound(vc2).isCertain(false).build()));
+        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(List.of(CompoundCheckResult.builder().possibleCompound(vc2).isCertain(false).build()));
 
         Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(InheritanceMode.AR_C, true))).compounds(Set.of("chr1_123_A_T")).denovo(FALSE).build();

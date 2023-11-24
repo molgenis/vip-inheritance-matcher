@@ -27,8 +27,8 @@ public class ArCompoundChecker {
 
     public List<CompoundCheckResult> check(
             Map<String, List<VariantContext>> geneVariantMap,
-            VariantContext variantContext, Pedigree family) {
-        if (onAutosome(variantContext)) {
+            VariantContext variantContext, Pedigree family, MatchEnum isAr) {
+        if (onAutosome(variantContext) && isAr != TRUE) {
             List<CompoundCheckResult> compounds = new ArrayList<>();
             Map<String, Gene> genes = vepMapper.getGenes(variantContext).getGenes();
             for (Gene gene : genes.values()) {
@@ -84,21 +84,22 @@ public class ArCompoundChecker {
     }
 
     private MatchEnum checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-        if (sampleGt.isHomRef() || sampleOtherGt.isHomRef()) {
+        if ((sampleGt != null && sampleGt.isHomRef()) || (sampleOtherGt != null && sampleOtherGt.isHomRef())) {
             return FALSE;
-        } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
+        } else if ((sampleGt != null && sampleGt.isPhased()) && (sampleOtherGt != null && sampleOtherGt.isPhased())) {
             return checkAffectedSamplePhased(sampleGt, sampleOtherGt);
         }
         return checkAffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
 
     private MatchEnum checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-        if (sampleGt == null || sampleOtherGt == null) {
+        if ((sampleGt == null && (hasVariant(sampleOtherGt) || sampleOtherGt ==null))
+                || sampleOtherGt == null && (hasVariant(sampleGt) || sampleGt ==null)) {
             return POTENTIAL;
         } else if (isHomAlt(sampleGt) || isHomAlt(sampleOtherGt)) {
             return FALSE;
         }
-        if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
+        else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
             return checkUnaffectedSamplePhased(sampleGt, sampleOtherGt);
         }
         return checkUnaffectedSampleUnphased(sampleGt, sampleOtherGt);
@@ -135,9 +136,13 @@ public class ArCompoundChecker {
         if (hasVariant(sampleGt) && !sampleGt.isHom() && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom()) {
             return TRUE;
         }
-        if ((hasVariant(sampleGt) && sampleOtherGt.isMixed())
-                || (sampleGt.isMixed() && hasVariant(sampleOtherGt)
-                || sampleGt.isMixed() && sampleOtherGt.isMixed())) {
+        boolean gtMissingOrMixed = (sampleGt == null || sampleGt.isNoCall() || sampleGt.isMixed());
+        boolean otherGtMissingOrMixed = (sampleOtherGt == null || sampleOtherGt.isNoCall() || sampleOtherGt.isMixed());
+        boolean hasVariantAndOtherGtMissing = (hasVariant(sampleGt) && !sampleGt.isHom() && otherGtMissingOrMixed);
+        boolean hasOtherVariantAndGtMissing = (gtMissingOrMixed && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom());
+        if (hasVariantAndOtherGtMissing
+                || hasOtherVariantAndGtMissing
+                || (gtMissingOrMixed && otherGtMissingOrMixed)) {
             return POTENTIAL;
         }
         return FALSE;
