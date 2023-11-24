@@ -19,40 +19,48 @@ public class XldChecker extends XlChecker {
 
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
-                // Affected individuals have to be het. or hom. alt.
-                if (hasVariant(genotype)) {
-                    return TRUE;
-                } else {
-                    //homRef? then XLD==false, is any allele is missing than the match is "potential"
-                    return genotype.isHomRef() ? FALSE : POTENTIAL;
-                }
+                return checkAffected(genotype);
             }
             case UNAFFECTED -> {
-                switch (getSex(sample.getPerson().getSex(), genotype)) {
-                    case MALE -> {
-                        // Healthy males cannot carry the variant
-                        if (genotype.getAlleles().stream()
-                                .allMatch(Allele::isReference)) {
-                            return TRUE;
-                        } else if (hasVariant(genotype)) {
-                            return FALSE;
-                        }
-                        return POTENTIAL;
-                    }
-                    case FEMALE -> {
-                        // Healthy females can carry the variant (because of X inactivation)
-                        if (genotype.isMixed() && hasVariant(genotype)) {
-                            return POTENTIAL;
-                        }
-                        return (genotype.isHet() || genotype.isMixed() || genotype.isHomRef()) ? TRUE : FALSE;
-                    }
-                    default -> throw new IllegalArgumentException();
-                }
+                return checkUnaffected(sample, genotype);
             }
             case MISSING -> {
                 return POTENTIAL;
             }
             default -> throw new IllegalArgumentException();
+        }
+    }
+
+    private MatchEnum checkUnaffected(Sample sample, Genotype genotype) {
+        switch (getSex(sample.getPerson().getSex(), genotype)) {
+            case MALE -> {
+                // Healthy males cannot carry the variant
+                if (genotype.getAlleles().stream()
+                        .allMatch(Allele::isReference)) {
+                    return TRUE;
+                } else if (hasVariant(genotype)) {
+                    return FALSE;
+                }
+                return POTENTIAL;
+            }
+            case FEMALE -> {
+                // Healthy females can carry the variant (because of X inactivation)
+                if (genotype.isMixed() && hasVariant(genotype)) {
+                    return POTENTIAL;
+                }
+                return (genotype.isHet() || genotype.isMixed() || genotype.isHomRef()) ? TRUE : FALSE;
+            }
+            default -> throw new IllegalArgumentException();
+        }
+    }
+
+    private static MatchEnum checkAffected(Genotype genotype) {
+        // Affected individuals have to be het. or hom. alt.
+        if (hasVariant(genotype)) {
+            return TRUE;
+        } else {
+            //homRef? then XLD==false, is any allele is missing than the match is "potential"
+            return genotype.isHomRef() ? FALSE : POTENTIAL;
         }
     }
 }

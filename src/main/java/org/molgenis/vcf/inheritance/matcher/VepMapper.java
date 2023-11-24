@@ -101,7 +101,9 @@ public class VepMapper {
           modes.add(InheritanceMode.XLR);
           modes.add(InheritanceMode.XLD);
         }
-        //We ignore all the modes that are not used for matching.
+        default -> {
+          //We ignore all the modes that are not used for matching.
+        }
       }
     }
   }
