@@ -9,9 +9,4 @@ public class Gene {
   String id;
   String symbolSource;
   Set<InheritanceMode> inheritanceModes;
-
-  public boolean equalsGeneId(Gene other) {
-    return this.getId().equals(other.getId()) && this.getSymbolSource()
-        .equals(other.getSymbolSource());
-  }
 }

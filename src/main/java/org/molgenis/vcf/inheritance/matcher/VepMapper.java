@@ -6,9 +6,11 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
-
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.VariantContextGenes;

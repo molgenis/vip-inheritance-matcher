@@ -25,7 +25,7 @@ import org.springframework.util.ResourceUtils;
 
 class XldCheckerTest {
 
-  XldChecker xldChecker = new XldChecker();
+  final XldChecker xldChecker = new XldChecker();
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")

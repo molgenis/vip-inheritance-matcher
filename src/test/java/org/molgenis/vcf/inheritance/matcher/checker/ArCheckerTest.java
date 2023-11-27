@@ -28,7 +28,7 @@ import org.springframework.util.ResourceUtils;
 @ExtendWith(MockitoExtension.class)
 class ArCheckerTest {
 
-  ArChecker arChecker = new ArChecker();
+  final ArChecker arChecker = new ArChecker();
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
   void check(VariantContext variantContext, Pedigree family, String expectedString,

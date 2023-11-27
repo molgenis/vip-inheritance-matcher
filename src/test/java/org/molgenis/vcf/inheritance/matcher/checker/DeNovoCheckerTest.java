@@ -24,7 +24,7 @@ import org.molgenis.vcf.utils.sample.model.Sex;
 import org.springframework.util.ResourceUtils;
 
 class DeNovoCheckerTest {
-    DeNovoChecker deNovoChecker = new DeNovoChecker();
+    final DeNovoChecker deNovoChecker = new DeNovoChecker();
 
     @ParameterizedTest(name = "{index} {3}")
     @MethodSource("provideTestCases")

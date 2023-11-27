@@ -25,7 +25,7 @@ import org.springframework.util.ResourceUtils;
 
 class XlrCheckerTest {
 
-  XlrChecker xlrChecker = new XlrChecker();
+  final XlrChecker xlrChecker = new XlrChecker();
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")

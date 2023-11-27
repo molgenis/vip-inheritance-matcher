@@ -37,7 +37,7 @@ public class InheritanceService {
   private final FieldMetadataService fieldMetadataService;
   private final Annotator annotator;
   private ArCompoundChecker arCompoundChecker;
-  private PedigreeInheritanceChecker pedigreeInheritanceChecker;
+  private final PedigreeInheritanceChecker pedigreeInheritanceChecker;
 
   public InheritanceService(
           Annotator annotator, @Qualifier("vepMetadataService")

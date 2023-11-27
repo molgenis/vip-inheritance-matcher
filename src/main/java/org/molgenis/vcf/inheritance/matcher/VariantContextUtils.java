@@ -1,9 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import java.util.Optional;
-import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class VariantContextUtils {
 
@@ -28,11 +25,5 @@ public class VariantContextUtils {
   public static boolean onChromosomeMt(VariantContext variantContext) {
     String contigId = variantContext.getContig();
     return contigId != null && ContigUtils.isChromosomeMt(contigId);
-  }
-
-  public static Optional<Genotype> getGenotype(VariantContext variantContext,
-      Sample sample) {
-    String individualId = sample.getPerson().getIndividualId();
-    return Optional.ofNullable(variantContext.getGenotype(individualId));
   }
 }

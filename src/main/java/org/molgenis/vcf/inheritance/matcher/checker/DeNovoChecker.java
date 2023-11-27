@@ -76,30 +76,28 @@ public class DeNovoChecker {
     }
 
     private static MatchEnum checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        MatchEnum result = FALSE;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
-                result = TRUE;
+                return TRUE;
             } else if (hasVariant(motherGt) || hasVariant(fatherGt)) {
-                result = FALSE;
+                return FALSE;
             } else {
-                result = POTENTIAL;
+                return POTENTIAL;
             }
         }
-        return result;
+        return FALSE;
     }
 
     private static MatchEnum checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        MatchEnum result = FALSE;
         if (hasVariant(probandGt)) {
             if (motherGt.isHomRef() || fatherGt.isHomRef()) {
-                result = TRUE;
+                return TRUE;
             } else if (hasVariant(motherGt) && hasVariant(fatherGt)) {
-                result = FALSE;
+                return FALSE;
             } else {
-                result = POTENTIAL;
+                return POTENTIAL;
             }
         }
-        return result;
+        return FALSE;
     }
 }

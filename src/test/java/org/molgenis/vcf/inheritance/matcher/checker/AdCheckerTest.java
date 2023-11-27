@@ -28,7 +28,7 @@ import org.springframework.util.ResourceUtils;
 @ExtendWith(MockitoExtension.class)
 class AdCheckerTest {
 
-  AdChecker adChecker = new AdChecker();
+  final AdChecker adChecker = new AdChecker();
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
   void check(VariantContext variantContext, Pedigree family, String expectedString,

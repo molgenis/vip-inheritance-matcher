@@ -79,7 +79,7 @@ public class PedigreeInheritanceChecker {
         List<CompoundCheckResult> compounds = arCompoundChecker
                 .check(geneVariantMap, variantContext, family, isAr);
         if (!compounds.isEmpty()) {
-            boolean isCertain = compounds.stream().anyMatch(compoundCheckResult -> compoundCheckResult.isCertain());
+            boolean isCertain = compounds.stream().anyMatch(CompoundCheckResult::isCertain);
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR_C, !isCertain));
             inheritance.setCompounds(compounds.stream().map(compoundCheckResult -> createKey(compoundCheckResult.getPossibleCompound())).collect(
                     Collectors.toSet()));

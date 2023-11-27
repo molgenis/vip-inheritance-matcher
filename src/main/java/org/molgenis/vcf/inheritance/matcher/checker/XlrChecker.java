@@ -58,7 +58,7 @@ public class XlrChecker extends XlChecker {
 
     private MatchEnum checkAffected(Sample sample, Genotype genotype) {
         switch (getSex(sample.getPerson().getSex(), genotype)) {
-            case MALE:
+            case MALE -> {
                 // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).
                 if (hasVariant(genotype)) {
                     return TRUE;
@@ -66,7 +66,8 @@ public class XlrChecker extends XlChecker {
                     return POTENTIAL;
                 }
                 return FALSE;
-            case FEMALE:
+            }
+            case FEMALE -> {
                 // Affected females have to be hom. alt.
                 if (genotype.isHomRef()) {
                     return FALSE;
@@ -74,8 +75,8 @@ public class XlrChecker extends XlChecker {
                     return POTENTIAL;
                 }
                 return genotype.isHom() ? TRUE : FALSE;
-            default:
-                throw new IllegalArgumentException();
+            }
+            default -> throw new IllegalArgumentException();
         }
     }
 }
