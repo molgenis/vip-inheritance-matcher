@@ -94,7 +94,7 @@ public class ArCompoundChecker {
                 || isHomAlt(sampleOtherGt)) {
             return FALSE;
         } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
-            return checkAffectedSamplePhased(sampleGt, sampleOtherGt);
+            return checkSamplePhased(sampleGt, sampleOtherGt, true);
         }
         return checkAffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
@@ -106,7 +106,7 @@ public class ArCompoundChecker {
         } else if (isHomAlt(sampleGt) || isHomAlt(sampleOtherGt)) {
             return FALSE;
         } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
-            return checkUnaffectedSamplePhased(sampleGt, sampleOtherGt);
+            return checkSamplePhased(sampleGt, sampleOtherGt, false);
         }
         return checkUnaffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
@@ -123,17 +123,17 @@ public class ArCompoundChecker {
         return TRUE;
     }
 
-    private MatchEnum checkUnaffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkSamplePhased(Genotype sampleGt, Genotype sampleOtherGt, boolean isAffected) {
         Allele allele1 = sampleGt.getAllele(0);
         Allele allele2 = sampleGt.getAllele(1);
         Allele otherAllele1 = sampleOtherGt.getAllele(0);
         Allele otherAllele2 = sampleOtherGt.getAllele(1);
         //For phased data both variants can be present in an unaffected individual if both are on the same allele
         if ((isAlt(allele1) && isAlt(otherAllele2)) || isAlt(allele2) && isAlt(otherAllele1)) {
-            return FALSE;
+            return isAffected ? TRUE : FALSE;
         }
         if ((allele1.isReference() && otherAllele1.isReference()) || (allele2.isReference() && otherAllele2.isReference())) {
-            return TRUE;
+            return isAffected? FALSE : TRUE;
         }
         return POTENTIAL;
     }
@@ -152,20 +152,5 @@ public class ArCompoundChecker {
             return POTENTIAL;
         }
         return FALSE;
-    }
-
-    private MatchEnum checkAffectedSamplePhased(Genotype sampleGt, Genotype sampleOtherGt) {
-        Allele allele1 = sampleGt.getAllele(0);
-        Allele allele2 = sampleGt.getAllele(1);
-        Allele otherAllele1 = sampleOtherGt.getAllele(0);
-        Allele otherAllele2 = sampleOtherGt.getAllele(1);
-        //For phased data both variants can be present in an unaffected individual if both are on the same allele
-        if ((isAlt(allele1) && isAlt(otherAllele2)) || isAlt(allele2) && isAlt(otherAllele1)) {
-            return TRUE;
-        }
-        if ((allele1.isReference() && otherAllele1.isReference()) || (allele2.isReference() && otherAllele2.isReference())) {
-            return FALSE;
-        }
-        return POTENTIAL;
     }
 }
