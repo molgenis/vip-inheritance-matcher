@@ -1,31 +1,24 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.utils.sample.model.Sex.FEMALE;
 import static org.molgenis.vcf.utils.sample.model.Sex.MALE;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
-import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
 
-public abstract class XlChecker {
+public abstract class XlChecker extends InheritanceChecker{
 
-  public boolean check(VariantContext variantContext, Pedigree family) {
+  public MatchEnum check(VariantContext variantContext, Pedigree family) {
     if (!onChromosomeX(variantContext)) {
-      return false;
+      return FALSE;
     }
-    for (Sample familyMember : family.getMembers().values()) {
-      Genotype genotype = variantContext.getGenotype(familyMember.getPerson().getIndividualId());
-      if (!checkIndividual(familyMember, genotype)) {
-        return false;
-      }
-    }
-    return true;
+    return checkFamily(variantContext, family);
   }
-
-  protected abstract boolean checkIndividual(Sample currentSample, Genotype genotype);
 
   protected Sex getSex(Sex sex, Genotype genotype) {
     if (sex == Sex.UNKNOWN) {

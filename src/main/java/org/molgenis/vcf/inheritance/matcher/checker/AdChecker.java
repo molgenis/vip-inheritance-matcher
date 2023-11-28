@@ -2,55 +2,85 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import java.util.Optional;
+
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
+import org.springframework.stereotype.Component;
+
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
+import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 /**
  * Autosomal dominant (AD) inheritance pattern matcher
  */
-public class AdChecker {
+@Component
+public class AdChecker extends InheritanceChecker{
+    /**
+     * Check whether the AD inheritance pattern could match for a variant in a pedigree
+     */
+    public MatchEnum check(
+            VariantContext variantContext, Pedigree family) {
+        if (!VariantContextUtils.onAutosome(variantContext)) {
+            return FALSE;
+        }
 
-  private AdChecker() {
-  }
-
-  /**
-   * Check whether the AD inheritance pattern could match for a variant in a pedigree
-   */
-  public static boolean check(
-      VariantContext variantContext, Pedigree family) {
-    if (!VariantContextUtils.onAutosome(variantContext)) {
-      return false;
+        return checkFamily(variantContext, family);
     }
 
-    for (Sample sample : family.getMembers().values()) {
-      Optional<Genotype> genotype = VariantContextUtils.getGenotype(variantContext, sample);
-      if (genotype.isPresent() && !check(sample, genotype.get())) {
-        return false;
-      }
+    MatchEnum checkSample(Sample sample, VariantContext variantContext) {
+        Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
+        if (sampleGt == null || sampleGt.isNoCall()) {
+            return POTENTIAL;
+        } else {
+            if (sampleGt.isMixed()) {
+                return checkMixed(sample, sampleGt);
+            } else {
+                if (hasVariant(sampleGt)) {
+                    return checkSampleWithVariant(sample);
+                } else {
+                    return checkSampleWithoutVariant(sample);
+                }
+            }
+        }
     }
-    return true;
-  }
 
-  /**
-   * Check whether the AD inheritance pattern could match for a variant as seen in an individual
-   */
-  private static boolean check(Sample sample, Genotype genotype) {
-    if (!genotype.isCalled()) {
-      return true;
+    private static MatchEnum checkSampleWithoutVariant(Sample sample) {
+        return switch (sample.getPerson().getAffectedStatus()) {
+            case AFFECTED -> FALSE;
+            case UNAFFECTED -> TRUE;
+            case MISSING -> POTENTIAL;
+        };
     }
 
-    switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED:
-        return genotype.isHet() || genotype.isMixed();
-      case UNAFFECTED:
-        return genotype.getAlleles().stream()
-            .allMatch(allele -> allele.isReference() || allele.isNoCall());
-      case MISSING:
-        return true;
-      default:
-        throw new IllegalArgumentException();
+    private static MatchEnum checkSampleWithVariant(Sample sample) {
+        return switch (sample.getPerson().getAffectedStatus()) {
+            case AFFECTED -> TRUE;
+            case UNAFFECTED -> FALSE;
+            case MISSING -> POTENTIAL;
+        };
     }
-  }
+
+    private static MatchEnum checkMixed(Sample sample, Genotype sampleGt) {
+        switch (sample.getPerson().getAffectedStatus()) {
+            case AFFECTED -> {
+                if (!hasVariant(sampleGt)) {
+                    return POTENTIAL;
+                }
+            }
+            case UNAFFECTED -> {
+                if (hasVariant(sampleGt)) {
+                    return FALSE;
+                } else {
+                    return POTENTIAL;
+                }
+            }
+            case MISSING -> {
+                return POTENTIAL;
+            }
+            default -> throw new IllegalArgumentException();
+        }
+        return TRUE;
+    }
 }

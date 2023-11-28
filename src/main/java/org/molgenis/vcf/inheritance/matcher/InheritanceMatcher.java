@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.molgenis.vcf.inheritance.matcher.model.*;
+import org.molgenis.vcf.utils.UnexpectedEnumException;
 
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.*;
 
 public class InheritanceMatcher {
 
@@ -23,7 +25,7 @@ public class InheritanceMatcher {
       String sample = entry.getKey();
       Inheritance inheritance = entry.getValue();
       //If no inheritance pattern is suitable for the sample, regardless of the gene: inheritance match is false.
-      if(inheritance.getInheritanceModes().isEmpty()){
+      if(inheritance.getPedigreeInheritanceMatches().isEmpty()){
         inheritance.setMatch(FALSE);
       }
       else {
@@ -43,7 +45,7 @@ public class InheritanceMatcher {
      *  - inheritance match is unknown if any genes for the variant have unknown inheritance pattern.
      *  - inheritance match is false if all genes for the variant have known (but mismatching) inheritance pattern.
      */
-    private static void matchGeneInheritance(VariantContextGenes genes, Set<String> matchingGenes, Inheritance inheritance) {
+    private static void matchGeneInheritance(VariantContextGenes genes, Set<String> matchingGenes, Inheritance pedigreeInheritance) {
         boolean containsUnknownGene = false;
         for (Gene gene : genes.getGenes().values()) {
           Set<InheritanceMode> geneInheritanceModes = gene
@@ -52,21 +54,45 @@ public class InheritanceMatcher {
               containsUnknownGene = true;
           }
           if (geneInheritanceModes.stream()
-                      .anyMatch(mode -> inheritance.getInheritanceModes().contains(mode))) {
+                      .anyMatch(geneInheritanceMode -> isMatch(pedigreeInheritance.getPedigreeInheritanceMatches(), geneInheritanceMode))) {
               matchingGenes.add(gene.getId());
-              if(inheritance.isFamilyWithMissingGT()){
-                  inheritance.setMatch(POTENTIAL);
+              if(pedigreeInheritance.getPedigreeInheritanceMatches().stream().anyMatch(pedigreeInheritanceMatch -> !pedigreeInheritanceMatch.isUncertain())){
+                  pedigreeInheritance.setMatch(TRUE);
               }else {
-                  inheritance.setMatch(TRUE);
+                  pedigreeInheritance.setMatch(POTENTIAL);
               }
           }
         }
         if(matchingGenes.isEmpty()) {
             if (containsUnknownGene || genes.isContainsVcWithoutGene()) {
-                inheritance.setMatch(POTENTIAL);
+                pedigreeInheritance.setMatch(POTENTIAL);
             } else {
-                inheritance.setMatch(FALSE);
+                pedigreeInheritance.setMatch(FALSE);
             }
         }
+    }
+
+    private static Boolean isMatch(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, InheritanceMode geneInheritanceMode) {
+        for(PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
+            switch (pedigreeInheritanceMatch.getInheritanceMode()) {
+                case AD, AD_IP -> {
+                    if (geneInheritanceMode == AD) {
+                        return true;
+                    }
+                }
+                case AR, AR_C -> {
+                    if (geneInheritanceMode == AR) {
+                        return true;
+                    }
+                }
+                case XLR, XLD -> {
+                    if (geneInheritanceMode == XL) {
+                        return true;
+                    }
+                }
+                default -> throw new UnexpectedEnumException(pedigreeInheritanceMatch.getInheritanceMode());
+            }
+        }
+        return false;
     }
 }

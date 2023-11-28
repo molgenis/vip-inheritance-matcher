@@ -9,26 +9,17 @@ import lombok.Data;
 @Builder
 public class Inheritance {
   @Builder.Default
-  Set<InheritanceMode> inheritanceModes = new HashSet<>();
-  @Builder.Default
-  Set<SubInheritanceMode> subInheritanceModes = new HashSet<>();
+  Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = new HashSet<>();
   @Builder.Default
   Set<String> compounds = new HashSet<>();
 
   @Builder.Default
-  InheritanceMatch match = InheritanceMatch.POTENTIAL;
+  MatchEnum match = MatchEnum.POTENTIAL;
 
   @Builder.Default
-  boolean denovo = false;
+  MatchEnum denovo = MatchEnum.POTENTIAL;
 
-  @Builder.Default
-  boolean isFamilyWithMissingGT = false;
-
-  public void addInheritanceMode(InheritanceMode inheritanceMode) {
-    inheritanceModes.add(inheritanceMode);
-  }
-
-  public void addSubInheritanceMode(SubInheritanceMode subInheritanceMode) {
-    subInheritanceModes.add(subInheritanceMode);
+  public void addInheritanceMode(PedigreeInheritanceMatch pedigreeInheritanceMatch) {
+    pedigreeInheritanceMatches.add(pedigreeInheritanceMatch);
   }
 }

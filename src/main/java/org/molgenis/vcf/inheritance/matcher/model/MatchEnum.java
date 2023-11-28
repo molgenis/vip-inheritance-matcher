@@ -1,5 +1,5 @@
 package org.molgenis.vcf.inheritance.matcher.model;
 
-public enum InheritanceMatch {
+public enum MatchEnum {
     TRUE, FALSE, POTENTIAL
 }

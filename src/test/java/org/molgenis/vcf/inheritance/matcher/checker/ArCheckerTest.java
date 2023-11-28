@@ -2,6 +2,7 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
+import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -17,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -26,12 +28,12 @@ import org.springframework.util.ResourceUtils;
 @ExtendWith(MockitoExtension.class)
 class ArCheckerTest {
 
-  ArChecker arChecker = new ArChecker();
-
+  final ArChecker arChecker = new ArChecker();
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Pedigree family, boolean expected,
+  void check(VariantContext variantContext, Pedigree family, String expectedString,
       String displayName) {
+    MatchEnum expected = mapExpectedString(expectedString);
     assertEquals(expected, arChecker.check(variantContext, family));
   }
 
@@ -52,7 +54,7 @@ class ArCheckerTest {
       String brotherGt = line[8];
       AffectedStatus brotherAffectedStatus =
           line[9].isEmpty() ? null : AffectedStatus.valueOf(line[9]);
-      boolean expected = Boolean.parseBoolean(line[10]);
+      String expected = line[10];
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,

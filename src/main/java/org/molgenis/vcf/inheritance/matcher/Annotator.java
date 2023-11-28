@@ -1,7 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.TRUE;
-import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMatch.POTENTIAL;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.TRUE;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.POTENTIAL;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFilterHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfInfoHeaderLines;
@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 public class Annotator {
 
   public static final String INHERITANCE_MODES = "VI";
-  public static final String SUBINHERITANCE_MODES = "VIS";
   public static final String POSSIBLE_COMPOUND = "VIC";
   public static final String DENOVO = "VID";
   public static final String INHERITANCE_MATCH = "VIM";
@@ -42,11 +41,7 @@ public class Annotator {
     vcfHeader
         .addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED,
             VCFHeaderLineType.String,
-            "An enumeration of possible inheritance modes."));
-    vcfHeader
-        .addMetaDataLine(new VCFFormatHeaderLine(SUBINHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED,
-            VCFHeaderLineType.String,
-            "An enumeration of possible sub inheritance modes like e.g. compound, non penetrance."));
+            "An enumeration of possible inheritance modes based on the pedigree of the sample. Potential values: AD, AD_IP, AR, AR_C, XLR, XLD"));
     vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(POSSIBLE_COMPOUND, 1,
         VCFHeaderLineType.String,
         "Possible Compound hetrozygote variants."));
@@ -100,16 +95,11 @@ public class Annotator {
       if (!inheritanceModes.isEmpty()) {
         genotypeBuilder.attribute(INHERITANCE_MODES, inheritanceModes);
       }
-      String subinheritanceModes = String
-          .join(",", mapSubinheritanceModes(annotation.getInheritance()));
-      if (!subinheritanceModes.isEmpty()) {
-        genotypeBuilder.attribute(SUBINHERITANCE_MODES, subinheritanceModes);
-      }
       String compounds = annotation.getInheritance().getCompounds().isEmpty() ? null : String
           .join(",", annotation.getInheritance().getCompounds());
       genotypeBuilder.attribute(POSSIBLE_COMPOUND, compounds);
-      genotypeBuilder.attribute(DENOVO, annotation.getInheritance().isDenovo() ? "1" : "0");
-      InheritanceMatch match = annotation.getInheritance().getMatch();
+      genotypeBuilder.attribute(DENOVO, mapDenovoValue(annotation));
+      MatchEnum match = annotation.getInheritance().getMatch();
       String inheritanceMatch = mapInheritanceMatch(match);
       genotypeBuilder
               .attribute(INHERITANCE_MATCH, inheritanceMatch);
@@ -123,7 +113,15 @@ public class Annotator {
     }
   }
 
-  private static String mapInheritanceMatch(InheritanceMatch match) {
+  private static String mapDenovoValue(Annotation annotation) {
+    return switch (annotation.getInheritance().getDenovo()){
+      case TRUE -> "1";
+      case FALSE -> "0";
+      case POTENTIAL -> null;
+    };
+  }
+
+  private static String mapInheritanceMatch(MatchEnum match) {
     String inheritanceMatch;
     switch (match){
       case TRUE -> inheritanceMatch = "1";
@@ -134,18 +132,10 @@ public class Annotator {
     return inheritanceMatch;
   }
 
-  private Set<String> mapSubinheritanceModes(Inheritance inheritance) {
-    Set<String> result = new HashSet<>();
-    for (SubInheritanceMode inheritanceModeEnum : inheritance.getSubInheritanceModes()) {
-      result.add(inheritanceModeEnum.name());
-    }
-    return result;
-  }
-
   private Set<String> mapInheritanceModes(Inheritance inheritance) {
     Set<String> result = new HashSet<>();
-    for (InheritanceMode inheritanceMode : inheritance.getInheritanceModes()) {
-      result.add(inheritanceMode.name());
+    for (PedigreeInheritanceMatch pedigreeInheritanceMatch : inheritance.getPedigreeInheritanceMatches()) {
+      result.add(pedigreeInheritanceMatch.getInheritanceMode().name());
     }
     return result;
   }

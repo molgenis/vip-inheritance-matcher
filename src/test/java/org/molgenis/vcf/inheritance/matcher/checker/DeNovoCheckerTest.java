@@ -1,7 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
+import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import java.io.File;
@@ -9,12 +10,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -23,14 +24,15 @@ import org.molgenis.vcf.utils.sample.model.Sex;
 import org.springframework.util.ResourceUtils;
 
 class DeNovoCheckerTest {
-    DeNovoChecker deNovoChecker = new DeNovoChecker();
+    final DeNovoChecker deNovoChecker = new DeNovoChecker();
 
     @ParameterizedTest(name = "{index} {3}")
     @MethodSource("provideTestCases")
-    void check(VariantContext variantContext, Pedigree family, boolean expected,
+    void check(VariantContext variantContext, Pedigree family, String expectedString,
     String displayName) {
-      Sample individual = family.getMembers().get("Patient");
-      assertEquals(expected, deNovoChecker.checkDeNovo(variantContext, family, individual));
+        MatchEnum expected = mapExpectedString(expectedString);
+        Sample individual = family.getMembers().get("Patient");
+        assertEquals(expected, deNovoChecker.checkDeNovo(variantContext, individual));
     }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
@@ -45,7 +47,7 @@ class DeNovoCheckerTest {
       String fatherGt = line[3];
       String motherGt = line[4];
       String chrom = line[5];
-      boolean expected = Boolean.parseBoolean(line[6]);
+      String expected = line[6];
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, AffectedStatus.MISSING, AffectedStatus.MISSING,

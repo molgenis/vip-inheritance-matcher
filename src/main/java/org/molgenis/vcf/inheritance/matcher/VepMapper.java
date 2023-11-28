@@ -25,13 +25,11 @@ public class VepMapper {
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
-  public static final String INCOMPLETE_PENETRANCE = "IncompletePenetrance";
   private String vepFieldId = null;
   private final FieldMetadataService fieldMetadataService;
   private int geneIndex = -1;
   private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
-  private int incompletePenetranceIndex = -1;
 
   public VepMapper(VCFFileReader vcfFileReader, FieldMetadataService fieldMetadataService) {
     this.fieldMetadataService = fieldMetadataService;
@@ -55,8 +53,6 @@ public class VepMapper {
         geneIndex = nestedFields.get(GENE) != null ? nestedFields.get(GENE).getIndex():-1;
         geneSourceIndex = nestedFields.get(SYMBOL_SOURCE) != null ? nestedFields.get(SYMBOL_SOURCE).getIndex():-1;
         inheritanceIndex = nestedFields.get(INHERITANCE) != null ? nestedFields.get(INHERITANCE).getIndex():-1;
-        incompletePenetranceIndex = nestedFields.get(INCOMPLETE_PENETRANCE) != null ? nestedFields.get(INCOMPLETE_PENETRANCE).getIndex():-1;
-
         return;
       }
     }
@@ -87,11 +83,7 @@ public class VepMapper {
               = vepSplit[inheritanceIndex].split("&");
           mapGeneInheritance(modes, inheritanceModes);
         }
-        boolean isIncompletePenetrance = false;
-        if (incompletePenetranceIndex != -1) {
-          isIncompletePenetrance = vepSplit[incompletePenetranceIndex].equals("1");
-        }
-        genes.put(gene, new Gene(gene, source, isIncompletePenetrance, modes));
+        genes.put(gene, new Gene(gene, source, modes));
       } else {
         genes.put(gene, knownGenes.get(gene));
       }
@@ -103,30 +95,18 @@ public class VepMapper {
   private void mapGeneInheritance(Set<InheritanceMode> modes, String[] inheritanceModes) {
     for (String mode : inheritanceModes) {
       switch (mode) {
-        case "AR":
-          modes.add(InheritanceMode.AR);
-          break;
-        case "AD":
-          modes.add(InheritanceMode.AD);
-          break;
-        case "XLR":
-          modes.add(InheritanceMode.XLR);
-          break;
-        case "XLD":
-          modes.add(InheritanceMode.XLD);
-          break;
-        case "XL":
+        case "AR" -> modes.add(InheritanceMode.AR);
+        case "AD" -> modes.add(InheritanceMode.AD);
+        case "XLR" -> modes.add(InheritanceMode.XLR);
+        case "XLD" -> modes.add(InheritanceMode.XLD);
+        case "XL" -> {
           modes.add(InheritanceMode.XLR);
           modes.add(InheritanceMode.XLD);
-          break;
-        default:
+        }
+        default -> {
           //We ignore all the modes that are not used for matching.
+        }
       }
     }
-  }
-
-  public boolean containsIncompletePenetrance(VariantContext variantContext) {
-    Map<String, Gene> genes = getGenes(variantContext).getGenes();
-    return genes.values().stream().anyMatch(Gene::isIncompletePenetrance);
   }
 }

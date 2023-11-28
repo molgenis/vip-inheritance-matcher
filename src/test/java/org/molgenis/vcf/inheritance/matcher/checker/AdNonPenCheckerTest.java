@@ -1,8 +1,10 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.FALSE;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
+import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -10,18 +12,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VepMapper;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -30,20 +31,21 @@ import org.springframework.util.ResourceUtils;
 
 @ExtendWith(MockitoExtension.class)
 class AdNonPenCheckerTest {
+  private final AdNonPenetranceChecker adNonPenetranceChecker = new AdNonPenetranceChecker();
 
-  @Mock
-  private VepMapper vepMapper;
-
-  @ParameterizedTest(name = "{index} {4}")
+  @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Pedigree family,
-      boolean isIncompletePenetrance, boolean expected,
+  void check(VariantContext variantContext, Pedigree family, String expectedString,
       String displayName) {
-    AdNonPenetranceChecker adNonPenChecker = new AdNonPenetranceChecker(vepMapper);
-    when(vepMapper
-        .containsIncompletePenetrance(variantContext))
-        .thenReturn(isIncompletePenetrance);
-    assertEquals(expected, adNonPenChecker.check(variantContext, family));
+    MatchEnum expected = mapExpectedString(expectedString);
+    assertEquals(expected, adNonPenetranceChecker.check(variantContext, family, FALSE));
+  }
+
+  @Test
+  void testCheckAd() {
+    VariantContext variantContext = mock(VariantContext.class);
+    Pedigree family = mock(Pedigree.class);
+    assertEquals(FALSE, adNonPenetranceChecker.check(variantContext, family, MatchEnum.TRUE));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
@@ -60,11 +62,10 @@ class AdNonPenCheckerTest {
       AffectedStatus fatherAffectedStatus = AffectedStatus.valueOf(line[5]);
       String motherGt = line[6];
       AffectedStatus motherAffectedStatus = AffectedStatus.valueOf(line[7]);
-      boolean isIncompletePenetrance = Boolean.parseBoolean(line[10]);
       String brotherGt = line[8];
       AffectedStatus brotherAffectedStatus =
           line[9].isEmpty() ? null : AffectedStatus.valueOf(line[9]);
-      boolean expected = Boolean.parseBoolean(line[11]);
+      String expected = line[10];
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,
@@ -82,7 +83,7 @@ class AdNonPenCheckerTest {
       }
       return Arguments.of(VariantContextTestUtil
           .createVariantContext(genotypes,
-              ""), family, isIncompletePenetrance, expected, testName);
+              ""), family, expected, testName);
 
     });
   }

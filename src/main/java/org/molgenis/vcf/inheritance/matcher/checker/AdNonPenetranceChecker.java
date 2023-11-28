@@ -1,46 +1,49 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
-import static org.molgenis.vcf.utils.sample.model.AffectedStatus.MISSING;
-import static org.molgenis.vcf.utils.sample.model.AffectedStatus.UNAFFECTED;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
+import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.VepMapper;
+import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
+import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
+import org.springframework.stereotype.Component;
 
-public class AdNonPenetranceChecker {
+@Component
+public class AdNonPenetranceChecker extends InheritanceChecker{
 
-  private final VepMapper vepMapper;
+  public MatchEnum check(
+          VariantContext variantContext, Pedigree family, MatchEnum isAd) {
+    if (!VariantContextUtils.onAutosome(variantContext) || isAd == TRUE) {
+      return FALSE;
+    }
 
-  public AdNonPenetranceChecker(VepMapper vepMapper) {
-    this.vepMapper = vepMapper;
+    return checkFamily(variantContext, family);
   }
 
-  public boolean check(VariantContext variantContext, Pedigree family) {
-    if (onAutosome(variantContext) && vepMapper.containsIncompletePenetrance(variantContext)
-        && !AdChecker.check(variantContext, family)) {
-      for (Sample currentSample : family.getMembers().values()) {
-        Genotype genotype = variantContext.getGenotype(currentSample.getPerson().getIndividualId());
-        if (!checkSample(currentSample, genotype)) {
-          return false;
+  MatchEnum checkSample(Sample sample, VariantContext variantContext) {
+    Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
+    switch (sample.getPerson().getAffectedStatus()) {
+      case AFFECTED -> {
+        if (sampleGt.isMixed()) {
+          return hasVariant(sampleGt) ? TRUE : POTENTIAL;
+        }
+        if(sampleGt.isNoCall()){
+          return POTENTIAL;
+        }else{
+          return sampleGt.isHomRef() ? FALSE : TRUE;
         }
       }
-      return true;
+      case UNAFFECTED -> {
+        return TRUE;
+      }
+      case MISSING -> {
+        return POTENTIAL;
+      }
+      default -> throw new IllegalArgumentException();
     }
-    return false;
-  }
-
-  private boolean checkSample(Sample sample, Genotype genotype) {
-
-    if (genotype == null || !genotype.isCalled() || genotype.isHet() || genotype.isMixed()) {
-      //Due to the incomplete penetrance individuals can be HET indepent of their affected status
-      return true;
-    }
-
-    //HOMREF individuals cannot be affected
-    return genotype.isHomRef() && (sample.getPerson().getAffectedStatus() == UNAFFECTED
-        || sample.getPerson().getAffectedStatus() == MISSING);
   }
 }
+

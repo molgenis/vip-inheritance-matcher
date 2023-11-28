@@ -95,15 +95,15 @@ class AppCommandLineOptions {
     Path inputPath = Path.of(commandLine.getOptionValue(OPT_INPUT));
     if (!Files.exists(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input file '%s' does not exist.", inputPath.toString()));
+          format("Input file '%s' does not exist.", inputPath));
     }
     if (Files.isDirectory(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input file '%s' is a directory.", inputPath.toString()));
+          format("Input file '%s' is a directory.", inputPath));
     }
     if (!Files.isReadable(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input file '%s' is not readable.", inputPath.toString()));
+          format("Input file '%s' is not readable.", inputPath));
     }
     String inputPathStr = inputPath.toString();
     if (!inputPathStr.endsWith(".vcf") && !inputPathStr.endsWith(".vcf.gz")) {
@@ -121,7 +121,7 @@ class AppCommandLineOptions {
 
     if (!commandLine.hasOption(OPT_FORCE) && Files.exists(outputPath)) {
       throw new IllegalArgumentException(
-          format("Output file '%s' already exists", outputPath.toString()));
+          format("Output file '%s' already exists", outputPath));
     }
   }
 }

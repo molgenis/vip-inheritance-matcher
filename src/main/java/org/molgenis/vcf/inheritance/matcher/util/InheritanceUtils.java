@@ -1,5 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher.util;
 
+import htsjdk.variant.variantcontext.Allele;
+import htsjdk.variant.variantcontext.Genotype;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Person;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -18,6 +20,23 @@ public class InheritanceUtils {
         addChildren(sample, family, filteredFamily);
         return Pedigree.builder().id(family.getId()).members(filteredFamily).build();
     }
+
+    public static boolean hasParents(Sample sample) {
+        return !(sample.getPerson().getMaternalId().isEmpty() || sample.getPerson().getMaternalId().equals("0")) &&
+                !(sample.getPerson().getPaternalId().isEmpty() || sample.getPerson().getPaternalId().equals("0"));
+    }
+    public static boolean hasVariant(Genotype genotype) {
+        return genotype != null && genotype.getAlleles().stream()
+                .anyMatch(allele -> allele.isCalled() && allele.isNonReference());
+    }
+    public static boolean isHomAlt(Genotype genotype) {
+        return !genotype.isMixed() && !genotype.isNoCall() && !genotype.isHomRef() && genotype.isHom();
+    }
+
+    public static boolean isAlt(Allele allele) {
+        return allele.isCalled() && allele.isNonReference();
+    }
+
 
     private static void addChildren(Sample proband, Pedigree family, Map<String, Sample> filteredFamily) {
         for (Sample sample : family.getMembers().values()) {

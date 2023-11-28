@@ -3,9 +3,12 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.FALSE;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.TRUE;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
+import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -24,9 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
-import org.molgenis.vcf.inheritance.matcher.model.Gene;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.matcher.model.VariantContextGenes;
+import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -38,16 +39,24 @@ class ArCompoundCheckerTest {
 
   @Mock
   private VepMapper vepMapper;
-  private final static Gene gene1 = new Gene("GENE1", "EntrezGene", false, singleton(InheritanceMode.AR));
+  private final static Gene gene1 = new Gene("GENE1", "EntrezGene", singleton(InheritanceMode.AR));
 
   @ParameterizedTest(name = "{index} {4}")
   @MethodSource("provideTestCases")
   void check(VariantContext variantContext, Map<String, List<VariantContext>> geneVariantMap,
-      Pedigree family, boolean expected,
+      Pedigree family, String expectedString,
       String displayName) {
+    MatchEnum expected = mapExpectedString(expectedString);
     ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMapper);
     when(vepMapper.getGenes(variantContext)).thenReturn(VariantContextGenes.builder().genes(singletonMap("GENE1", gene1)).build());
-    assertEquals(expected, !arCompoundChecker.check(geneVariantMap, variantContext, family).isEmpty());
+    List<CompoundCheckResult> compounds = arCompoundChecker.check(geneVariantMap, variantContext, family, FALSE);
+    if(expected == FALSE) {
+      assertTrue(compounds.isEmpty());
+    }else if(expected == TRUE){
+      assertTrue(compounds.stream().anyMatch(CompoundCheckResult::isCertain));
+    }else{
+      assertTrue(!compounds.isEmpty() && compounds.stream().noneMatch(CompoundCheckResult::isCertain));
+    }
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
@@ -77,7 +86,7 @@ class ArCompoundCheckerTest {
       String brotherOtherGt = line[12];
       AffectedStatus brotherAffectedStatus =
           line[13].isEmpty() ? null : AffectedStatus.valueOf(line[13]);
-      boolean expected = Boolean.parseBoolean(line[14]);
+      String expected = line[14];
 
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,
