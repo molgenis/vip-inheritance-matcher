@@ -111,9 +111,6 @@ public class YlChecker {
     }
 
     private MatchEnum checkAffectedHaploid(Genotype genotype) {
-        if (genotype.isNoCall()) {
-            return POTENTIAL;
-        }
         if (genotype.hasAltAllele()) {
             return TRUE;
         }

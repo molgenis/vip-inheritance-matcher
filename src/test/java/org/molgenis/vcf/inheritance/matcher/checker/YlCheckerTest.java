@@ -40,7 +40,7 @@ class YlCheckerTest {
     }
 
     private static Stream<Arguments> provideTestCases() throws IOException {
-        File testFile = ResourceUtils.getFile("classpath:Yltests.tsv");
+        File testFile = ResourceUtils.getFile("classpath:YLtests.tsv");
         List<String[]> lines = Files.lines(testFile.toPath())
                 .map(line -> line.split("\t")).collect(Collectors.toList());
 

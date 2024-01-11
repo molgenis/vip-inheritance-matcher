@@ -22,10 +22,6 @@ public class MtChecker extends InheritanceChecker {
 
     protected MatchEnum checkSample(Sample sample, VariantContext variantContext) {
         Genotype genotype = variantContext.getGenotype(sample.getPerson().getIndividualId());
-        if (genotype == null || !genotype.isCalled()) {
-            return POTENTIAL;
-        }
-
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
                 return checkAffected(genotype);
