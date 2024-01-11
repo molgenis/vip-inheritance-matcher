@@ -40,12 +40,16 @@ class PedigreeInheritanceCheckerTest {
     @Mock
     ArChecker arChecker;
     @Mock
+    YlChecker ylChecker;
+    @Mock
+    MtChecker mtChecker;
+    @Mock
     DeNovoChecker deNovoChecker;
     private PedigreeInheritanceChecker pedigreeInheritanceChecker;
 
     @BeforeEach
     void setUp() {
-        pedigreeInheritanceChecker = new PedigreeInheritanceChecker(xldChecker, xlrChecker, adChecker, adNonPenetranceChecker, arChecker, deNovoChecker);
+        pedigreeInheritanceChecker = new PedigreeInheritanceChecker(xldChecker, xlrChecker, adChecker, adNonPenetranceChecker, arChecker, ylChecker, mtChecker, deNovoChecker);
     }
 
     @Test
@@ -59,6 +63,8 @@ class PedigreeInheritanceCheckerTest {
         when(adChecker.check(vc, family)).thenReturn(FALSE);
         when(arChecker.check(vc, family)).thenReturn(FALSE);
         when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(POTENTIAL);
+        when(mtChecker.check(vc, family)).thenReturn(FALSE);
+        when(ylChecker.check(vc, family)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
         when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
@@ -80,6 +86,8 @@ class PedigreeInheritanceCheckerTest {
         when(adChecker.check(vc, family)).thenReturn(FALSE);
         when(arChecker.check(vc, family)).thenReturn(FALSE);
         when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
+        when(mtChecker.check(vc, family)).thenReturn(FALSE);
+        when(ylChecker.check(vc, family)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
         when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
@@ -102,6 +110,8 @@ class PedigreeInheritanceCheckerTest {
         when(xlrChecker.check(vc, family)).thenReturn(FALSE);
         when(adChecker.check(vc, family)).thenReturn(TRUE);
         when(arChecker.check(vc, family)).thenReturn(POTENTIAL);
+        when(mtChecker.check(vc, family)).thenReturn(FALSE);
+        when(ylChecker.check(vc, family)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
 
@@ -123,6 +133,8 @@ class PedigreeInheritanceCheckerTest {
         when(xlrChecker.check(vc, family)).thenReturn(FALSE);
         when(adChecker.check(vc, family)).thenReturn(TRUE);
         when(arChecker.check(vc, family)).thenReturn(FALSE);
+        when(mtChecker.check(vc, family)).thenReturn(FALSE);
+        when(ylChecker.check(vc, family)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(TRUE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
         when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
@@ -154,6 +166,8 @@ class PedigreeInheritanceCheckerTest {
         when(adChecker.check(vc, family)).thenReturn(FALSE);
         when(arChecker.check(vc, family)).thenReturn(FALSE);
         when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
+        when(mtChecker.check(vc, family)).thenReturn(FALSE);
+        when(ylChecker.check(vc, family)).thenReturn(FALSE);
         when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
         Map<String, List<VariantContext>> geneMap = emptyMap();
         when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(List.of(CompoundCheckResult.builder().possibleCompound(vc2).isCertain(false).build()));

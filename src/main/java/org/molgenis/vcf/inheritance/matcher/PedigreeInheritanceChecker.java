@@ -22,14 +22,18 @@ public class PedigreeInheritanceChecker {
     private final AdChecker adChecker;
     private final AdNonPenetranceChecker adNonPenetranceChecker;
     private final ArChecker arChecker;
+    private final MtChecker mtChecker;
+    private final YlChecker ylChecker;
     private final DeNovoChecker deNovoChecker;
 
-    public PedigreeInheritanceChecker(XldChecker xldChecker, XlrChecker xlrChecker, AdChecker adChecker, AdNonPenetranceChecker adNonPenetranceChecker, ArChecker arChecker, DeNovoChecker deNovoChecker) {
+    public PedigreeInheritanceChecker(XldChecker xldChecker, XlrChecker xlrChecker, AdChecker adChecker, AdNonPenetranceChecker adNonPenetranceChecker, ArChecker arChecker, YlChecker ylChecker, MtChecker mtChecker, DeNovoChecker deNovoChecker) {
         this.xldChecker = xldChecker;
         this.xlrChecker = xlrChecker;
         this.adChecker = adChecker;
         this.adNonPenetranceChecker = adNonPenetranceChecker;
         this.arChecker = arChecker;
+        this.mtChecker = mtChecker;
+        this.ylChecker = ylChecker;
         this.deNovoChecker = deNovoChecker;
     }
 
@@ -39,10 +43,27 @@ public class PedigreeInheritanceChecker {
         checkAr(geneVariantMap, variantContext, filteredFamily, inheritance, arCompoundChecker);
         checkAd(variantContext, filteredFamily, inheritance);
         checkXl(variantContext, filteredFamily, inheritance);
+        checkMt(variantContext, filteredFamily, inheritance);
+        checkYl(variantContext, filteredFamily, inheritance);
         inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, sample));
         return inheritance;
     }
 
+    private void checkMt(VariantContext variantContext, Pedigree family,
+                         Inheritance inheritance) {
+        MatchEnum isMt = mtChecker.check(variantContext, family);
+        if (isMt != FALSE) {
+            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.MT, isMt == POTENTIAL));
+        }
+    }
+
+    private void checkYl(VariantContext variantContext, Pedigree family,
+                         Inheritance inheritance) {
+        MatchEnum isYl = ylChecker.check(variantContext, family);
+        if (isYl != FALSE) {
+            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.YL, isYl == POTENTIAL));
+        }
+    }
 
     private void checkXl(VariantContext variantContext, Pedigree family,
                          Inheritance inheritance) {
