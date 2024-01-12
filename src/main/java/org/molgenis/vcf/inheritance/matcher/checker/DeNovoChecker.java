@@ -1,9 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
+import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.*;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasParents;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
+import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -34,9 +33,56 @@ public class DeNovoChecker {
                 }
             }
             return probandGt.isNoCall() ? POTENTIAL : FALSE;
+        } else if (onChromosomeY(variantContext)) {
+            return checkYLinkedVariant(proband, probandGt, fatherGt);
+        } else if (onChromosomeMt(variantContext)) {
+            return checkMtVariant(probandGt, motherGt);
         } else {
             return checkRegular(probandGt, fatherGt, motherGt);
         }
+    }
+
+    private static MatchEnum checkYLinkedVariant(Sample proband, Genotype probandGt, Genotype fatherGt) {
+        switch (proband.getPerson().getSex()) {
+            case MALE:
+                return checkYLinkedVariantMale(probandGt, fatherGt);
+            case FEMALE:
+                return FALSE;
+            default:
+                return (hasVariant(fatherGt) || !hasVariant(probandGt)) ? FALSE : POTENTIAL;
+        }
+    }
+
+    private static MatchEnum checkYLinkedVariantMale(Genotype probandGt, Genotype fatherGt) {
+        if (hasVariant(probandGt)) {
+            if (hasVariant(fatherGt)) {
+                return FALSE;
+            } else {
+                return (!hasVariant(fatherGt) && !hasMissing(fatherGt)) ? TRUE : POTENTIAL;
+            }
+        } else if (hasMissing(probandGt)) {
+            return hasVariant(fatherGt) ? FALSE : POTENTIAL;
+        }
+        return FALSE;
+    }
+
+    private static MatchEnum checkMtVariant(Genotype probandGt, Genotype motherGt) {
+        if (hasVariant(probandGt)) {
+            if (hasVariant(motherGt)) {
+                return FALSE;
+            } else if (!hasVariant(motherGt) && motherGt.isCalled() && !motherGt.isMixed()) {
+                return TRUE;
+            } else {
+                return POTENTIAL;
+            }
+        } else if (probandGt.isNoCall() || probandGt.isMixed()) {
+            if (hasVariant(motherGt)) {
+                return FALSE;
+            } else {
+                return POTENTIAL;
+            }
+        }
+        return FALSE;
     }
 
     private MatchEnum checkRegular(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
@@ -49,7 +95,7 @@ public class DeNovoChecker {
             } else if (probandGt.isMixed()) {
                 result = checkMixed(probandGt, fatherGt, motherGt);
             } else {
-                result = (hasVariant(motherGt) && hasVariant(fatherGt)) ? FALSE: POTENTIAL;
+                result = (hasVariant(motherGt) && hasVariant(fatherGt)) ? FALSE : POTENTIAL;
             }
         }
         return result;
