@@ -37,7 +37,7 @@ public class DeNovoChecker {
         } else if (onChromosomeY(variantContext)) {
             return checkYLinkedVariant(proband, probandGt, fatherGt);
         } else if (onChromosomeMt(variantContext)) {
-            return checkMtVariant(proband, probandGt, motherGt);
+            return checkMtVariant(probandGt, motherGt);
         } else {
             return checkRegular(probandGt, fatherGt, motherGt);
         }
@@ -71,7 +71,7 @@ public class DeNovoChecker {
         }
     }
 
-    private static MatchEnum checkMtVariant(Sample proband, Genotype probandGt, Genotype motherGt) {
+    private static MatchEnum checkMtVariant(Genotype probandGt, Genotype motherGt) {
         if (hasVariant(probandGt)) {
             if (hasVariant(motherGt)) {
                 return FALSE;
