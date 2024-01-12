@@ -50,24 +50,15 @@ public class DeNovoChecker {
             if (hasVariant(probandGt)) {
                 if (hasVariant(fatherGt)) {
                     return FALSE;
-                } else if (!hasVariant(fatherGt) && fatherGt.isCalled() && !fatherGt.isMixed()) {
-                    return TRUE;
                 } else {
-                    return POTENTIAL;
+                    return (!hasVariant(fatherGt) && fatherGt.isCalled() && !fatherGt.isMixed()) ? TRUE : POTENTIAL;
                 }
             } else if (probandGt.isNoCall() || probandGt.isMixed()) {
-                if (hasVariant(fatherGt)) {
-                    return FALSE;
-                } else {
-                    return POTENTIAL;
-                }
+                return hasVariant(fatherGt) ? FALSE : POTENTIAL;
             }
             return FALSE;
         } else {
-            if (hasVariant(fatherGt) || !hasVariant(probandGt)) {
-                return FALSE;
-            }
-            return POTENTIAL;
+            return (hasVariant(fatherGt) || !hasVariant(probandGt)) ? FALSE : POTENTIAL;
         }
     }
 
