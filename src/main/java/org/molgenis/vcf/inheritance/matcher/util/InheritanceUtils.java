@@ -29,6 +29,11 @@ public class InheritanceUtils {
         return genotype != null && genotype.getAlleles().stream()
                 .anyMatch(allele -> allele.isCalled() && allele.isNonReference());
     }
+
+    public static boolean hasMissing(Genotype genotype) {
+        return genotype == null || genotype.getAlleles().stream()
+                .anyMatch(Allele::isNoCall);
+    }
     public static boolean isHomAlt(Genotype genotype) {
         return !genotype.isMixed() && !genotype.isNoCall() && !genotype.isHomRef() && genotype.isHom();
     }

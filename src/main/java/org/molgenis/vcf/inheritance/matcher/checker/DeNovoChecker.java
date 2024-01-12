@@ -2,8 +2,7 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.*;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasParents;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
+import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -44,22 +43,27 @@ public class DeNovoChecker {
     }
 
     private static MatchEnum checkYLinkedVariant(Sample proband, Genotype probandGt, Genotype fatherGt) {
-        if (proband.getPerson().getSex() == Sex.FEMALE) {
-            return FALSE;
-        } else if (proband.getPerson().getSex() == Sex.MALE) {
-            if (hasVariant(probandGt)) {
-                if (hasVariant(fatherGt)) {
-                    return FALSE;
-                } else {
-                    return (!hasVariant(fatherGt) && fatherGt.isCalled() && !fatherGt.isMixed()) ? TRUE : POTENTIAL;
-                }
-            } else if (probandGt.isNoCall() || probandGt.isMixed()) {
-                return hasVariant(fatherGt) ? FALSE : POTENTIAL;
-            }
-            return FALSE;
-        } else {
-            return (hasVariant(fatherGt) || !hasVariant(probandGt)) ? FALSE : POTENTIAL;
+        switch (proband.getPerson().getSex()) {
+            case MALE:
+                return checkYLinkedVariantMale(probandGt, fatherGt);
+            case FEMALE:
+                return FALSE;
+            default:
+                return (hasVariant(fatherGt) || !hasVariant(probandGt)) ? FALSE : POTENTIAL;
         }
+    }
+
+    private static MatchEnum checkYLinkedVariantMale(Genotype probandGt, Genotype fatherGt) {
+        if (hasVariant(probandGt)) {
+            if (hasVariant(fatherGt)) {
+                return FALSE;
+            } else {
+                return (!hasVariant(fatherGt) && !hasMissing(fatherGt)) ? TRUE : POTENTIAL;
+            }
+        } else if (hasMissing(probandGt)) {
+            return hasVariant(fatherGt) ? FALSE : POTENTIAL;
+        }
+        return FALSE;
     }
 
     private static MatchEnum checkMtVariant(Genotype probandGt, Genotype motherGt) {
