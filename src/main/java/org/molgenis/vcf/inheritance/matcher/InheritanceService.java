@@ -1,15 +1,16 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import static java.lang.String.format;
-import static java.util.Collections.singletonMap;
-import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
-import static org.molgenis.vcf.utils.sample.mapper.PedToSamplesMapper.mapPedFileToPedigrees;
-
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
+import org.molgenis.vcf.inheritance.matcher.checker.ArCompoundChecker;
+import org.molgenis.vcf.inheritance.matcher.model.*;
+import org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils;
+import org.molgenis.vcf.utils.metadata.FieldMetadataService;
+import org.molgenis.vcf.utils.sample.model.*;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -19,19 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.molgenis.vcf.inheritance.matcher.checker.*;
-import org.molgenis.vcf.inheritance.matcher.model.*;
-import org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils;
-import org.molgenis.vcf.utils.metadata.FieldMetadataService;
-import org.molgenis.vcf.utils.sample.model.AffectedStatus;
-import org.molgenis.vcf.utils.sample.model.Pedigree;
-import org.molgenis.vcf.utils.sample.model.Person;
-import org.molgenis.vcf.utils.sample.model.Sample;
-import org.molgenis.vcf.utils.sample.model.Sex;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import static java.lang.String.format;
+import static java.util.Collections.singletonMap;
+import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
+import static org.molgenis.vcf.utils.sample.mapper.PedToSamplesMapper.mapPedFileToPedigrees;
 
-@Component
 public class InheritanceService {
 
   private final FieldMetadataService fieldMetadataService;
@@ -40,8 +33,7 @@ public class InheritanceService {
   private final PedigreeInheritanceChecker pedigreeInheritanceChecker;
 
   public InheritanceService(
-          Annotator annotator, @Qualifier("vepMetadataService")
-      FieldMetadataService fieldMetadataService, PedigreeInheritanceChecker pedigreeInheritanceChecker) {
+          Annotator annotator, FieldMetadataService fieldMetadataService, PedigreeInheritanceChecker pedigreeInheritanceChecker) {
     this.annotator = annotator;
     this.fieldMetadataService = fieldMetadataService;
     this.pedigreeInheritanceChecker = pedigreeInheritanceChecker;
