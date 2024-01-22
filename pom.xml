@@ -12,7 +12,7 @@
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance-matcher</artifactId>
-  <version>3.0.1</version>
+  <version>3.0.2</version>
 
   <name>vip-inheritance-matcher</name>
   <description>Annotates VCF samples with mendelian violation and possible compound flags and
@@ -47,7 +47,7 @@
     <!-- [WARNING] Plugin validation issues were detected, see https://github.com/jacoco/jacoco/issues/1435 -->
     <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
     <samtools.htsjdk.version>4.0.2</samtools.htsjdk.version>
-    <vip.utils.version>1.4.5</vip.utils.version>
+    <vip.utils.version>1.4.6</vip.utils.version>
   </properties>
 
   <profiles>
