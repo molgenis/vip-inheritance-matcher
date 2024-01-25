@@ -2,7 +2,7 @@ package org.molgenis.vcf.inheritance.matcher.util;
 
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import org.molgenis.vcf.utils.metadata.FieldMetadataService;
-import org.molgenis.vcf.utils.metadata.FieldMetadataServiceImpl;
+import org.molgenis.vcf.utils.metadata.AbstractFieldMetadataService;
 import org.molgenis.vcf.utils.model.FieldMetadata;
 import org.molgenis.vcf.utils.vep.VepMetadataService;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class VepMetadataServiceFactoryImpl implements VepMetadataServiceFactory 
     /**
      * vip-inheritance-matcher does not require knowledge of custom VEP metadata
      */
-    static class EmptyFieldMetadataService extends FieldMetadataServiceImpl {
+    static class EmptyFieldMetadataService extends AbstractFieldMetadataService {
         private static final String EMPTY_METADATA_JSON = """
                 {
                   "format": {
