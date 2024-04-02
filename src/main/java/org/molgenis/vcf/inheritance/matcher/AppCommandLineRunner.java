@@ -1,30 +1,23 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import static java.util.Objects.requireNonNull;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_DEBUG;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_FORCE;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_INPUT;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_OUTPUT;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PED;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_PROBANDS;
-import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
-
 import ch.qos.logback.classic.Level;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
+import org.molgenis.vcf.inheritance.matcher.util.InheritanceServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.*;
+import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
 
 @Component
 class AppCommandLineRunner implements CommandLineRunner {
@@ -37,15 +30,15 @@ class AppCommandLineRunner implements CommandLineRunner {
   private final String appName;
   private final String appVersion;
   private final CommandLineParser commandLineParser;
-  private final InheritanceService inheritanceService;
+  private final InheritanceServiceFactory inheritanceServiceFactory;
 
   AppCommandLineRunner(
       @Value("${app.name}") String appName,
       @Value("${app.version}") String appVersion,
-      InheritanceService inheritanceService) {
+      InheritanceServiceFactory inheritanceServiceFactory) {
     this.appName = requireNonNull(appName);
     this.appVersion = requireNonNull(appVersion);
-    this.inheritanceService = requireNonNull(inheritanceService);
+    this.inheritanceServiceFactory = requireNonNull(inheritanceServiceFactory);
     this.commandLineParser = new DefaultParser();
   }
 
@@ -76,6 +69,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     CommandLine commandLine = getCommandLine(args);
     org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.validateCommandLine(commandLine);
     Settings settings = mapSettings(commandLine);
+    InheritanceService inheritanceService = inheritanceServiceFactory.create();
     try {
       inheritanceService.run(settings);
     } catch (Exception e) {
