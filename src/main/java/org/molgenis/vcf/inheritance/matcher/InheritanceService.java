@@ -141,8 +141,7 @@ public class InheritanceService {
     Map<String, List<VariantContext>> geneVariantMap,
     VariantContext variantContext, Pedigree family,
     Sample sample) {
-    Pedigree filteredFamily = InheritanceUtils.filterBloodRelatives(family, sample);
-    return pedigreeInheritanceChecker.calculatePedigreeInheritance(geneVariantMap, variantContext, sample, filteredFamily, arCompoundChecker);
+    return pedigreeInheritanceChecker.calculatePedigreeInheritance(geneVariantMap, variantContext, sample, family, arCompoundChecker);
   }
 
   private static VCFFileReader createReader(Path vcfPath) {
