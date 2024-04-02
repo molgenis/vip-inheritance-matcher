@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.0</version>
+    <version>3.2.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -46,8 +46,8 @@
     <commons.cli.version>1.6.0</commons.cli.version>
     <!-- [WARNING] Plugin validation issues were detected, see https://github.com/jacoco/jacoco/issues/1435 -->
     <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
-    <samtools.htsjdk.version>4.0.2</samtools.htsjdk.version>
-    <vip.utils.version>1.4.5</vip.utils.version>
+    <samtools.htsjdk.version>4.1.0</samtools.htsjdk.version>
+    <vip.utils.version>2.0.0</vip.utils.version>
   </properties>
 
   <profiles>
