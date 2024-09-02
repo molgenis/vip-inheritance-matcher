@@ -64,7 +64,7 @@ public class InheritanceService {
       vcfFileReader.forEach(variantContextList::add);
       Map<String, List<VariantContext>> geneVariantMap = createGeneVariantMap(vepMapper, knownGenes,
           variantContextList);
-      variantContextList.stream().filter(vc -> vc.getAlternateAlleles().size() == 1).map(
+      variantContextList.stream().filter(vc -> vc.getAlternateAlleles().size() >  1).map(
           vc -> processSingleVariantcontext(probands, vepMapper, familyList,
               geneVariantMap, vc)).forEach(writer::add);
     } catch (IOException ioException) {

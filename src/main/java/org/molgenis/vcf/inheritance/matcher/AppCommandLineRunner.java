@@ -96,6 +96,13 @@ class AppCommandLineRunner implements CommandLineRunner {
       probandNames = List.of();
     }
 
+    List<String> pathogenicClasses;
+    if (commandLine.hasOption(OPT_CLASSES)) {
+      pathogenicClasses = Arrays.asList(commandLine.getOptionValue(OPT_CLASSES).split(","));
+    } else {
+      pathogenicClasses = List.of();
+    }
+
     List<Path> pedPaths;
     if (commandLine.hasOption(OPT_PED)) {
       pedPaths = parsePaths(commandLine.getOptionValue(OPT_PED));
@@ -108,7 +115,8 @@ class AppCommandLineRunner implements CommandLineRunner {
     boolean debugMode = commandLine.hasOption(OPT_DEBUG);
 
     return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
-        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode)
+        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).
+            pathogenicClasses(pathogenicClasses).debug(debugMode)
         .build();
   }
 

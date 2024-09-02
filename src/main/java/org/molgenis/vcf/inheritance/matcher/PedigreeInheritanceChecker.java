@@ -37,6 +37,7 @@ public class PedigreeInheritanceChecker {
         this.deNovoChecker = deNovoChecker;
     }
 
+    //TODO replace geneVariantMap with context incl pathogenic classes
     Inheritance calculatePedigreeInheritance(
             Map<String, List<VariantContext>> geneVariantMap, VariantContext variantContext, Sample sample, Pedigree filteredFamily, ArCompoundChecker arCompoundChecker) {
         Inheritance inheritance = Inheritance.builder().build();

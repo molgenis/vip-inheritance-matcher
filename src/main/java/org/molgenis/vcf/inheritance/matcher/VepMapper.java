@@ -21,6 +21,8 @@ import org.molgenis.vcf.utils.model.NestedField;
 public class VepMapper {
 
   public static final String GENE = "Gene";
+  public static final String ALLELE_NUM = "ALLELE_NUM";
+  public static final String VIP_CLASS = "VIPC";
   public static final String SYMBOL_SOURCE = "SYMBOL_SOURCE";
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
@@ -30,6 +32,8 @@ public class VepMapper {
   private int geneIndex = -1;
   private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
+  private int alleleNumIndex = -1;
+  private int classIndex = -1;
 
   public VepMapper(VCFFileReader vcfFileReader, FieldMetadataService fieldMetadataService) {
     this.fieldMetadataService = fieldMetadataService;
@@ -53,6 +57,8 @@ public class VepMapper {
         geneIndex = nestedFields.get(GENE) != null ? nestedFields.get(GENE).getIndex():-1;
         geneSourceIndex = nestedFields.get(SYMBOL_SOURCE) != null ? nestedFields.get(SYMBOL_SOURCE).getIndex():-1;
         inheritanceIndex = nestedFields.get(INHERITANCE) != null ? nestedFields.get(INHERITANCE).getIndex():-1;
+        alleleNumIndex = nestedFields.get(ALLELE_NUM) != null ? nestedFields.get(ALLELE_NUM).getIndex():-1;
+        classIndex = nestedFields.get(VIP_CLASS) != null ? nestedFields.get(VIP_CLASS).getIndex():-1;
         return;
       }
     }
@@ -90,6 +96,19 @@ public class VepMapper {
     }
     genesBuilder.genes(genes);
     return genesBuilder.build();
+  }
+
+  public Set<String> getClassesForAllele(VariantContext vc, int alleleIndex){
+    List<String> vepValues = vc.getAttributeAsStringList(vepFieldId, "");
+    Set<String> classes = new HashSet<>();
+    for (String vepValue : vepValues) {
+      String[] vepSplit = vepValue.split("\\|", -1);
+      int csqAlleleIndex = Integer.parseInt(vepSplit[alleleNumIndex]);
+      if(csqAlleleIndex == alleleIndex){
+        classes.add(vepSplit[classIndex]);
+      }
+    }
+    return classes;
   }
 
   private void mapGeneInheritance(Set<InheritanceMode> modes, String[] inheritanceModes) {

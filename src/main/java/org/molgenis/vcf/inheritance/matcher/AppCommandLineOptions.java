@@ -24,6 +24,8 @@ class AppCommandLineOptions {
   static final String OPT_DEBUG_LONG = "debug";
   static final String OPT_VERSION = "v";
   static final String OPT_VERSION_LONG = "version";
+  static final String OPT_CLASSES = "pc";
+  static final String OPT_CLASSES_LONG = "pathogenicClasses";
   private static final Options APP_OPTIONS;
   private static final Options APP_VERSION_OPTIONS;
 
@@ -54,6 +56,12 @@ class AppCommandLineOptions {
             .longOpt(OPT_PROBANDS_LONG)
             .desc("Comma-separated list of proband sample identifiers.")
             .build());
+    appOptions.addOption(
+            Option.builder(OPT_CLASSES)
+                    .hasArg(true)
+                    .longOpt(OPT_CLASSES_LONG)
+                    .desc("Comma-separated list of classes to be treated as pathogenic in the inheritance matcher")
+                    .build());
     appOptions.addOption(
         Option.builder(OPT_FORCE)
             .longOpt(OPT_FORCE_LONG)

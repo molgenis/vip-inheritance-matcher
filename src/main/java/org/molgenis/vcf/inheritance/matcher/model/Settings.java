@@ -13,6 +13,7 @@ public class Settings {
   List<Path> inputPedPaths;
   Path outputPath;
   List<String> probands;
+  List<String> pathogenicClasses;
   boolean overwrite;
   boolean debug;
   boolean strict;
