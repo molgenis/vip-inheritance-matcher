@@ -4,20 +4,20 @@ import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromos
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.utils.sample.model.Sex.FEMALE;
 import static org.molgenis.vcf.utils.sample.model.Sex.MALE;
-
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+;
+import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sex;
 
 public abstract class XlChecker extends InheritanceChecker{
 
-  public MatchEnum check(VariantContext variantContext, Pedigree family) {
-    if (!onChromosomeX(variantContext)) {
+  public MatchEnum check(VcfRecord vcfRecord, Pedigree family) {
+    if (!onChromosomeX(vcfRecord)) {
       return FALSE;
     }
-    return checkFamily(variantContext, family);
+    return checkFamily(vcfRecord, family);
   }
 
   protected Sex getSex(Sex sex, Genotype genotype) {

@@ -1,16 +1,14 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
-
+import org.molgenis.vcf.inheritance.matcher.Genotype;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 /**
  * Autosomal dominant (AD) inheritance pattern matcher
@@ -21,23 +19,23 @@ public class AdChecker extends InheritanceChecker{
      * Check whether the AD inheritance pattern could match for a variant in a pedigree
      */
     public MatchEnum check(
-            VariantContext variantContext, Pedigree family) {
-        if (!VariantContextUtils.onAutosome(variantContext)) {
+            VcfRecord vcfRecord, Pedigree family) {
+        if (!VariantContextUtils.onAutosome(vcfRecord)) {
             return FALSE;
         }
 
-        return checkFamily(variantContext, family);
+        return checkFamily(vcfRecord, family);
     }
 
-    MatchEnum checkSample(Sample sample, VariantContext variantContext) {
-        Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
+    MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
+        Genotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
         if (sampleGt == null || sampleGt.isNoCall()) {
             return POTENTIAL;
         } else {
             if (sampleGt.isMixed()) {
                 return checkMixed(sample, sampleGt);
             } else {
-                if (hasVariant(sampleGt)) {
+                if (sampleGt.hasAltAllele()) {
                     return checkSampleWithVariant(sample);
                 } else {
                     return checkSampleWithoutVariant(sample);
@@ -65,12 +63,12 @@ public class AdChecker extends InheritanceChecker{
     private static MatchEnum checkMixed(Sample sample, Genotype sampleGt) {
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
-                if (!hasVariant(sampleGt)) {
+                if (!sampleGt.hasAltAllele()) {
                     return POTENTIAL;
                 }
             }
             case UNAFFECTED -> {
-                if (hasVariant(sampleGt)) {
+                if (sampleGt.hasAltAllele()) {
                     return FALSE;
                 } else {
                     return POTENTIAL;

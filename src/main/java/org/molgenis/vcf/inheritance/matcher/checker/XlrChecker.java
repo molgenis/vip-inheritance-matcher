@@ -1,19 +1,18 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 @Component
 public class XlrChecker extends XlChecker {
 
-    protected MatchEnum checkSample(Sample sample, VariantContext variantContext) {
-        Genotype genotype = variantContext.getGenotype(sample.getPerson().getIndividualId());
+    protected MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
+        Genotype genotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
         if (genotype == null || !genotype.isCalled()) {
             return POTENTIAL;
         }
@@ -36,7 +35,7 @@ public class XlrChecker extends XlChecker {
         switch (getSex(sample.getPerson().getSex(), genotype)) {
             case MALE -> {
                 // Healthy males cannot carry the variant.
-                if (hasVariant(genotype)) {
+                if (genotype.hasAltAllele()) {
                     return FALSE;
                 } else if (genotype.isHomRef()) {
                     return TRUE;
@@ -45,9 +44,9 @@ public class XlrChecker extends XlChecker {
             }
             case FEMALE -> {
                 // Healthy females cannot be hom. alt.
-                if (hasVariant(genotype) && genotype.isHom()) {
+                if (genotype.hasAltAllele() && genotype.isHom()) {
                     return FALSE;
-                } else if (hasVariant(genotype) && genotype.isMixed()) {
+                } else if (genotype.hasAltAllele() && genotype.isMixed()) {
                     return POTENTIAL;
                 }
                 return TRUE;
@@ -60,7 +59,7 @@ public class XlrChecker extends XlChecker {
         switch (getSex(sample.getPerson().getSex(), genotype)) {
             case MALE -> {
                 // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).
-                if (hasVariant(genotype)) {
+                if (genotype.hasAltAllele()) {
                     return TRUE;
                 } else if (genotype.isMixed()) {
                     return POTENTIAL;
@@ -71,7 +70,7 @@ public class XlrChecker extends XlChecker {
                 // Affected females have to be hom. alt.
                 if (genotype.isHomRef()) {
                     return FALSE;
-                } else if (hasVariant(genotype) && genotype.isMixed()) {
+                } else if (genotype.hasAltAllele() && genotype.isMixed()) {
                     return POTENTIAL;
                 }
                 return genotype.isHom() ? TRUE : FALSE;

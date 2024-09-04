@@ -5,12 +5,15 @@ import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.GenotypeBuilder;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.VariantContextBuilder;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 public class VariantContextTestUtil {
@@ -18,11 +21,11 @@ public class VariantContextTestUtil {
   public static final Allele REF = Allele.REF_T;
   public static final Allele ALT = Allele.ALT_A;
 
-  public static VariantContext createVariantContext(List<Genotype> genotypes, String vep) {
+  public static VcfRecord createVariantContext(List<Genotype> genotypes, String vep) {
     return createVariantContext(genotypes, vep, "1");
   }
 
-  public static VariantContext createVariantContext(List<Genotype> genotypes, String vep,
+  public static VcfRecord createVariantContext(List<Genotype> genotypes, String vep,
       String contig) {
     VariantContextBuilder builder = new VariantContextBuilder();
     builder.chr(contig);
@@ -31,7 +34,7 @@ public class VariantContextTestUtil {
     builder.alleles(Arrays.asList(REF, ALT));
     builder.genotypes(genotypes);
     builder.attribute("CSQ", vep);
-    return builder.make();
+    return new VcfRecord(builder.make(), emptyList());
   }
 
   public static Genotype createGenotype(String sample, String gt) {

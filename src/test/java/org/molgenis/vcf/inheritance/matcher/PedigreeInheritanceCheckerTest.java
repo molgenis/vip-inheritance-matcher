@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
+import static java.util.Collections.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,21 +54,22 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testAdIpPotential() {
         VariantContext vc = mock(VariantContext.class);
+        VcfRecord record = new VcfRecord(vc, emptyList());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
-        when(xldChecker.check(vc, family)).thenReturn(FALSE);
-        when(xlrChecker.check(vc, family)).thenReturn(FALSE);
-        when(adChecker.check(vc, family)).thenReturn(FALSE);
-        when(arChecker.check(vc, family)).thenReturn(FALSE);
-        when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(POTENTIAL);
-        when(mtChecker.check(vc, family)).thenReturn(FALSE);
-        when(ylChecker.check(vc, family)).thenReturn(FALSE);
-        when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
-        Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
+        when(xldChecker.check(record, family)).thenReturn(FALSE);
+        when(xlrChecker.check(record, family)).thenReturn(FALSE);
+        when(adChecker.check(record, family)).thenReturn(FALSE);
+        when(arChecker.check(record, family)).thenReturn(FALSE);
+        when(adNonPenetranceChecker.check(record, family, FALSE)).thenReturn(POTENTIAL);
+        when(mtChecker.check(record, family)).thenReturn(FALSE);
+        when(ylChecker.check(record, family)).thenReturn(FALSE);
+        when(deNovoChecker.checkDeNovo(record, sample)).thenReturn(FALSE);
+        Map<String, List<VcfRecord>> geneMap = emptyMap();
+        when(arCompoundChecker.check(geneMap, record, family, FALSE)).thenReturn(emptyList());
 
-        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
+        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, record, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, true))).denovo(FALSE).build();
 
         assertEquals(expected, actual);
@@ -78,21 +78,22 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testXlRDTrue() {
         VariantContext vc = mock(VariantContext.class);
+        VcfRecord record = new VcfRecord(vc, emptyList());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
-        when(xldChecker.check(vc, family)).thenReturn(TRUE);
-        when(xlrChecker.check(vc, family)).thenReturn(TRUE);
-        when(adChecker.check(vc, family)).thenReturn(FALSE);
-        when(arChecker.check(vc, family)).thenReturn(FALSE);
-        when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
-        when(mtChecker.check(vc, family)).thenReturn(FALSE);
-        when(ylChecker.check(vc, family)).thenReturn(FALSE);
-        when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
-        Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
+        when(xldChecker.check(record, family)).thenReturn(TRUE);
+        when(xlrChecker.check(record, family)).thenReturn(TRUE);
+        when(adChecker.check(record, family)).thenReturn(FALSE);
+        when(arChecker.check(record, family)).thenReturn(FALSE);
+        when(adNonPenetranceChecker.check(record, family, FALSE)).thenReturn(FALSE);
+        when(mtChecker.check(record, family)).thenReturn(FALSE);
+        when(ylChecker.check(record, family)).thenReturn(FALSE);
+        when(deNovoChecker.checkDeNovo(record, sample)).thenReturn(FALSE);
+        Map<String, List<VcfRecord>> geneMap = emptyMap();
+        when(arCompoundChecker.check(geneMap, record, family, FALSE)).thenReturn(emptyList());
 
-        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
+        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, record, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(
                 Set.of(new PedigreeInheritanceMatch(InheritanceMode.XLD, false),
                         new PedigreeInheritanceMatch(InheritanceMode.XLR, false))).denovo(FALSE).build();
@@ -103,19 +104,20 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testArAdMixed() {
         VariantContext vc = mock(VariantContext.class);
+        VcfRecord record = new VcfRecord(vc, emptyList());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
-        when(xldChecker.check(vc, family)).thenReturn(FALSE);
-        when(xlrChecker.check(vc, family)).thenReturn(FALSE);
-        when(adChecker.check(vc, family)).thenReturn(TRUE);
-        when(arChecker.check(vc, family)).thenReturn(POTENTIAL);
-        when(mtChecker.check(vc, family)).thenReturn(FALSE);
-        when(ylChecker.check(vc, family)).thenReturn(FALSE);
-        when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
-        Map<String, List<VariantContext>> geneMap = emptyMap();
+        when(xldChecker.check(record, family)).thenReturn(FALSE);
+        when(xlrChecker.check(record, family)).thenReturn(FALSE);
+        when(adChecker.check(record, family)).thenReturn(TRUE);
+        when(arChecker.check(record, family)).thenReturn(POTENTIAL);
+        when(mtChecker.check(record, family)).thenReturn(FALSE);
+        when(ylChecker.check(record, family)).thenReturn(FALSE);
+        when(deNovoChecker.checkDeNovo(record, sample)).thenReturn(FALSE);
+        Map<String, List<VcfRecord>> geneMap = emptyMap();
 
-        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
+        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, record, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(
                 Set.of(new PedigreeInheritanceMatch(InheritanceMode.AD, false),
                         new PedigreeInheritanceMatch(InheritanceMode.AR, true))).denovo(FALSE).build();
@@ -126,20 +128,21 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testAdDenovoMixed() {
         VariantContext vc = mock(VariantContext.class);
+        VcfRecord record = new VcfRecord(vc, emptyList());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
-        when(xldChecker.check(vc, family)).thenReturn(FALSE);
-        when(xlrChecker.check(vc, family)).thenReturn(FALSE);
-        when(adChecker.check(vc, family)).thenReturn(TRUE);
-        when(arChecker.check(vc, family)).thenReturn(FALSE);
-        when(mtChecker.check(vc, family)).thenReturn(FALSE);
-        when(ylChecker.check(vc, family)).thenReturn(FALSE);
-        when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(TRUE);
-        Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
+        when(xldChecker.check(record, family)).thenReturn(FALSE);
+        when(xlrChecker.check(record, family)).thenReturn(FALSE);
+        when(adChecker.check(record, family)).thenReturn(TRUE);
+        when(arChecker.check(record, family)).thenReturn(FALSE);
+        when(mtChecker.check(record, family)).thenReturn(FALSE);
+        when(ylChecker.check(record, family)).thenReturn(FALSE);
+        when(deNovoChecker.checkDeNovo(record, sample)).thenReturn(TRUE);
+        Map<String, List<VcfRecord>> geneMap = emptyMap();
+        when(arCompoundChecker.check(geneMap, record, family, FALSE)).thenReturn(emptyList());
 
-        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
+        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, record, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(
                 Set.of(new PedigreeInheritanceMatch(InheritanceMode.AD, false))).denovo(TRUE).build();
 
@@ -149,6 +152,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testArPotential() {
         VariantContext vc = mock(VariantContext.class);
+        VcfRecord record = new VcfRecord(vc, emptyList());
         VariantContext vc2 = mock(VariantContext.class);
         Allele ref = mock(Allele.class);
         when(ref.getBaseString()).thenReturn("A");
@@ -158,21 +162,22 @@ class PedigreeInheritanceCheckerTest {
         when(vc2.getStart()).thenReturn(123);
         when(vc2.getReference()).thenReturn(ref);
         when(vc2.getAlternateAlleles()).thenReturn(List.of(alt));
+        VcfRecord record2 = new VcfRecord(vc2, emptyList());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
-        when(xldChecker.check(vc, family)).thenReturn(FALSE);
-        when(xlrChecker.check(vc, family)).thenReturn(FALSE);
-        when(adChecker.check(vc, family)).thenReturn(FALSE);
-        when(arChecker.check(vc, family)).thenReturn(FALSE);
-        when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
-        when(mtChecker.check(vc, family)).thenReturn(FALSE);
-        when(ylChecker.check(vc, family)).thenReturn(FALSE);
-        when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
-        Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(List.of(CompoundCheckResult.builder().possibleCompound(vc2).isCertain(false).build()));
+        when(xldChecker.check(record, family)).thenReturn(FALSE);
+        when(xlrChecker.check(record, family)).thenReturn(FALSE);
+        when(adChecker.check(record, family)).thenReturn(FALSE);
+        when(arChecker.check(record, family)).thenReturn(FALSE);
+        when(adNonPenetranceChecker.check(record, family, FALSE)).thenReturn(FALSE);
+        when(mtChecker.check(record, family)).thenReturn(FALSE);
+        when(ylChecker.check(record, family)).thenReturn(FALSE);
+        when(deNovoChecker.checkDeNovo(record, sample)).thenReturn(FALSE);
+        Map<String, List<VcfRecord>> geneMap = emptyMap();
+        when(arCompoundChecker.check(geneMap, record, family, FALSE)).thenReturn(List.of(CompoundCheckResult.builder().possibleCompound(record2).isCertain(false).build()));
 
-        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
+        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, record, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(InheritanceMode.AR_C, true))).compounds(Set.of("chr1_123_A_T")).denovo(FALSE).build();
 
         assertEquals(expected, actual);
@@ -181,21 +186,22 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testMtPotential() {
         VariantContext vc = mock(VariantContext.class);
+        VcfRecord record = new VcfRecord(vc, emptyList());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
-        when(xldChecker.check(vc, family)).thenReturn(FALSE);
-        when(xlrChecker.check(vc, family)).thenReturn(FALSE);
-        when(adChecker.check(vc, family)).thenReturn(FALSE);
-        when(arChecker.check(vc, family)).thenReturn(FALSE);
-        when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
-        when(mtChecker.check(vc, family)).thenReturn(POTENTIAL);
-        when(ylChecker.check(vc, family)).thenReturn(FALSE);
-        when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(FALSE);
-        Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
+        when(xldChecker.check(record, family)).thenReturn(FALSE);
+        when(xlrChecker.check(record, family)).thenReturn(FALSE);
+        when(adChecker.check(record, family)).thenReturn(FALSE);
+        when(arChecker.check(record, family)).thenReturn(FALSE);
+        when(adNonPenetranceChecker.check(record, family, FALSE)).thenReturn(FALSE);
+        when(mtChecker.check(record, family)).thenReturn(POTENTIAL);
+        when(ylChecker.check(record, family)).thenReturn(FALSE);
+        when(deNovoChecker.checkDeNovo(record, sample)).thenReturn(FALSE);
+        Map<String, List<VcfRecord>> geneMap = emptyMap();
+        when(arCompoundChecker.check(geneMap, record, family, FALSE)).thenReturn(emptyList());
 
-        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
+        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, record, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(InheritanceMode.MT, true))).denovo(FALSE).build();
 
         assertEquals(expected, actual);
@@ -204,21 +210,22 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testYl() {
         VariantContext vc = mock(VariantContext.class);
+        VcfRecord record = new VcfRecord(vc, emptyList());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
-        when(xldChecker.check(vc, family)).thenReturn(FALSE);
-        when(xlrChecker.check(vc, family)).thenReturn(FALSE);
-        when(adChecker.check(vc, family)).thenReturn(FALSE);
-        when(arChecker.check(vc, family)).thenReturn(FALSE);
-        when(adNonPenetranceChecker.check(vc, family, FALSE)).thenReturn(FALSE);
-        when(mtChecker.check(vc, family)).thenReturn(FALSE);
-        when(ylChecker.check(vc, family)).thenReturn(TRUE);
-        when(deNovoChecker.checkDeNovo(vc, sample)).thenReturn(TRUE);
-        Map<String, List<VariantContext>> geneMap = emptyMap();
-        when(arCompoundChecker.check(geneMap, vc, family, FALSE)).thenReturn(emptyList());
+        when(xldChecker.check(record, family)).thenReturn(FALSE);
+        when(xlrChecker.check(record, family)).thenReturn(FALSE);
+        when(adChecker.check(record, family)).thenReturn(FALSE);
+        when(arChecker.check(record, family)).thenReturn(FALSE);
+        when(adNonPenetranceChecker.check(record, family, FALSE)).thenReturn(FALSE);
+        when(mtChecker.check(record, family)).thenReturn(FALSE);
+        when(ylChecker.check(record, family)).thenReturn(TRUE);
+        when(deNovoChecker.checkDeNovo(record, sample)).thenReturn(TRUE);
+        Map<String, List<VcfRecord>> geneMap = emptyMap();
+        when(arCompoundChecker.check(geneMap, record, family, FALSE)).thenReturn(emptyList());
 
-        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, vc, sample, family, arCompoundChecker);
+        Inheritance actual = pedigreeInheritanceChecker.calculatePedigreeInheritance(geneMap, record, sample, family, arCompoundChecker);
         Inheritance expected = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(InheritanceMode.YL, false))).denovo(TRUE).build();
 
         assertEquals(expected, actual);

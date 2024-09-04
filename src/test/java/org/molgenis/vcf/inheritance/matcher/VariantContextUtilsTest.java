@@ -14,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class VariantContextUtilsTest {
 
   @Mock
-  private VariantContext variantContext;
+  private VcfRecord variantContext;
 
   @Test
   void onAutosomeTrue() {

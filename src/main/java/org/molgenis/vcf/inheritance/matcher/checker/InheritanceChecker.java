@@ -1,6 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -12,10 +12,10 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 public abstract class InheritanceChecker {
 
-    public MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
+    public MatchEnum checkFamily(VcfRecord vcfRecord, Pedigree family) {
         Set<MatchEnum> results = new HashSet<>();
         for (Sample sample : family.getMembers().values()) {
-            results.add(checkSample(sample, variantContext));
+            results.add(checkSample(sample, vcfRecord));
         }
         if(results.contains(FALSE)){
             return FALSE;
@@ -25,5 +25,5 @@ public abstract class InheritanceChecker {
         return TRUE;
     }
 
-    abstract MatchEnum checkSample(Sample sample, VariantContext variantContext);
+    abstract MatchEnum checkSample(Sample sample, VcfRecord vcfRecord);
 }

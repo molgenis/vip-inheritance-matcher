@@ -1,7 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
+import static java.util.Collections.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -152,7 +151,7 @@ class AnnotatorTest {
         Set.of("GENE1", "GENE2")).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
 
-    VariantContext actual = annotator.annotateInheritance(vc, families, annotationMap);
+    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, emptyList()), families, annotationMap).unwrap();
 
     assertAll(
         () -> assertEquals("AD_IP,AR_C",
@@ -183,7 +182,7 @@ class AnnotatorTest {
     Annotation annotation = Annotation.builder().inheritance(inheritance).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
 
-    VariantContext actual = annotator.annotateInheritance(vc, families, annotationMap);
+    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, emptyList()), families, annotationMap).unwrap();
 
     assertAll(
             () -> assertEquals("AD_IP,AR_C",
@@ -212,7 +211,7 @@ class AnnotatorTest {
     Annotation annotation = Annotation.builder().inheritance(inheritance).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
 
-    VariantContext actual = annotator.annotateInheritance(vc, families, annotationMap);
+    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, emptyList()), families, annotationMap).unwrap();
 
     assertAll(
             () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(INHERITANCE_MODES)),

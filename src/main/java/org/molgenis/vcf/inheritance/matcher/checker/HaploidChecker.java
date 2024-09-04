@@ -1,16 +1,15 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
 public abstract class HaploidChecker extends InheritanceChecker{
-    protected MatchEnum checkSample(Sample sample, VariantContext variantContext) {
-        Genotype genotype = variantContext.getGenotype(sample.getPerson().getIndividualId());
+    protected MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
+        Genotype genotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
                 return checkAffected(genotype);
@@ -37,7 +36,7 @@ public abstract class HaploidChecker extends InheritanceChecker{
     }
 
     protected MatchEnum checkUnaffectedDiploid(Genotype genotype) {
-        if (hasVariant(genotype) || genotype.isMixed()) {
+        if (genotype.hasAltAllele()|| genotype.isMixed()) {
             return genotype.isHom() ? FALSE : POTENTIAL;
         } else {
             return genotype.isHomRef() ? TRUE : POTENTIAL;
@@ -67,7 +66,7 @@ public abstract class HaploidChecker extends InheritanceChecker{
     }
 
     protected MatchEnum checkAffectedDiploid(Genotype genotype) {
-        if (hasVariant(genotype)) {
+        if (genotype.hasAltAllele()) {
             return genotype.isHom() ? TRUE : POTENTIAL;
         } else if (genotype.isNoCall() || genotype.isMixed()) {
             return POTENTIAL;

@@ -2,8 +2,6 @@ package org.molgenis.vcf.inheritance.matcher;
 
 import static java.util.Collections.emptyMap;
 
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import java.util.HashMap;
@@ -28,16 +26,19 @@ public class VepMapper {
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
   private String vepFieldId = null;
-  private final FieldMetadataService fieldMetadataService;
+    private final VCFHeader vcfHeader;
+    private final FieldMetadataService fieldMetadataService;
   private int geneIndex = -1;
   private int geneSourceIndex = -1;
   private int inheritanceIndex = -1;
   private int alleleNumIndex = -1;
   private int classIndex = -1;
 
-  public VepMapper(VCFFileReader vcfFileReader, FieldMetadataService fieldMetadataService) {
-    this.fieldMetadataService = fieldMetadataService;
-    init(vcfFileReader);
+  public VepMapper(VCFHeader vcfHeader, FieldMetadataService fieldMetadataService) {
+      this.vcfHeader = vcfHeader;
+      this.fieldMetadataService = fieldMetadataService;
+
+      init();
   }
 
   private static boolean canMap(VCFInfoHeaderLine vcfInfoHeaderLine) {
@@ -46,8 +47,7 @@ public class VepMapper {
     return description.startsWith(INFO_DESCRIPTION_PREFIX);
   }
 
-  private void init(VCFFileReader vcfFileReader) {
-    VCFHeader vcfHeader = vcfFileReader.getFileHeader();
+  private void init() {
     for (VCFInfoHeaderLine vcfInfoHeaderLine : vcfHeader.getInfoHeaderLines()) {
       if (canMap(vcfInfoHeaderLine)) {
         this.vepFieldId = vcfInfoHeaderLine.getID();
@@ -65,14 +65,14 @@ public class VepMapper {
     throw new MissingInfoException("VEP");
   }
 
-  public VariantContextGenes getGenes(VariantContext vc) {
-    return getGenes(vc, emptyMap());
+  public VariantContextGenes getGenes(VcfRecord record) {
+    return getGenes(record, emptyMap());
   }
 
-  public VariantContextGenes getGenes(VariantContext vc, Map<String, Gene> knownGenes) {
+  public VariantContextGenes getGenes(VcfRecord record, Map<String, Gene> knownGenes) {
     VariantContextGenes.VariantContextGenesBuilder genesBuilder = VariantContextGenes.builder();
     Map<String, Gene> genes = new HashMap<>();
-    List<String> vepValues = vc.getAttributeAsStringList(vepFieldId, "");
+    List<String> vepValues = record.getAttributeAsStringList(vepFieldId);
     for (String vepValue : vepValues) {
       String[] vepSplit = vepValue.split("\\|", -1);
       String gene = vepSplit[geneIndex];
@@ -98,8 +98,8 @@ public class VepMapper {
     return genesBuilder.build();
   }
 
-  public Set<String> getClassesForAllele(VariantContext vc, int alleleIndex){
-    List<String> vepValues = vc.getAttributeAsStringList(vepFieldId, "");
+  public Set<String> getClassesForAllele(VcfRecord record, int alleleIndex){
+    List<String> vepValues = record.getAttributeAsStringList(vepFieldId);
     Set<String> classes = new HashSet<>();
     for (String vepValue : vepValues) {
       String[] vepSplit = vepValue.split("\\|", -1);

@@ -2,15 +2,15 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
+import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.isAlt;
 
 import htsjdk.variant.variantcontext.Allele;
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.GenotypeBuilder;
-import htsjdk.variant.variantcontext.VariantContext;
 
 import java.util.*;
 
+import htsjdk.variant.variantcontext.GenotypeBuilder;
+import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
@@ -27,29 +27,29 @@ public class ArCompoundChecker {
     }
 
     public List<CompoundCheckResult> check(
-            Map<String, List<VariantContext>> geneVariantMap,
-            VariantContext variantContext, Pedigree family, MatchEnum isAr) {
-        if (onAutosome(variantContext) && isAr != TRUE) {
+            Map<String, List<VcfRecord>> geneVariantMap,
+            VcfRecord vcfRecord, Pedigree family, MatchEnum isAr) {
+        if (onAutosome(vcfRecord) && isAr != TRUE) {
             List<CompoundCheckResult> compounds = new ArrayList<>();
-            Map<String, Gene> genes = vepMapper.getGenes(variantContext).getGenes();
+            Map<String, Gene> genes = vepMapper.getGenes(vcfRecord).getGenes();
             for (Gene gene : genes.values()) {
-                checkForGene(geneVariantMap, variantContext, family, compounds, gene);
+                checkForGene(geneVariantMap, vcfRecord, family, compounds, gene);
             }
             return compounds;
         }
         return Collections.emptyList();
     }
 
-    private void checkForGene(Map<String, List<VariantContext>> geneVariantMap,
-                              VariantContext variantContext, Pedigree family, List<CompoundCheckResult> compounds,
+    private void checkForGene(Map<String, List<VcfRecord>> geneVariantMap,
+                              VcfRecord vcfRecord, Pedigree family, List<CompoundCheckResult> compounds,
                               Gene gene) {
-        List<VariantContext> variantContexts = geneVariantMap.get(gene.getId());
+        List<VcfRecord> variantContexts = geneVariantMap.get(gene.getId());
         if (variantContexts != null) {
-            for (VariantContext otherVariantContext : variantContexts) {
-                if (!otherVariantContext.equals(variantContext)) {
-                    MatchEnum isPossibleCompound = checkFamily(family, variantContext, otherVariantContext);
+            for (VcfRecord otherRecord : variantContexts) {
+                if (!otherRecord.equals(vcfRecord)) {
+                    MatchEnum isPossibleCompound = checkFamily(family, vcfRecord, otherRecord);
                     if (isPossibleCompound != FALSE) {
-                        CompoundCheckResult result = CompoundCheckResult.builder().possibleCompound(otherVariantContext).isCertain(isPossibleCompound != POTENTIAL).build();
+                        CompoundCheckResult result = CompoundCheckResult.builder().possibleCompound(otherRecord).isCertain(isPossibleCompound != POTENTIAL).build();
                         compounds.add(result);
                     }
                 }
@@ -57,11 +57,11 @@ public class ArCompoundChecker {
         }
     }
 
-    private MatchEnum checkFamily(Pedigree family, VariantContext variantContext,
-                                VariantContext otherVariantContext) {
+    private MatchEnum checkFamily(Pedigree family, VcfRecord vcfRecord,
+                                VcfRecord otherVcfRecord) {
         Set<MatchEnum> results = new HashSet<>();
         for (Sample sample : family.getMembers().values()) {
-            results.add(checkSample(sample, variantContext, otherVariantContext));
+            results.add(checkSample(sample, vcfRecord, otherVcfRecord));
         }
         if (results.contains(FALSE)) {
             return FALSE;
@@ -71,15 +71,14 @@ public class ArCompoundChecker {
         return TRUE;
     }
 
-    private MatchEnum checkSample(Sample sample, VariantContext variantContext, VariantContext otherVariantContext) {
+    private MatchEnum checkSample(Sample sample, VcfRecord vcfRecord, VcfRecord otherVcfRecord) {
         //Affected individuals have to be het. for both variants
         //Healthy individuals can be het. for one of the variants but cannot have both variants
-        Genotype missingGenotype = GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2);
 
-        Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
-        Genotype sampleOtherGt = otherVariantContext.getGenotype(sample.getPerson().getIndividualId());
-        sampleGt = sampleGt != null ? sampleGt : missingGenotype;
-        sampleOtherGt = sampleOtherGt != null ? sampleOtherGt : missingGenotype;
+        Genotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        Genotype sampleOtherGt = otherVcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        sampleGt = sampleGt != null ? sampleGt : new Genotype(GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2), vcfRecord.unwrap(), Collections.emptyList());
+        sampleOtherGt = sampleOtherGt != null ? sampleOtherGt : new Genotype(GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2), otherVcfRecord.unwrap(), Collections.emptyList());
         return switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> checkAffectedSample(sampleGt, sampleOtherGt);
             case UNAFFECTED -> checkUnaffectedSample(sampleGt, sampleOtherGt);
@@ -90,8 +89,8 @@ public class ArCompoundChecker {
     private MatchEnum checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
         if (sampleGt.isHomRef() || sampleOtherGt.isHomRef()) {
             return FALSE;
-        } else if (isHomAlt(sampleGt)
-                || isHomAlt(sampleOtherGt)) {
+        } else if (sampleGt.isHomAlt()
+                || sampleOtherGt.isHomAlt()) {
             return FALSE;
         } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
             return checkSamplePhased(sampleGt, sampleOtherGt, true);
@@ -100,10 +99,10 @@ public class ArCompoundChecker {
     }
 
     private MatchEnum checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
-        if ((sampleGt.isNoCall() && (hasVariant(sampleOtherGt) || sampleOtherGt.isNoCall()))
-                || sampleOtherGt.isNoCall() && (hasVariant(sampleGt))) {
+        if ((sampleGt.isNoCall() && (sampleOtherGt.hasAltAllele() || sampleOtherGt.isNoCall()))
+                || sampleOtherGt.isNoCall() && (sampleGt.hasAltAllele())) {
             return POTENTIAL;
-        } else if (isHomAlt(sampleGt) || isHomAlt(sampleOtherGt)) {
+        } else if (sampleGt.isHomAlt() || sampleOtherGt.isHomAlt()) {
             return FALSE;
         } else if (sampleGt.isPhased() && sampleOtherGt.isPhased()) {
             return checkSamplePhased(sampleGt, sampleOtherGt, false);
@@ -112,8 +111,8 @@ public class ArCompoundChecker {
     }
 
     private MatchEnum checkUnaffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
-        boolean sampleContainsAlt = hasVariant(sampleGt);
-        boolean sampleOtherGtContainsAlt = hasVariant(sampleOtherGt);
+        boolean sampleContainsAlt = sampleGt.hasAltAllele();
+        boolean sampleOtherGtContainsAlt = sampleOtherGt.hasAltAllele();
         if (sampleContainsAlt && sampleOtherGtContainsAlt) {
             return FALSE;
         } else if ((sampleContainsAlt || sampleGt.isMixed() || sampleGt.isNoCall()) &&
@@ -139,13 +138,13 @@ public class ArCompoundChecker {
     }
 
     private MatchEnum checkAffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
-        if (hasVariant(sampleGt) && !sampleGt.isHom() && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom()) {
+        if (sampleGt.hasAltAllele() && !sampleGt.isHom() && sampleOtherGt.hasAltAllele() && !sampleOtherGt.isHom()) {
             return TRUE;
         }
         boolean gtMissingOrMixed = sampleGt.isNoCall() || sampleGt.isMixed();
         boolean otherGtMissingOrMixed = sampleOtherGt.isNoCall() || sampleOtherGt.isMixed();
-        boolean hasVariantAndOtherGtMissing = (hasVariant(sampleGt) && !sampleGt.isHom() && otherGtMissingOrMixed);
-        boolean hasOtherVariantAndGtMissing = (gtMissingOrMixed && hasVariant(sampleOtherGt) && !sampleOtherGt.isHom());
+        boolean hasVariantAndOtherGtMissing = sampleGt.hasAltAllele() && !sampleGt.isHom() && otherGtMissingOrMixed;
+        boolean hasOtherVariantAndGtMissing = gtMissingOrMixed && sampleOtherGt.hasAltAllele() && !sampleOtherGt.isHom();
         if (hasVariantAndOtherGtMissing
                 || hasOtherVariantAndGtMissing
                 || (gtMissingOrMixed && otherGtMissingOrMixed)) {

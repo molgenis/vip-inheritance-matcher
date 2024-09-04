@@ -1,7 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import htsjdk.variant.variantcontext.Allele;
-import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.checker.*;
 import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -39,67 +38,68 @@ public class PedigreeInheritanceChecker {
 
     //TODO replace geneVariantMap with context incl pathogenic classes
     Inheritance calculatePedigreeInheritance(
-            Map<String, List<VariantContext>> geneVariantMap, VariantContext variantContext, Sample sample, Pedigree filteredFamily, ArCompoundChecker arCompoundChecker) {
+            Map<String, List<VcfRecord>> geneVariantMap, VcfRecord record, Sample sample, Pedigree filteredFamily, ArCompoundChecker arCompoundChecker) {
         Inheritance inheritance = Inheritance.builder().build();
-        checkAr(geneVariantMap, variantContext, filteredFamily, inheritance, arCompoundChecker);
-        checkAd(variantContext, filteredFamily, inheritance);
-        checkXl(variantContext, filteredFamily, inheritance);
-        checkMt(variantContext, filteredFamily, inheritance);
-        checkYl(variantContext, filteredFamily, inheritance);
-        inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, sample));
+        //FIXME
+        checkAr(geneVariantMap, record, filteredFamily, inheritance, arCompoundChecker);
+        checkAd(record, filteredFamily, inheritance);
+        checkXl(record, filteredFamily, inheritance);
+        checkMt(record, filteredFamily, inheritance);
+        checkYl(record, filteredFamily, inheritance);
+        inheritance.setDenovo(deNovoChecker.checkDeNovo(record, sample));
         return inheritance;
     }
 
-    private void checkMt(VariantContext variantContext, Pedigree family,
+    private void checkMt(VcfRecord vcfRecord, Pedigree family,
                          Inheritance inheritance) {
-        MatchEnum isMt = mtChecker.check(variantContext, family);
+        MatchEnum isMt = mtChecker.check(vcfRecord, family);
         if (isMt != FALSE) {
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.MT, isMt == POTENTIAL));
         }
     }
 
-    private void checkYl(VariantContext variantContext, Pedigree family,
+    private void checkYl(VcfRecord vcfRecord, Pedigree family,
                          Inheritance inheritance) {
-        MatchEnum isYl = ylChecker.check(variantContext, family);
+        MatchEnum isYl = ylChecker.check(vcfRecord, family);
         if (isYl != FALSE) {
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.YL, isYl == POTENTIAL));
         }
     }
 
-    private void checkXl(VariantContext variantContext, Pedigree family,
+    private void checkXl(VcfRecord vcfRecord, Pedigree family,
                          Inheritance inheritance) {
-        MatchEnum isXld = xldChecker.check(variantContext, family);
+        MatchEnum isXld = xldChecker.check(vcfRecord, family);
         if (isXld != FALSE) {
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLD, isXld == POTENTIAL));
         }
-        MatchEnum isXlr = xlrChecker.check(variantContext, family);
+        MatchEnum isXlr = xlrChecker.check(vcfRecord, family);
         if (isXlr != FALSE) {
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLR, isXlr == POTENTIAL));
         }
     }
 
-    private void checkAd(VariantContext variantContext, Pedigree family,
+    private void checkAd(VcfRecord vcfRecord, Pedigree family,
                          Inheritance inheritance) {
-        MatchEnum isAd = adChecker.check(variantContext, family);
+        MatchEnum isAd = adChecker.check(vcfRecord, family);
         if (isAd != FALSE) {
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == POTENTIAL));
         } else {
-            MatchEnum isAdNonPenetrance = adNonPenetranceChecker.check(variantContext, family, isAd);
+            MatchEnum isAdNonPenetrance = adNonPenetranceChecker.check(vcfRecord, family, isAd);
             if (isAdNonPenetrance != FALSE) {
                 inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == POTENTIAL));
             }
         }
     }
 
-    private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
-                         VariantContext variantContext, Pedigree family,
+    private void checkAr(Map<String, List<VcfRecord>> geneVariantMap,
+                         VcfRecord vcfRecord, Pedigree family,
                          Inheritance inheritance, ArCompoundChecker arCompoundChecker) {
-        MatchEnum isAr = arChecker.check(variantContext, family);
+        MatchEnum isAr = arChecker.check(vcfRecord, family);
         if (isAr != FALSE) {
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == POTENTIAL));
         }
         List<CompoundCheckResult> compounds = arCompoundChecker
-                .check(geneVariantMap, variantContext, family, isAr);
+                .check(geneVariantMap, vcfRecord, family, isAr);
         if (!compounds.isEmpty()) {
             boolean isCertain = compounds.stream().anyMatch(CompoundCheckResult::isCertain);
             inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR_C, !isCertain));
@@ -108,10 +108,10 @@ public class PedigreeInheritanceChecker {
         }
     }
 
-    private String createKey(VariantContext compound) {
-        return String.format("%s_%s_%s_%s", compound.getContig(), compound.getStart(),
-                compound.getReference().getBaseString(),
-                compound.getAlternateAlleles().stream().map(Allele::getBaseString)
+    private String createKey(VcfRecord vcfRecord) {
+        return String.format("%s_%s_%s_%s", vcfRecord.getContig(), vcfRecord.getStart(),
+                vcfRecord.getReference().getBaseString(),
+                vcfRecord.getAlternateAlleles().stream().map(Allele::getBaseString)
                         .collect(Collectors.joining("/")));
     }
 }

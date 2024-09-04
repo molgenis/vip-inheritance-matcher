@@ -5,7 +5,7 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
@@ -14,17 +14,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class DeNovoChecker {
 
-    public MatchEnum checkDeNovo(VariantContext variantContext, Sample proband) {
-        Genotype probandGt = variantContext.getGenotype(proband.getPerson().getIndividualId());
-        Genotype fatherGt = variantContext.getGenotype(proband.getPerson().getPaternalId());
-        Genotype motherGt = variantContext.getGenotype(proband.getPerson().getMaternalId());
+    //use original GT instead of inheritance matcher specific one since we are looking for "new alleles" not specifically pathogenic ones
+    public MatchEnum checkDeNovo(VcfRecord vcfRecord, Sample proband) {
+        Genotype probandGt = vcfRecord.getGenotype(proband.getPerson().getIndividualId()) != null ? vcfRecord.getGenotype(proband.getPerson().getIndividualId()).unwrap() : null;
+        Genotype fatherGt = vcfRecord.getGenotype(proband.getPerson().getPaternalId()) != null ? vcfRecord.getGenotype(proband.getPerson().getPaternalId()).unwrap() : null;
+        Genotype motherGt = vcfRecord.getGenotype(proband.getPerson().getMaternalId()) != null ? vcfRecord.getGenotype(proband.getPerson().getMaternalId()).unwrap() : null;
 
         if (!hasParents(proband)) {
             return POTENTIAL;
         }
-        if (onChromosomeX(variantContext) && proband.getPerson().getSex() == Sex.MALE) {
-            if (hasVariant(probandGt)) {
-                if (hasVariant(motherGt)) {
+        if (onChromosomeX(vcfRecord) && proband.getPerson().getSex() == Sex.MALE) {
+            if (probandGt.hasAltAllele()) {
+                if (motherGt.hasAltAllele()) {
                     return FALSE;
                 } else if (motherGt.isHomRef()) {
                     return TRUE;
@@ -33,9 +34,9 @@ public class DeNovoChecker {
                 }
             }
             return probandGt.isNoCall() ? POTENTIAL : FALSE;
-        } else if (onChromosomeY(variantContext)) {
+        } else if (onChromosomeY(vcfRecord)) {
             return checkYLinkedVariant(proband, probandGt, fatherGt);
-        } else if (onChromosomeMt(variantContext)) {
+        } else if (onChromosomeMt(vcfRecord)) {
             return checkMtVariant(probandGt, motherGt);
         } else {
             return checkRegular(probandGt, fatherGt, motherGt);
@@ -49,34 +50,34 @@ public class DeNovoChecker {
             case FEMALE:
                 return FALSE;
             default:
-                return (hasVariant(fatherGt) || !hasVariant(probandGt)) ? FALSE : POTENTIAL;
+                return (fatherGt.hasAltAllele() || !probandGt.hasAltAllele()) ? FALSE : POTENTIAL;
         }
     }
 
     private static MatchEnum checkYLinkedVariantMale(Genotype probandGt, Genotype fatherGt) {
-        if (hasVariant(probandGt)) {
-            if (hasVariant(fatherGt)) {
+        if (probandGt.hasAltAllele()) {
+            if (fatherGt.hasAltAllele()) {
                 return FALSE;
             } else {
-                return (!hasVariant(fatherGt) && !hasMissing(fatherGt)) ? TRUE : POTENTIAL;
+                return (!fatherGt.hasAltAllele() && !hasMissing(fatherGt)) ? TRUE : POTENTIAL;
             }
         } else if (hasMissing(probandGt)) {
-            return hasVariant(fatherGt) ? FALSE : POTENTIAL;
+            return fatherGt.hasAltAllele() ? FALSE : POTENTIAL;
         }
         return FALSE;
     }
 
     private static MatchEnum checkMtVariant(Genotype probandGt, Genotype motherGt) {
-        if (hasVariant(probandGt)) {
-            if (hasVariant(motherGt)) {
+        if (probandGt.hasAltAllele()) {
+            if (motherGt.hasAltAllele()) {
                 return FALSE;
-            } else if (!hasVariant(motherGt) && motherGt.isCalled() && !motherGt.isMixed()) {
+            } else if (!motherGt.hasAltAllele() && motherGt.isCalled() && !motherGt.isMixed()) {
                 return TRUE;
             } else {
                 return POTENTIAL;
             }
         } else if (probandGt.isNoCall() || probandGt.isMixed()) {
-            if (hasVariant(motherGt)) {
+            if (motherGt.hasAltAllele()) {
                 return FALSE;
             } else {
                 return POTENTIAL;
@@ -95,7 +96,7 @@ public class DeNovoChecker {
             } else if (probandGt.isMixed()) {
                 result = checkMixed(probandGt, fatherGt, motherGt);
             } else {
-                result = (hasVariant(motherGt) && hasVariant(fatherGt)) ? FALSE : POTENTIAL;
+                result = (motherGt.hasAltAllele() && fatherGt.hasAltAllele()) ? FALSE : POTENTIAL;
             }
         }
         return result;
@@ -103,16 +104,16 @@ public class DeNovoChecker {
 
     private static MatchEnum checkMixed(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
         MatchEnum result;
-        if (hasVariant(probandGt)) {
+        if (probandGt.hasAltAllele()) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
                 result = TRUE;
-            } else if (hasVariant(motherGt) && hasVariant(fatherGt)) {
+            } else if (motherGt.hasAltAllele() && fatherGt.hasAltAllele()) {
                 result = FALSE;
             } else {
                 result = POTENTIAL;
             }
         } else {
-            if (hasVariant(motherGt) || hasVariant(fatherGt)) {
+            if (motherGt.hasAltAllele() || fatherGt.hasAltAllele()) {
                 result = FALSE;
             } else {
                 result = POTENTIAL;
@@ -122,10 +123,10 @@ public class DeNovoChecker {
     }
 
     private static MatchEnum checkHetrozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        if (hasVariant(probandGt)) {
+        if (probandGt.hasAltAllele()) {
             if (motherGt.isHomRef() && fatherGt.isHomRef()) {
                 return TRUE;
-            } else if (hasVariant(motherGt) || hasVariant(fatherGt)) {
+            } else if (motherGt.hasAltAllele() || fatherGt.hasAltAllele()) {
                 return FALSE;
             } else {
                 return POTENTIAL;
@@ -135,10 +136,10 @@ public class DeNovoChecker {
     }
 
     private static MatchEnum checkHomozygote(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
-        if (hasVariant(probandGt)) {
+        if (probandGt.hasAltAllele()) {
             if (motherGt.isHomRef() || fatherGt.isHomRef()) {
                 return TRUE;
-            } else if (hasVariant(motherGt) && hasVariant(fatherGt)) {
+            } else if (motherGt.hasAltAllele() && fatherGt.hasAltAllele()) {
                 return FALSE;
             } else {
                 return POTENTIAL;

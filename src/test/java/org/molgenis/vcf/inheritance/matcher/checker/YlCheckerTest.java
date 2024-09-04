@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -33,10 +34,10 @@ class YlCheckerTest {
 
     @ParameterizedTest(name = "{index} {3}")
     @MethodSource("provideTestCases")
-    void check(VariantContext variantContext, Pedigree family, String expectedString,
+    void check(VcfRecord vcfRecord, Pedigree family, String expectedString,
                String displayName) {
         MatchEnum expected = mapExpectedString(expectedString);
-        assertEquals(expected, ylChecker.check(variantContext, family));
+        assertEquals(expected, ylChecker.check(vcfRecord, family));
     }
 
     private static Stream<Arguments> provideTestCases() throws IOException {
