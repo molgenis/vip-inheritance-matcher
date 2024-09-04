@@ -2,7 +2,7 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
@@ -23,7 +23,7 @@ public class AdNonPenetranceChecker extends InheritanceChecker{
   }
 
   MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-    Genotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+    EffectiveGenotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
     switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> {
         if (sampleGt.isMixed()) {

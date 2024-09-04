@@ -16,12 +16,12 @@ public class VcfRecord {
         this.pathogenicAlleles = requireNonNull(pathogenicAlleles);
     }
 
-    public Genotype getGenotype(String sampleId){
+    public EffectiveGenotype getGenotype(String sampleId){
         htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotype(sampleId);
         if(gt == null){
             return null;
         }
-        return new Genotype(gt, variantContext, pathogenicAlleles);
+        return new EffectiveGenotype(gt, variantContext, pathogenicAlleles);
     }
 
     public List<String> getAttributeAsStringList(String vepFieldId) {

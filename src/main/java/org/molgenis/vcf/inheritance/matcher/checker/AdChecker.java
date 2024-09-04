@@ -1,6 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
@@ -28,7 +28,7 @@ public class AdChecker extends InheritanceChecker{
     }
 
     MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-        Genotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        EffectiveGenotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
         if (sampleGt == null || sampleGt.isNoCall()) {
             return POTENTIAL;
         } else {
@@ -60,7 +60,7 @@ public class AdChecker extends InheritanceChecker{
         };
     }
 
-    private static MatchEnum checkMixed(Sample sample, Genotype sampleGt) {
+    private static MatchEnum checkMixed(Sample sample, EffectiveGenotype sampleGt) {
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
                 if (!sampleGt.hasAltAllele()) {

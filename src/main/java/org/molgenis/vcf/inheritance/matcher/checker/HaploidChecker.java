@@ -1,6 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -9,13 +9,13 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 public abstract class HaploidChecker extends InheritanceChecker{
     protected MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-        Genotype genotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        EffectiveGenotype effectiveGenotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
-                return checkAffected(genotype);
+                return checkAffected(effectiveGenotype);
             }
             case UNAFFECTED -> {
-                return checkUnaffected(genotype);
+                return checkUnaffected(effectiveGenotype);
             }
             case MISSING -> {
                 return POTENTIAL;
@@ -24,62 +24,62 @@ public abstract class HaploidChecker extends InheritanceChecker{
         }
     }
 
-    protected MatchEnum checkUnaffected(Genotype genotype) {
-        if (genotype.getPloidy() == 1) {
-            return checkUnaffectedHaploid(genotype);
-        } else if (genotype.getPloidy() == 2) {
-            return checkUnaffectedDiploid(genotype);
-        } else if (genotype.isCalled()) {
-            throw new UnsupportedOperationException(String.format("Incompatible ploidy '%s' for haploid check''", genotype.getPloidy()));
+    protected MatchEnum checkUnaffected(EffectiveGenotype effectiveGenotype) {
+        if (effectiveGenotype.getPloidy() == 1) {
+            return checkUnaffectedHaploid(effectiveGenotype);
+        } else if (effectiveGenotype.getPloidy() == 2) {
+            return checkUnaffectedDiploid(effectiveGenotype);
+        } else if (effectiveGenotype.isCalled()) {
+            throw new UnsupportedOperationException(String.format("Incompatible ploidy '%s' for haploid check''", effectiveGenotype.getPloidy()));
         }
         return POTENTIAL;
     }
 
-    protected MatchEnum checkUnaffectedDiploid(Genotype genotype) {
-        if (genotype.hasAltAllele()|| genotype.isMixed()) {
-            return genotype.isHom() ? FALSE : POTENTIAL;
+    protected MatchEnum checkUnaffectedDiploid(EffectiveGenotype effectiveGenotype) {
+        if (effectiveGenotype.hasAltAllele()|| effectiveGenotype.isMixed()) {
+            return effectiveGenotype.isHom() ? FALSE : POTENTIAL;
         } else {
-            return genotype.isHomRef() ? TRUE : POTENTIAL;
+            return effectiveGenotype.isHomRef() ? TRUE : POTENTIAL;
         }
     }
 
-    protected MatchEnum checkUnaffectedHaploid(Genotype genotype) {
-        if (genotype.isNoCall()) {
+    protected MatchEnum checkUnaffectedHaploid(EffectiveGenotype effectiveGenotype) {
+        if (effectiveGenotype.isNoCall()) {
             return POTENTIAL;
         }
-        if (genotype.hasAltAllele()) {
+        if (effectiveGenotype.hasAltAllele()) {
             return FALSE;
         }
         return TRUE;
     }
 
-    protected MatchEnum checkAffected(Genotype genotype) {
-        if (genotype.getPloidy() == 1) {
-            return checkAffectedHaploid(genotype);
+    protected MatchEnum checkAffected(EffectiveGenotype effectiveGenotype) {
+        if (effectiveGenotype.getPloidy() == 1) {
+            return checkAffectedHaploid(effectiveGenotype);
         }
-        else if (genotype.getPloidy() == 2) {
-            return checkAffectedDiploid(genotype);
-        } else if (genotype.isCalled()) {
-            throw new UnsupportedOperationException(String.format("Incompatible ploidy '%s' for YL check", genotype.getPloidy()));
+        else if (effectiveGenotype.getPloidy() == 2) {
+            return checkAffectedDiploid(effectiveGenotype);
+        } else if (effectiveGenotype.isCalled()) {
+            throw new UnsupportedOperationException(String.format("Incompatible ploidy '%s' for YL check", effectiveGenotype.getPloidy()));
         }
         return POTENTIAL;
     }
 
-    protected MatchEnum checkAffectedDiploid(Genotype genotype) {
-        if (genotype.hasAltAllele()) {
-            return genotype.isHom() ? TRUE : POTENTIAL;
-        } else if (genotype.isNoCall() || genotype.isMixed()) {
+    protected MatchEnum checkAffectedDiploid(EffectiveGenotype effectiveGenotype) {
+        if (effectiveGenotype.hasAltAllele()) {
+            return effectiveGenotype.isHom() ? TRUE : POTENTIAL;
+        } else if (effectiveGenotype.isNoCall() || effectiveGenotype.isMixed()) {
             return POTENTIAL;
         } else {
-            return genotype.isHomRef() ? FALSE : POTENTIAL;
+            return effectiveGenotype.isHomRef() ? FALSE : POTENTIAL;
         }
     }
 
-    protected MatchEnum checkAffectedHaploid(Genotype genotype) {
-        if (genotype.isNoCall()) {
+    protected MatchEnum checkAffectedHaploid(EffectiveGenotype effectiveGenotype) {
+        if (effectiveGenotype.isNoCall()) {
             return POTENTIAL;
         }
-        if (genotype.hasAltAllele()) {
+        if (effectiveGenotype.hasAltAllele()) {
             return TRUE;
         }
         return FALSE;

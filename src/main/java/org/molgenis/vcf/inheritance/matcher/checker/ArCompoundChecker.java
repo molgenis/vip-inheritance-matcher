@@ -9,7 +9,7 @@ import htsjdk.variant.variantcontext.Allele;
 import java.util.*;
 
 import htsjdk.variant.variantcontext.GenotypeBuilder;
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.VepMapper;
 import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
@@ -75,10 +75,10 @@ public class ArCompoundChecker {
         //Affected individuals have to be het. for both variants
         //Healthy individuals can be het. for one of the variants but cannot have both variants
 
-        Genotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
-        Genotype sampleOtherGt = otherVcfRecord.getGenotype(sample.getPerson().getIndividualId());
-        sampleGt = sampleGt != null ? sampleGt : new Genotype(GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2), vcfRecord.unwrap(), Collections.emptyList());
-        sampleOtherGt = sampleOtherGt != null ? sampleOtherGt : new Genotype(GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2), otherVcfRecord.unwrap(), Collections.emptyList());
+        EffectiveGenotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        EffectiveGenotype sampleOtherGt = otherVcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        sampleGt = sampleGt != null ? sampleGt : new EffectiveGenotype(GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2), vcfRecord.unwrap(), Collections.emptyList());
+        sampleOtherGt = sampleOtherGt != null ? sampleOtherGt : new EffectiveGenotype(GenotypeBuilder.createMissing(sample.getPerson().getIndividualId(), 2), otherVcfRecord.unwrap(), Collections.emptyList());
         return switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> checkAffectedSample(sampleGt, sampleOtherGt);
             case UNAFFECTED -> checkUnaffectedSample(sampleGt, sampleOtherGt);
@@ -86,7 +86,7 @@ public class ArCompoundChecker {
         };
     }
 
-    private MatchEnum checkAffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkAffectedSample(EffectiveGenotype sampleGt, EffectiveGenotype sampleOtherGt) {
         if (sampleGt.isHomRef() || sampleOtherGt.isHomRef()) {
             return FALSE;
         } else if (sampleGt.isHomAlt()
@@ -98,7 +98,7 @@ public class ArCompoundChecker {
         return checkAffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
 
-    private MatchEnum checkUnaffectedSample(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkUnaffectedSample(EffectiveGenotype sampleGt, EffectiveGenotype sampleOtherGt) {
         if ((sampleGt.isNoCall() && (sampleOtherGt.hasAltAllele() || sampleOtherGt.isNoCall()))
                 || sampleOtherGt.isNoCall() && (sampleGt.hasAltAllele())) {
             return POTENTIAL;
@@ -110,7 +110,7 @@ public class ArCompoundChecker {
         return checkUnaffectedSampleUnphased(sampleGt, sampleOtherGt);
     }
 
-    private MatchEnum checkUnaffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkUnaffectedSampleUnphased(EffectiveGenotype sampleGt, EffectiveGenotype sampleOtherGt) {
         boolean sampleContainsAlt = sampleGt.hasAltAllele();
         boolean sampleOtherGtContainsAlt = sampleOtherGt.hasAltAllele();
         if (sampleContainsAlt && sampleOtherGtContainsAlt) {
@@ -122,7 +122,7 @@ public class ArCompoundChecker {
         return TRUE;
     }
 
-    private MatchEnum checkSamplePhased(Genotype sampleGt, Genotype sampleOtherGt, boolean isAffected) {
+    private MatchEnum checkSamplePhased(EffectiveGenotype sampleGt, EffectiveGenotype sampleOtherGt, boolean isAffected) {
         Allele allele1 = sampleGt.getAllele(0);
         Allele allele2 = sampleGt.getAllele(1);
         Allele otherAllele1 = sampleOtherGt.getAllele(0);
@@ -137,7 +137,7 @@ public class ArCompoundChecker {
         return POTENTIAL;
     }
 
-    private MatchEnum checkAffectedSampleUnphased(Genotype sampleGt, Genotype sampleOtherGt) {
+    private MatchEnum checkAffectedSampleUnphased(EffectiveGenotype sampleGt, EffectiveGenotype sampleOtherGt) {
         if (sampleGt.hasAltAllele() && !sampleGt.isHom() && sampleOtherGt.hasAltAllele() && !sampleOtherGt.isHom()) {
             return TRUE;
         }

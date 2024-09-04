@@ -5,7 +5,7 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.utils.sample.model.Sex.FEMALE;
 import static org.molgenis.vcf.utils.sample.model.Sex.MALE;
 ;
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -20,7 +20,7 @@ public abstract class XlChecker extends InheritanceChecker{
     return checkFamily(vcfRecord, family);
   }
 
-  protected Sex getSex(Sex sex, Genotype genotype) {
+  protected Sex getSex(Sex sex, EffectiveGenotype genotype) {
     if (sex == Sex.UNKNOWN) {
       //UNKNOWN? use best guess based on number of alleles
       if (genotype.getAlleles().size() == 1) {

@@ -1,7 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import htsjdk.variant.variantcontext.Allele;
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -13,17 +13,17 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 public class XldChecker extends XlChecker {
 
     protected MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-        Genotype genotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
-        if (genotype == null || !genotype.isCalled()) {
+        EffectiveGenotype effectiveGenotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        if (effectiveGenotype == null || !effectiveGenotype.isCalled()) {
             return POTENTIAL;
         }
 
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
-                return checkAffected(genotype);
+                return checkAffected(effectiveGenotype);
             }
             case UNAFFECTED -> {
-                return checkUnaffected(sample, genotype);
+                return checkUnaffected(sample, effectiveGenotype);
             }
             case MISSING -> {
                 return POTENTIAL;
@@ -32,36 +32,36 @@ public class XldChecker extends XlChecker {
         }
     }
 
-    private MatchEnum checkUnaffected(Sample sample, Genotype genotype) {
-        switch (getSex(sample.getPerson().getSex(), genotype)) {
+    private MatchEnum checkUnaffected(Sample sample, EffectiveGenotype effectiveGenotype) {
+        switch (getSex(sample.getPerson().getSex(), effectiveGenotype)) {
             case MALE -> {
                 // Healthy males cannot carry the variant
-                if (genotype.getAlleles().stream()
+                if (effectiveGenotype.getAlleles().stream()
                         .allMatch(Allele::isReference)) {
                     return TRUE;
-                } else if (genotype.hasAltAllele()) {
+                } else if (effectiveGenotype.hasAltAllele()) {
                     return FALSE;
                 }
                 return POTENTIAL;
             }
             case FEMALE -> {
                 // Healthy females can carry the variant (because of X inactivation)
-                if (genotype.isMixed() && genotype.hasAltAllele()) {
+                if (effectiveGenotype.isMixed() && effectiveGenotype.hasAltAllele()) {
                     return POTENTIAL;
                 }
-                return (genotype.isHet() || genotype.isMixed() || genotype.isHomRef()) ? TRUE : FALSE;
+                return (effectiveGenotype.isHet() || effectiveGenotype.isMixed() || effectiveGenotype.isHomRef()) ? TRUE : FALSE;
             }
             default -> throw new IllegalArgumentException();
         }
     }
 
-    private static MatchEnum checkAffected(Genotype genotype) {
+    private static MatchEnum checkAffected(EffectiveGenotype effectiveGenotype) {
         // Affected individuals have to be het. or hom. alt.
-        if (genotype.hasAltAllele()) {
+        if (effectiveGenotype.hasAltAllele()) {
             return TRUE;
         } else {
             //homRef? then XLD==false, is any allele is missing than the match is "potential"
-            return genotype.isHomRef() ? FALSE : POTENTIAL;
+            return effectiveGenotype.isHomRef() ? FALSE : POTENTIAL;
         }
     }
 }

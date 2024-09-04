@@ -3,7 +3,7 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -24,7 +24,7 @@ public class ArChecker extends InheritanceChecker{
 
   @Override
   MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-    Genotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+    EffectiveGenotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
     if (sampleGt == null || sampleGt.isNoCall()) {
       return POTENTIAL;
     } else {
@@ -48,7 +48,7 @@ public class ArChecker extends InheritanceChecker{
     };
   }
 
-  private static MatchEnum checkSampleWithVariant(Sample sample, Genotype sampleGt) {
+  private static MatchEnum checkSampleWithVariant(Sample sample, EffectiveGenotype sampleGt) {
     return switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> sampleGt.isHom() ? TRUE : FALSE;
       case UNAFFECTED -> sampleGt.isHet() ? TRUE : FALSE;
@@ -56,7 +56,7 @@ public class ArChecker extends InheritanceChecker{
     };
   }
 
-  private static MatchEnum checkMixed(Sample sample, Genotype sampleGt) {
+  private static MatchEnum checkMixed(Sample sample, EffectiveGenotype sampleGt) {
     switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> {
         if (!sampleGt.hasAltAllele()) {

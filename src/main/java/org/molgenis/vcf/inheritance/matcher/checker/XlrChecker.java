@@ -1,6 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import org.molgenis.vcf.inheritance.matcher.Genotype;
+import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -12,17 +12,17 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 public class XlrChecker extends XlChecker {
 
     protected MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-        Genotype genotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
-        if (genotype == null || !genotype.isCalled()) {
+        EffectiveGenotype effectiveGenotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+        if (effectiveGenotype == null || !effectiveGenotype.isCalled()) {
             return POTENTIAL;
         }
 
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
-                return checkAffected(sample, genotype);
+                return checkAffected(sample, effectiveGenotype);
             }
             case UNAFFECTED -> {
-                return checkUnaffected(sample, genotype);
+                return checkUnaffected(sample, effectiveGenotype);
             }
             case MISSING -> {
                 return POTENTIAL;
@@ -31,22 +31,22 @@ public class XlrChecker extends XlChecker {
         }
     }
 
-    private MatchEnum checkUnaffected(Sample sample, Genotype genotype) {
-        switch (getSex(sample.getPerson().getSex(), genotype)) {
+    private MatchEnum checkUnaffected(Sample sample, EffectiveGenotype effectiveGenotype) {
+        switch (getSex(sample.getPerson().getSex(), effectiveGenotype)) {
             case MALE -> {
                 // Healthy males cannot carry the variant.
-                if (genotype.hasAltAllele()) {
+                if (effectiveGenotype.hasAltAllele()) {
                     return FALSE;
-                } else if (genotype.isHomRef()) {
+                } else if (effectiveGenotype.isHomRef()) {
                     return TRUE;
                 }
                 return null;
             }
             case FEMALE -> {
                 // Healthy females cannot be hom. alt.
-                if (genotype.hasAltAllele() && genotype.isHom()) {
+                if (effectiveGenotype.hasAltAllele() && effectiveGenotype.isHom()) {
                     return FALSE;
-                } else if (genotype.hasAltAllele() && genotype.isMixed()) {
+                } else if (effectiveGenotype.hasAltAllele() && effectiveGenotype.isMixed()) {
                     return POTENTIAL;
                 }
                 return TRUE;
@@ -55,25 +55,25 @@ public class XlrChecker extends XlChecker {
         }
     }
 
-    private MatchEnum checkAffected(Sample sample, Genotype genotype) {
-        switch (getSex(sample.getPerson().getSex(), genotype)) {
+    private MatchEnum checkAffected(Sample sample, EffectiveGenotype effectiveGenotype) {
+        switch (getSex(sample.getPerson().getSex(), effectiveGenotype)) {
             case MALE -> {
                 // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).
-                if (genotype.hasAltAllele()) {
+                if (effectiveGenotype.hasAltAllele()) {
                     return TRUE;
-                } else if (genotype.isMixed()) {
+                } else if (effectiveGenotype.isMixed()) {
                     return POTENTIAL;
                 }
                 return FALSE;
             }
             case FEMALE -> {
                 // Affected females have to be hom. alt.
-                if (genotype.isHomRef()) {
+                if (effectiveGenotype.isHomRef()) {
                     return FALSE;
-                } else if (genotype.hasAltAllele() && genotype.isMixed()) {
+                } else if (effectiveGenotype.hasAltAllele() && effectiveGenotype.isMixed()) {
                     return POTENTIAL;
                 }
-                return genotype.isHom() ? TRUE : FALSE;
+                return effectiveGenotype.isHom() ? TRUE : FALSE;
             }
             default -> throw new IllegalArgumentException();
         }
