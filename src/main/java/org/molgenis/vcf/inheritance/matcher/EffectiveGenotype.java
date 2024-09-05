@@ -73,7 +73,8 @@ public class EffectiveGenotype {
     }
 
     public boolean isHom() {
-        return effectiveGenotype.isHom();
+        //for inheritance matching consider any ALT/ALT combination HOM_ALT
+        return effectiveGenotype.isHom() || this.isHomAlt();
     }
 
     public boolean hasAltAllele() {
@@ -85,7 +86,8 @@ public class EffectiveGenotype {
     }
 
     public boolean isHet() {
-        return effectiveGenotype.isHet();
+        //for inheritance matching consider any ALT/ALT combination HOM_ALT
+        return effectiveGenotype.isHet() && effectiveGenotype.hasRefAllele();
     }
 
     public boolean isPhased() {
@@ -93,7 +95,8 @@ public class EffectiveGenotype {
     }
 
     public boolean isHomAlt() {
-        return effectiveGenotype.isHomVar();
+        //for inheritance matching consider any ALT/ALT combination HOM_ALT
+        return effectiveGenotype.isCalled() && !effectiveGenotype.isMixed() && !effectiveGenotype.hasRefAllele();
     }
 
     public Allele getAllele(int i) {

@@ -54,7 +54,7 @@ class AppIT {
     String pedigree = ResourceUtils.getFile("classpath:pedigree_complex.ped").toString();
     String outputFile = sharedTempDir.resolve("actual.vcf").toString();
 
-    String[] args = {"-i", inputFile, "-o", outputFile, "-pd", pedigree, "-pb", "Patient,Patient2", "--force"};
+    String[] args = {"-i", inputFile, "-o", outputFile, "-pd", pedigree, "-pb", "Patient,Patient2", "--force" ,"-pc","LP,P"};
     SpringApplication.run(App.class, args);
 
     String outputVcf = Files.readString(Path.of(outputFile));

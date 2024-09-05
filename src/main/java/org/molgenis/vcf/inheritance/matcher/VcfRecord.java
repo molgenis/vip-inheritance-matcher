@@ -34,10 +34,18 @@ public class VcfRecord {
     }
 
     private List<Allele> getPathogenicAlleles() {
+        List<Allele> pathogenicAlleles = new ArrayList();
         if(pathogenicClasses.isEmpty()){
-            return variantContext.getAlternateAlleles();
+            pathogenicAlleles = variantContext.getAlternateAlleles();
+        }else {
+            for (int i = 1; i <= variantContext.getAlternateAlleles().size(); i++) {
+                Allele allele = variantContext.getAlleles().get(i);
+                if(getClassesForAllele(i).stream().anyMatch(pathogenicClasses::contains)) {
+                    pathogenicAlleles.add(allele);
+                }
+            }
         }
-        return null;
+        return pathogenicAlleles;
     }
 
     public List<String> getAttributeAsStringList(String vepFieldId) {
