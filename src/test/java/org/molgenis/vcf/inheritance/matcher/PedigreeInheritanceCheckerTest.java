@@ -44,6 +44,9 @@ class PedigreeInheritanceCheckerTest {
     MtChecker mtChecker;
     @Mock
     DeNovoChecker deNovoChecker;
+    @Mock
+    VepMetadata vepMetadata;
+
     private PedigreeInheritanceChecker pedigreeInheritanceChecker;
 
     @BeforeEach
@@ -54,7 +57,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testAdIpPotential() {
         VariantContext vc = mock(VariantContext.class);
-        VcfRecord record = new VcfRecord(vc, emptyList());
+        VcfRecord record = new VcfRecord(vc, vepMetadata, emptySet());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
@@ -78,7 +81,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testXlRDTrue() {
         VariantContext vc = mock(VariantContext.class);
-        VcfRecord record = new VcfRecord(vc, emptyList());
+        VcfRecord record = new VcfRecord(vc, vepMetadata, emptySet());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
@@ -104,7 +107,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testArAdMixed() {
         VariantContext vc = mock(VariantContext.class);
-        VcfRecord record = new VcfRecord(vc, emptyList());
+        VcfRecord record = new VcfRecord(vc, vepMetadata, emptySet());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
@@ -128,7 +131,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testAdDenovoMixed() {
         VariantContext vc = mock(VariantContext.class);
-        VcfRecord record = new VcfRecord(vc, emptyList());
+        VcfRecord record = new VcfRecord(vc, vepMetadata, emptySet());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
@@ -152,7 +155,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testArPotential() {
         VariantContext vc = mock(VariantContext.class);
-        VcfRecord record = new VcfRecord(vc, emptyList());
+        VcfRecord record = new VcfRecord(vc, vepMetadata, emptySet());
         VariantContext vc2 = mock(VariantContext.class);
         Allele ref = mock(Allele.class);
         when(ref.getBaseString()).thenReturn("A");
@@ -162,7 +165,7 @@ class PedigreeInheritanceCheckerTest {
         when(vc2.getStart()).thenReturn(123);
         when(vc2.getReference()).thenReturn(ref);
         when(vc2.getAlternateAlleles()).thenReturn(List.of(alt));
-        VcfRecord record2 = new VcfRecord(vc2, emptyList());
+        VcfRecord record2 = new VcfRecord(vc2, vepMetadata, emptySet());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
@@ -186,7 +189,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testMtPotential() {
         VariantContext vc = mock(VariantContext.class);
-        VcfRecord record = new VcfRecord(vc, emptyList());
+        VcfRecord record = new VcfRecord(vc, vepMetadata, emptySet());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);
@@ -210,7 +213,7 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testYl() {
         VariantContext vc = mock(VariantContext.class);
-        VcfRecord record = new VcfRecord(vc, emptyList());
+        VcfRecord record = new VcfRecord(vc, vepMetadata, emptySet());
         Pedigree family = mock(Pedigree.class);
         Sample sample = mock(Sample.class);
         ArCompoundChecker arCompoundChecker = mock(ArCompoundChecker.class);

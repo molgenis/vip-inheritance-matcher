@@ -17,6 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.VepMetadata;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -71,7 +72,7 @@ class XldCheckerTest {
       }
       return Arguments.of(VariantContextTestUtil
           .createVariantContext(genotypes,
-              "", "chrX"), family, expected, testName);
+                  new VepMetadata("CSQ",-1,-1,-1,-1,-1),"", "chrX"), family, expected, testName);
 
     });
   }

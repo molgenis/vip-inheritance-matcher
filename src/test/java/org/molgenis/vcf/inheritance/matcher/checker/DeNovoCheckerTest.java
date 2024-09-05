@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.VepMetadata;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -57,7 +58,7 @@ class DeNovoCheckerTest {
           .createVariantContext(Arrays.asList(createGenotype("Patient", probandGt),
               createGenotype("Father", fatherGt),
               createGenotype("Mother", motherGt)),
-              "", chrom), family, expected, testName);
+                  new VepMetadata("CSQ",-1,-1,-1,-1,-1), "", chrom), family, expected, testName);
 
     });
   }

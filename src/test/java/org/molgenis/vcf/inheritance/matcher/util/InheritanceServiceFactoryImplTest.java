@@ -15,7 +15,7 @@ class InheritanceServiceFactoryImplTest {
     @Mock
     private Annotator annotator;
     @Mock
-    private VepMapper vepMapper;
+    private VepMetadata vepMetadata;
     @Mock
     private PedigreeInheritanceChecker pedigreeInheritanceChecker;
 
@@ -26,7 +26,7 @@ class InheritanceServiceFactoryImplTest {
     }
     @Test
     void create() {
-        InheritanceService inheritanceServiceFactory = inheritanceServiceFactoryImpl.create(Settings.builder().build(), vepMapper);
+        InheritanceService inheritanceServiceFactory = inheritanceServiceFactoryImpl.create(Settings.builder().build(), vepMetadata);
         assertNotNull(inheritanceServiceFactory);
     }
 }

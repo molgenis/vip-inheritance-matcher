@@ -11,7 +11,7 @@ import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.c
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,7 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
-import org.molgenis.vcf.inheritance.matcher.VepMapper;
+import org.molgenis.vcf.inheritance.matcher.VepMetadata;
 import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -39,7 +39,7 @@ import org.springframework.util.ResourceUtils;
 class ArCompoundCheckerTest {
 
   @Mock
-  private VepMapper vepMapper;
+  private VepMetadata vepMetadata;
   private final static Gene gene1 = new Gene("GENE1", "EntrezGene", singleton(InheritanceMode.AR));
 
   @ParameterizedTest(name = "{index} {4}")
@@ -48,8 +48,7 @@ class ArCompoundCheckerTest {
       Pedigree family, String expectedString,
       String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMapper);
-    when(vepMapper.getGenes(vcfRecord)).thenReturn(VariantContextGenes.builder().genes(singletonMap("GENE1", gene1)).build());
+    ArCompoundChecker arCompoundChecker = new ArCompoundChecker(vepMetadata);
     List<CompoundCheckResult> compounds = arCompoundChecker.check(geneVariantMap, vcfRecord, family, FALSE);
     if(expected == FALSE) {
       assertTrue(compounds.isEmpty());
@@ -118,10 +117,10 @@ class ArCompoundCheckerTest {
 
       return Arguments.of(VariantContextTestUtil
               .createVariantContext(genotypes,
-                  ""),
+                      new VepMetadata("CSQ",0,1,-1,-1,-1),"GENE1|Entrez"),
           singletonMap("GENE1", singletonList(VariantContextTestUtil
               .createVariantContext(otherGenotypes,
-                  ""))), family, expected, testName);
+                      new VepMetadata("CSQ",0,1,-1,-1,-1),"GENE1|Entrez"))), family, expected, testName);
     });
   }
 }

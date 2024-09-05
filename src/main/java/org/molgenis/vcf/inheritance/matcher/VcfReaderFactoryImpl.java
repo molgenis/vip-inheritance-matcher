@@ -19,6 +19,6 @@ public class VcfReaderFactoryImpl implements VcfReaderFactory {
     public VcfReader create(Settings settings) {
         Path inputVcfPath = settings.getInputVcfPath();
         VCFFileReader vcfFileReader = new VCFFileReader(inputVcfPath.toFile(), false);
-        return new VcfReader(vcfFileReader, new VepMapper(vcfFileReader.getFileHeader(), vepMetadataServiceFactoryImpl.create()), settings.getPathogenicClasses());
+        return new VcfReader(vcfFileReader, new VepMetadata(vcfFileReader.getFileHeader(), vepMetadataServiceFactoryImpl.create()), settings.getPathogenicClasses());
     }
 }

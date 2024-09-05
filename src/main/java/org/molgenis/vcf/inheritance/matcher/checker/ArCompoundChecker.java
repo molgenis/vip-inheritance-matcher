@@ -11,7 +11,7 @@ import java.util.*;
 import htsjdk.variant.variantcontext.GenotypeBuilder;
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
-import org.molgenis.vcf.inheritance.matcher.VepMapper;
+import org.molgenis.vcf.inheritance.matcher.VepMetadata;
 import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
 import org.molgenis.vcf.inheritance.matcher.model.Gene;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
@@ -20,10 +20,10 @@ import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class ArCompoundChecker {
 
-    private final VepMapper vepMapper;
+    private final VepMetadata vepMetadata;
 
-    public ArCompoundChecker(VepMapper vepMapper) {
-        this.vepMapper = vepMapper;
+    public ArCompoundChecker(VepMetadata vepMetadata) {
+        this.vepMetadata = vepMetadata;
     }
 
     public List<CompoundCheckResult> check(
@@ -31,7 +31,7 @@ public class ArCompoundChecker {
             VcfRecord vcfRecord, Pedigree family, MatchEnum isAr) {
         if (onAutosome(vcfRecord) && isAr != TRUE) {
             List<CompoundCheckResult> compounds = new ArrayList<>();
-            Map<String, Gene> genes = vepMapper.getGenes(vcfRecord).getGenes();
+            Map<String, Gene> genes = vcfRecord.getVcfRecordGenes().getGenes();
             for (Gene gene : genes.values()) {
                 checkForGene(geneVariantMap, vcfRecord, family, compounds, gene);
             }

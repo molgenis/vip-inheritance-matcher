@@ -70,7 +70,6 @@ public class Annotator {
 
   VcfRecord annotateInheritance(VcfRecord vcfRecord, Map<String, Pedigree> familyMap,
       Map<String, Annotation> annotationMap) {
-    //FIXME
     GenotypesContext genotypesContext = GenotypesContext.copy(vcfRecord.unwrap().getGenotypes());
     VariantContextBuilder variantContextBuilder = new VariantContextBuilder(vcfRecord.unwrap());
     for (Entry<String, Pedigree> sampleFamilyEntry : familyMap.entrySet()) {
@@ -81,8 +80,7 @@ public class Annotator {
         }
       }
     }
-    //FIXME
-    return new VcfRecord(variantContextBuilder.genotypes(genotypesContext).make(), Collections.emptyList());
+    return new VcfRecord(variantContextBuilder.genotypes(genotypesContext).make(), vcfRecord.getVepMetadata(), vcfRecord.getPathogenicClasses());
   }
 
   private void annotateGenotype(VcfRecord vcfRecord, Annotation annotation,

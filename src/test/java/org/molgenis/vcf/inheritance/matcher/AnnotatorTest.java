@@ -31,6 +31,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.model.Annotation;
 import org.molgenis.vcf.inheritance.matcher.model.Inheritance;
@@ -43,6 +44,9 @@ import org.molgenis.vcf.utils.sample.model.Sex;
 class AnnotatorTest {
 
   private Annotator annotator;
+
+  @Mock
+  VepMetadata vepMetadata;
 
   @BeforeEach
   void setUp() {
@@ -151,7 +155,7 @@ class AnnotatorTest {
         Set.of("GENE1", "GENE2")).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
 
-    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, emptyList()), families, annotationMap).unwrap();
+    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, vepMetadata, emptySet()), families, annotationMap).unwrap();
 
     assertAll(
         () -> assertEquals("AD_IP,AR_C",
@@ -182,7 +186,7 @@ class AnnotatorTest {
     Annotation annotation = Annotation.builder().inheritance(inheritance).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
 
-    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, emptyList()), families, annotationMap).unwrap();
+    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, vepMetadata, emptySet()), families, annotationMap).unwrap();
 
     assertAll(
             () -> assertEquals("AD_IP,AR_C",
@@ -211,7 +215,7 @@ class AnnotatorTest {
     Annotation annotation = Annotation.builder().inheritance(inheritance).build();
     Map<String, Annotation> annotationMap = Map.of("Patient", annotation);
 
-    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, emptyList()), families, annotationMap).unwrap();
+    VariantContext actual = annotator.annotateInheritance(new VcfRecord(vc, vepMetadata, emptySet()), families, annotationMap).unwrap();
 
     assertAll(
             () -> assertNull(actual.getGenotype("Patient").getExtendedAttribute(INHERITANCE_MODES)),

@@ -23,8 +23,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.VepMetadata;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -35,6 +37,9 @@ import org.springframework.util.ResourceUtils;
 @ExtendWith(MockitoExtension.class)
 class AdNonPenCheckerTest {
   private final AdNonPenetranceChecker adNonPenetranceChecker = new AdNonPenetranceChecker();
+
+  @Mock
+  VepMetadata vepMetadata;
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
@@ -48,7 +53,7 @@ class AdNonPenCheckerTest {
   void testCheckAd() {
     VariantContext variantContext = mock(VariantContext.class);
     Pedigree family = mock(Pedigree.class);
-    assertEquals(FALSE, adNonPenetranceChecker.check(new VcfRecord(variantContext, emptyList()), family, MatchEnum.TRUE));
+    assertEquals(FALSE, adNonPenetranceChecker.check(new VcfRecord(variantContext, vepMetadata, emptySet()), family, MatchEnum.TRUE));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
@@ -86,7 +91,7 @@ class AdNonPenCheckerTest {
       }
       return Arguments.of(VariantContextTestUtil
           .createVariantContext(genotypes,
-              ""), family, expected, testName);
+                  new VepMetadata("CSQ",-1,-1,-1,-1,-1),""), family, expected, testName);
 
     });
   }

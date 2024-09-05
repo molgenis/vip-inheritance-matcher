@@ -3,7 +3,6 @@ package org.molgenis.vcf.inheritance.matcher;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.util.InheritanceServiceFactory;
 import org.molgenis.vcf.inheritance.matcher.util.VepMetadataServiceFactory;
-import org.molgenis.vcf.utils.metadata.FieldMetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,10 +35,10 @@ class AppRunnerFactoryImpl implements AppRunnerFactory {
   @Override
   public AppRunner create(Settings settings) {
     VcfReader vcfReader = vcfReaderFactory.create(settings);
-    VepMapper vepMapper = new VepMapper(vcfReader.getFileHeader(), vepMetadataServiceFactory.create());
+    VepMetadata vepMetadata = new VepMetadata(vcfReader.getFileHeader(), vepMetadataServiceFactory.create());
     try {
       RecordWriter recordWriter = recordWriterFactory.create(settings);
-      return new AppRunnerImpl(vcfReader, recordWriter, inheritanceServiceFactory.create(settings, vepMapper));
+      return new AppRunnerImpl(vcfReader, recordWriter, inheritanceServiceFactory.create(settings, vepMetadata));
     } catch (Exception e) {
       try {
         vcfReader.close();

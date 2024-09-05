@@ -20,7 +20,7 @@ class InheritanceMatcherTest {
         Set.of(new PedigreeInheritanceMatch(AR,false))).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1, "sample2",
         inheritance2);
-    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", Set.of(AR,AD)), "GENE2", new Gene("GENE2","EntrezGene", Set.of(AD)))).build();
+    VcfRecordGenes genes = VcfRecordGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", Set.of(AR,AD)), "GENE2", new Gene("GENE2","EntrezGene", Set.of(AD)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
         .matchInheritance(inheritanceMap, genes);
@@ -38,7 +38,7 @@ class InheritanceMatcherTest {
   void matchInheritanceMismatch() {
     Inheritance inheritance = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(AD_IP,false))).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance);
-    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", Set.of(AR)))).build();
+    VcfRecordGenes genes = VcfRecordGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", Set.of(AR)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -56,7 +56,7 @@ class InheritanceMatcherTest {
     Inheritance inheritance1 = Inheritance.builder().match(FALSE).pedigreeInheritanceMatches(
             emptySet()).pedigreeInheritanceMatches(emptySet()).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", Set.of(AR,AD)),"GENE2",new Gene("GENE2","EntrezGene", Set.of(AD)))).build();
+    VcfRecordGenes genes = VcfRecordGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", Set.of(AR,AD)),"GENE2",new Gene("GENE2","EntrezGene", Set.of(AD)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -72,7 +72,7 @@ class InheritanceMatcherTest {
   void matchInheritanceUnknownGene() {
     Inheritance inheritance1 = Inheritance.builder().pedigreeInheritanceMatches(Set.of(new PedigreeInheritanceMatch(AD_IP,false), new PedigreeInheritanceMatch(InheritanceMode.AR_C,false))).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", emptySet()))).build();
+    VcfRecordGenes genes = VcfRecordGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", emptySet()))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -88,7 +88,7 @@ class InheritanceMatcherTest {
     Inheritance inheritance1 = Inheritance.builder().pedigreeInheritanceMatches(
             Set.of(new PedigreeInheritanceMatch(AR_C, false))).compounds(singleton("OTHER_VARIANT")).build();
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", emptySet()),"GENE2",new Gene("GENE2","EntrezGene", Set.of(AR)))).build();
+    VcfRecordGenes genes = VcfRecordGenes.builder().genes(Map.of("GENE1",new Gene("GENE1","EntrezGene", emptySet()),"GENE2",new Gene("GENE2","EntrezGene", Set.of(AR)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher
             .matchInheritance(inheritanceMap, genes);
@@ -105,7 +105,7 @@ class InheritanceMatcherTest {
             Set.of(new PedigreeInheritanceMatch(AD,false))).compounds(emptySet()).build();
 
     Map<String, Inheritance> inheritanceMap = Map.of("sample1", inheritance1);
-    VariantContextGenes genes = VariantContextGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", emptySet()),"GENE2",
+    VcfRecordGenes genes = VcfRecordGenes.builder().genes(Map.of("GENE1", new Gene("GENE1","EntrezGene", emptySet()),"GENE2",
             new Gene("GENE2","EntrezGene", Set.of(AR)))).build();
 
     Map<String, Annotation> actual = InheritanceMatcher

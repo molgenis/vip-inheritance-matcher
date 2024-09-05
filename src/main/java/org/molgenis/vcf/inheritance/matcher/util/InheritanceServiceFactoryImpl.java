@@ -20,7 +20,7 @@ public class InheritanceServiceFactoryImpl implements InheritanceServiceFactory 
     }
 
     @Override
-    public InheritanceService create(Settings settings, VepMapper vepMapper) {
-        return new InheritanceService(annotator, vepMapper, pedigreeInheritanceChecker, settings.getInputPedPaths(), settings.getProbands());
+    public InheritanceService create(Settings settings, VepMetadata vepMetadata) {
+        return new InheritanceService(annotator, vepMetadata, pedigreeInheritanceChecker, settings.getInputPedPaths(), settings.getProbands());
     }
 }

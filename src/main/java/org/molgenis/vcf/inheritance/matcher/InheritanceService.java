@@ -3,7 +3,6 @@ package org.molgenis.vcf.inheritance.matcher;
 import htsjdk.variant.vcf.VCFHeader;
 import org.molgenis.vcf.inheritance.matcher.checker.ArCompoundChecker;
 import org.molgenis.vcf.inheritance.matcher.model.*;
-import org.molgenis.vcf.utils.metadata.FieldMetadataService;
 import org.molgenis.vcf.utils.sample.model.*;
 
 import java.nio.file.Path;
@@ -22,14 +21,14 @@ public class InheritanceService {
   private final Annotator annotator;
   private final List<Path> pedigreePaths;
   private final List<String> probands;
-  private final VepMapper vepMapper;
+  private final VepMetadata vepMetadata;
   private ArCompoundChecker arCompoundChecker;
   private final PedigreeInheritanceChecker pedigreeInheritanceChecker;
 
   public InheritanceService(
-          Annotator annotator, VepMapper vepMapper, PedigreeInheritanceChecker pedigreeInheritanceChecker, List<Path> pedigreePaths, List<String> probands) {
+          Annotator annotator, VepMetadata vepMetadata, PedigreeInheritanceChecker pedigreeInheritanceChecker, List<Path> pedigreePaths, List<String> probands) {
     this.annotator = requireNonNull(annotator);
-    this.vepMapper = requireNonNull(vepMapper);
+    this.vepMetadata = requireNonNull(vepMetadata);
     this.pedigreeInheritanceChecker = requireNonNull(pedigreeInheritanceChecker);
 
       this.pedigreePaths = pedigreePaths;
@@ -37,7 +36,7 @@ public class InheritanceService {
   }
 
   public void run(VcfReader vcfReader, RecordWriter recordWriter) {
-    this.arCompoundChecker = new ArCompoundChecker(vepMapper);
+    this.arCompoundChecker = new ArCompoundChecker(vepMetadata);
 
     Map<String, Gene> knownGenes = new HashMap<>();
     Map<String, Pedigree> familyList;
@@ -51,32 +50,32 @@ public class InheritanceService {
 
       List<VcfRecord> vcfRecordList = new ArrayList<>();
       vcfReader.stream().forEach(vcfRecordList::add);
-      Map<String, List<VcfRecord>> geneVariantMap = createGeneVariantMap(vepMapper, knownGenes,
+      Map<String, List<VcfRecord>> geneVariantMap = createGeneVariantMap(vepMetadata, knownGenes,
               vcfRecordList);
       vcfRecordList.stream().filter(record -> !record.getAlternateAlleles().isEmpty()).map(
-          vcfRecord -> processSingleVariantcontext(probands, vepMapper, familyList,
+          vcfRecord -> processSingleVariantcontext(probands, vepMetadata, familyList,
               geneVariantMap, vcfRecord)).forEach(recordWriter::add);
 
   }
 
-  private VcfRecord processSingleVariantcontext(List<String> probands, VepMapper vepMapper,
+  private VcfRecord processSingleVariantcontext(List<String> probands, VepMetadata vepMetadata,
       Map<String, Pedigree> pedigreeList,
       Map<String, List<VcfRecord>> geneVariantMap, VcfRecord vcfRecord) {
     Map<String, Inheritance> inheritanceMap = matchInheritanceForVariant(geneVariantMap,
             vcfRecord, pedigreeList, probands);
     Map<String, Annotation> annotationMap = matchInheritance(inheritanceMap,
-        vepMapper.getGenes(vcfRecord));
+        vcfRecord.getVcfRecordGenes());
     return annotator.annotateInheritance(vcfRecord, pedigreeList, annotationMap);
   }
 
-  private Map<String, List<VcfRecord>> createGeneVariantMap(VepMapper vepMapper,
-      Map<String, Gene> knownGenes,
-      List<VcfRecord> vcfRecordList) {
+  private Map<String, List<VcfRecord>> createGeneVariantMap(VepMetadata vepMetadata,
+                                                            Map<String, Gene> knownGenes,
+                                                            List<VcfRecord> vcfRecordList) {
     Map<String, List<VcfRecord>> geneVariantMap = new HashMap<>();
     for (VcfRecord vcfRecord : vcfRecordList) {
-      VariantContextGenes variantContextGenes = vepMapper.getGenes(vcfRecord, knownGenes);
-      knownGenes.putAll(variantContextGenes.getGenes());
-      for (Gene gene : variantContextGenes.getGenes().values()) {
+      VcfRecordGenes vcfRecordGenes = vcfRecord.getVcfRecordGenes(knownGenes);
+      knownGenes.putAll(vcfRecordGenes.getGenes());
+      for (Gene gene : vcfRecordGenes.getGenes().values()) {
         List<VcfRecord> geneVariantList;
         if (geneVariantMap.containsKey(gene.getId())) {
           geneVariantList = geneVariantMap.get(gene.getId());

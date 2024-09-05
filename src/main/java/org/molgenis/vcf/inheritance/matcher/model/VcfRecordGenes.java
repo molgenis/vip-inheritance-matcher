@@ -5,8 +5,9 @@ import lombok.Data;
 import java.util.Map;
 @Data
 @Builder
-public class VariantContextGenes{
+public class VcfRecordGenes {
     Map<String, Gene> genes;
+    //FIXME: is this used?
     @Builder.Default
     boolean containsVcWithoutGene = false;
 }
