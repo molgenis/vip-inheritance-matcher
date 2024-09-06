@@ -103,6 +103,8 @@ public class VepMapper {
           modes.add(InheritanceMode.XLR);
           modes.add(InheritanceMode.XLD);
         }
+        case "YL" -> modes.add(InheritanceMode.YL);
+        case "MT" -> modes.add(InheritanceMode.MT);
         default -> {
           //We ignore all the modes that are not used for matching.
         }

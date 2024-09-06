@@ -90,6 +90,16 @@ public class InheritanceMatcher {
                         return true;
                     }
                 }
+                case YL -> {
+                    if (geneInheritanceMode == YL) {
+                        return true;
+                    }
+                }
+                case MT -> {
+                    if (geneInheritanceMode == MT) {
+                        return true;
+                    }
+                }
                 default -> throw new UnexpectedEnumException(pedigreeInheritanceMatch.getInheritanceMode());
             }
         }
