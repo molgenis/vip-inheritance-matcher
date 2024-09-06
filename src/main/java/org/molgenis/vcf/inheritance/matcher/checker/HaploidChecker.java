@@ -26,12 +26,14 @@ public abstract class HaploidChecker extends InheritanceChecker{
     }
 
     protected MatchEnum checkUnaffected(Genotype genotype) {
-        if (genotype.getPloidy() == 1) {
-            return checkUnaffectedHaploid(genotype);
-        } else if (genotype.getPloidy() == 2) {
-            return checkUnaffectedDiploid(genotype);
-        } else if (genotype.isCalled()) {
-            throw new UnsupportedOperationException(String.format("Incompatible ploidy '%s' for haploid check''", genotype.getPloidy()));
+        if(genotype != null) {
+            if (genotype.getPloidy() == 1) {
+                return checkUnaffectedHaploid(genotype);
+            } else if (genotype.getPloidy() == 2) {
+                return checkUnaffectedDiploid(genotype);
+            } else if (genotype.isCalled()) {
+                throw new UnsupportedOperationException(String.format("Incompatible ploidy '%s' for haploid check''", genotype.getPloidy()));
+            }
         }
         return POTENTIAL;
     }
