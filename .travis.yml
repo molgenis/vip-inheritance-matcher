@@ -18,6 +18,11 @@ before_install:
   - cp travis.settings.xml $HOME/.m2/settings.xml
 script:
   - mvn clean install sonar:sonar -Pcoverage -Dsonar.projectKey=molgenis_vip-inheritance-matcher
+before_deploy:
+  - yes | gem update --system --force
+  - gem install bundler
+  - gem install uri
+  - gem install logger
 deploy:
   provider: releases
   api_key:
