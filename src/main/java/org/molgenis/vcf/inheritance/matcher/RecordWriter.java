@@ -1,11 +1,10 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFHeader;
 
-import java.io.Closeable;
-
 public interface RecordWriter {
-    void add(VcfRecord vcfRecord);
+    void add(VariantContext variantContext);
     void writeHeader(VCFHeader vcfHeader);
     void close();
 }

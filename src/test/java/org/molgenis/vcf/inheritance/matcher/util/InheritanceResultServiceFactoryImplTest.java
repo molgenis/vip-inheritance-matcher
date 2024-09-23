@@ -11,11 +11,9 @@ import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
-class InheritanceServiceFactoryImplTest {
+class InheritanceResultServiceFactoryImplTest {
     @Mock
     private Annotator annotator;
-    @Mock
-    private VepMetadata vepMetadata;
     @Mock
     private PedigreeInheritanceChecker pedigreeInheritanceChecker;
 
@@ -26,7 +24,7 @@ class InheritanceServiceFactoryImplTest {
     }
     @Test
     void create() {
-        InheritanceService inheritanceServiceFactory = inheritanceServiceFactoryImpl.create(Settings.builder().build(), vepMetadata);
+        InheritanceService inheritanceServiceFactory = inheritanceServiceFactoryImpl.create(Settings.builder().build());
         assertNotNull(inheritanceServiceFactory);
     }
 }

@@ -17,8 +17,4 @@ public class InheritanceUtils {
         return genotype == null || genotype.getAlleles().stream()
                 .anyMatch(Allele::isNoCall);
     }
-
-    public static boolean isAlt(Allele allele) {
-        return allele.isCalled() && allele.isNonReference();
-    }
 }

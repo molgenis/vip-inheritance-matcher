@@ -1,81 +1,93 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import htsjdk.variant.variantcontext.Allele;
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
+import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 @Component
 public class XlrChecker extends XlChecker {
 
-    protected MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-        EffectiveGenotype effectiveGenotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
-        if (effectiveGenotype == null || !effectiveGenotype.isCalled()) {
+    protected MatchEnum checkFamily(VariantGeneRecord variantGeneRecord, Pedigree family) {
+        Map<AffectedStatus, Set<Sample>> membersByStatus = getMembersByStatus(family);
+        Set<EffectiveGenotype> affectedGenotypes = new HashSet<>();
+        Set<MatchEnum> matches = new HashSet<>();
+        matches.add(checkAffected(variantGeneRecord, membersByStatus, affectedGenotypes));
+        Set<Allele> affectedAltAlleles = new HashSet<>();
+        affectedGenotypes.forEach(genotype -> genotype.getAlleles().stream().filter(allele -> allele.isNonReference() && allele.isCalled()).forEach(affectedAltAlleles::add));
+        matches.add(checkUnaffected(variantGeneRecord, membersByStatus, affectedAltAlleles));
+        if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
+            matches.add(POTENTIAL);
+        }
+        return merge(matches);
+    }
+
+    private static MatchEnum merge(Set<MatchEnum> matches) {
+        if (matches.contains(FALSE)) {
+            return FALSE;
+        } else if (matches.contains(POTENTIAL)) {
             return POTENTIAL;
         }
-
-        switch (sample.getPerson().getAffectedStatus()) {
-            case AFFECTED -> {
-                return checkAffected(sample, effectiveGenotype);
-            }
-            case UNAFFECTED -> {
-                return checkUnaffected(sample, effectiveGenotype);
-            }
-            case MISSING -> {
-                return POTENTIAL;
-            }
-            default -> throw new IllegalArgumentException();
-        }
+        return TRUE;
     }
 
-    private MatchEnum checkUnaffected(Sample sample, EffectiveGenotype effectiveGenotype) {
-        switch (getSex(sample.getPerson().getSex(), effectiveGenotype)) {
-            case MALE -> {
-                // Healthy males cannot carry the variant.
-                if (effectiveGenotype.hasAltAllele()) {
-                    return FALSE;
-                } else if (effectiveGenotype.isHomRef()) {
-                    return TRUE;
-                }
-                return null;
+    private Map<AffectedStatus, Set<Sample>> getMembersByStatus(Pedigree family) {
+        Map<AffectedStatus, Set<Sample>> membersByStatus = new HashMap<>();
+        Set<Sample> affected = new HashSet<>();
+        Set<Sample> unAffected = new HashSet<>();
+        Set<Sample> missing = new HashSet<>();
+        for (Sample sample : family.getMembers().values()) {
+            if (sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED) {
+                affected.add(sample);
+            } else if (sample.getPerson().getAffectedStatus() == AffectedStatus.UNAFFECTED) {
+                unAffected.add(sample);
+            } else {
+                missing.add(sample);
             }
-            case FEMALE -> {
-                // Healthy females cannot be hom. alt.
-                if (effectiveGenotype.hasAltAllele() && effectiveGenotype.isHom()) {
-                    return FALSE;
-                } else if (effectiveGenotype.hasAltAllele() && effectiveGenotype.isMixed()) {
-                    return POTENTIAL;
-                }
-                return TRUE;
-            }
-            default -> throw new IllegalArgumentException();
         }
+        membersByStatus.put(AffectedStatus.AFFECTED, affected);
+        membersByStatus.put(AffectedStatus.UNAFFECTED, unAffected);
+        membersByStatus.put(AffectedStatus.MISSING, missing);
+        return membersByStatus;
     }
 
-    private MatchEnum checkAffected(Sample sample, EffectiveGenotype effectiveGenotype) {
-        switch (getSex(sample.getPerson().getSex(), effectiveGenotype)) {
-            case MALE -> {
-                // Affected males have to be het. or hom. alt. (het is theoretically not possible in males, but can occur due to Pseudo Autosomal Regions).
-                if (effectiveGenotype.hasAltAllele()) {
-                    return TRUE;
-                } else if (effectiveGenotype.isMixed()) {
-                    return POTENTIAL;
-                }
+    private static MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
+            EffectiveGenotype genotype = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+            if (genotype != null && genotype.hasReference()) {
+                matches.add(TRUE);
+            } else if (genotype != null && genotype.getAlleles().stream().allMatch(
+                    allele -> allele.isCalled() && affectedAlleles.contains(allele))) {
+                matches.add(FALSE);
+            } else {
+                matches.add(POTENTIAL);
+            }
+        }
+        return merge(matches);
+    }
+
+    private static MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
+            EffectiveGenotype genotype = variantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            affectedGenotypes.add(genotype);
+            if (genotype.hasReference()) {
                 return FALSE;
+            } else if ((genotype.hasMissingAllele()) || genotype.isNoCall()) {
+                matches.add(POTENTIAL);
+            } else {
+                matches.add(TRUE);
             }
-            case FEMALE -> {
-                // Affected females have to be hom. alt.
-                if (effectiveGenotype.isHomRef()) {
-                    return FALSE;
-                } else if (effectiveGenotype.hasAltAllele() && effectiveGenotype.isMixed()) {
-                    return POTENTIAL;
-                }
-                return effectiveGenotype.isHom() ? TRUE : FALSE;
-            }
-            default -> throw new IllegalArgumentException();
         }
+        return merge(matches);
     }
 }

@@ -1,74 +1,105 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
+import htsjdk.variant.variantcontext.Allele;
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
+import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
 
+import java.util.*;
+
 @Component
-public class ArChecker extends InheritanceChecker{
+public class ArChecker {
 
-  public MatchEnum check(
-          VcfRecord vcfRecord, Pedigree family) {
-    if (!onAutosome(vcfRecord)) {
-      return FALSE;
-    }
-
-    return checkFamily(vcfRecord, family);
-  }
-
-  @Override
-  MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-    EffectiveGenotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
-    if (sampleGt == null || sampleGt.isNoCall()) {
-      return POTENTIAL;
-    } else {
-      if (sampleGt.isMixed()) {
-        return checkMixed(sample, sampleGt);
-      } else {
-        if (sampleGt.hasAltAllele()) {
-          return checkSampleWithVariant(sample, sampleGt);
-        } else {
-          return checkSampleWithoutVariant(sample);
+    public MatchEnum check(
+            VariantGeneRecord variantGeneRecord, Pedigree family) {
+        if (!VariantContextUtils.onAutosome(variantGeneRecord)) {
+            return FALSE;
         }
-      }
+
+        return checkFamily(variantGeneRecord, family);
     }
-  }
 
-  private static MatchEnum checkSampleWithoutVariant(Sample sample) {
-    return switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED -> FALSE;
-      case UNAFFECTED -> TRUE;
-      case MISSING -> POTENTIAL;
-    };
-  }
-
-  private static MatchEnum checkSampleWithVariant(Sample sample, EffectiveGenotype sampleGt) {
-    return switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED -> sampleGt.isHom() ? TRUE : FALSE;
-      case UNAFFECTED -> sampleGt.isHet() ? TRUE : FALSE;
-      case MISSING -> POTENTIAL;
-    };
-  }
-
-  private static MatchEnum checkMixed(Sample sample, EffectiveGenotype sampleGt) {
-    switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED -> {
-        if (!sampleGt.hasAltAllele()) {
-          return FALSE;
-        } else {
-          return POTENTIAL;
+    private MatchEnum checkFamily(VariantGeneRecord variantGeneRecord, Pedigree family) {
+        Map<AffectedStatus, Set<Sample>> membersByStatus = getMembersByStatus(family);
+        Set<List<Allele>> affectedGenotypes = new HashSet<>();
+        Set<MatchEnum> matches = new HashSet<>();
+        matches.add(checkAffected(variantGeneRecord, membersByStatus, affectedGenotypes));
+        Set<Allele> affectedAltAlleles = new HashSet<>();
+        affectedGenotypes.forEach(alleles -> alleles.stream().filter(allele -> allele.isNonReference() && allele.isCalled()).forEach(affectedAltAlleles::add));
+        matches.add(checkUnaffected(variantGeneRecord, membersByStatus, affectedAltAlleles));
+        if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
+            matches.add(POTENTIAL);
         }
-      }
-      case UNAFFECTED, MISSING -> {
-        return POTENTIAL;
-      }
-      default -> throw new IllegalArgumentException();
+        return merge(matches);
     }
-  }
+
+    private static MatchEnum merge(Set<MatchEnum> matches) {
+        if (matches.contains(FALSE)) {
+            return FALSE;
+        } else if (matches.contains(POTENTIAL)) {
+            return POTENTIAL;
+        }
+        return TRUE;
+    }
+
+    private Map<AffectedStatus, Set<Sample>> getMembersByStatus(Pedigree family) {
+        Map<AffectedStatus, Set<Sample>> membersByStatus = new HashMap<>();
+        Set<Sample> affected = new HashSet<>();
+        Set<Sample> unAffected = new HashSet<>();
+        Set<Sample> missing = new HashSet<>();
+        for (Sample sample : family.getMembers().values()) {
+            if (sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED) {
+                affected.add(sample);
+            } else if (sample.getPerson().getAffectedStatus() == AffectedStatus.UNAFFECTED) {
+                unAffected.add(sample);
+            } else {
+                missing.add(sample);
+            }
+        }
+        membersByStatus.put(AffectedStatus.AFFECTED, affected);
+        membersByStatus.put(AffectedStatus.UNAFFECTED, unAffected);
+        membersByStatus.put(AffectedStatus.MISSING, missing);
+        return membersByStatus;
+    }
+
+    private static MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
+            EffectiveGenotype genotype = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+            if(genotype == null){
+                matches.add(POTENTIAL);
+            } else if (genotype.hasReference()) {
+                matches.add(TRUE);
+            } else if (genotype.getAlleles().stream().allMatch(
+                    allele -> allele.isCalled() && affectedAlleles.contains(allele))) {
+                matches.add(FALSE);
+            } else {
+                matches.add(POTENTIAL);
+            }
+        }
+        return merge(matches);
+    }
+
+    private static MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
+            EffectiveGenotype genotype = variantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            affectedGenotypes.add(genotype.getAlleles());
+            if (genotype.hasReference()) {
+                return FALSE;
+            } else if ((genotype.isMixed()) || genotype.isNoCall()) {
+                matches.add(POTENTIAL);
+            } else {
+                matches.add(TRUE);
+            }
+        }
+        return merge(matches);
+    }
 }

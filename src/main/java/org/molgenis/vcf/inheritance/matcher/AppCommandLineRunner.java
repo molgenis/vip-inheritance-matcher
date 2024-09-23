@@ -10,10 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.*;
@@ -96,7 +93,7 @@ class AppCommandLineRunner implements CommandLineRunner {
 
     Set<String> pathogenicClasses;
     if (commandLine.hasOption(OPT_CLASSES)) {
-      pathogenicClasses = Set.of(commandLine.getOptionValue(OPT_CLASSES).split(","));
+      pathogenicClasses = mapPathogenicityClasses(commandLine.getOptionValue(OPT_CLASSES));
     } else {
       pathogenicClasses = Set.of();
     }
@@ -116,6 +113,11 @@ class AppCommandLineRunner implements CommandLineRunner {
         .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).
             pathogenicClasses(pathogenicClasses).debug(debugMode)
         .build();
+  }
+
+  //TODO: validate
+  private Set<String> mapPathogenicityClasses(String optionValue) {
+    return Set.of(optionValue.split(","));
   }
 
   private CommandLine getCommandLine(String[] args) {

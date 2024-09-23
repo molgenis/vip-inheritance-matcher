@@ -60,7 +60,7 @@ class AppCommandLineOptions {
             Option.builder(OPT_CLASSES)
                     .hasArg(true)
                     .longOpt(OPT_CLASSES_LONG)
-                    .desc("Comma-separated list of classes to be treated as pathogenic in the inheritance matcher")
+                    .desc("Mapping of VIP class to pathogenicity, format: P:LP,P;V:VUS;B:LB,b")
                     .build());
     appOptions.addOption(
         Option.builder(OPT_FORCE)

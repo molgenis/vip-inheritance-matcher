@@ -1,12 +1,11 @@
 package org.molgenis.vcf.inheritance.matcher.model;
-import htsjdk.variant.variantcontext.VariantContext;
 import lombok.Builder;
 import lombok.Value;
-import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
 
 @Value
 @Builder
 public class CompoundCheckResult {
-    VcfRecord possibleCompound;
+    VariantGeneRecord possibleCompound;
     boolean isCertain;
 }

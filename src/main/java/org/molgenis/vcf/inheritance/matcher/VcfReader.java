@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
+import lombok.Getter;
 
 import java.util.Set;
 import java.util.stream.Stream;
@@ -15,28 +16,18 @@ import java.util.stream.StreamSupport;
 public class VcfReader implements AutoCloseable {
 
     private final VCFFileReader vcfFileReader;
-    private final VepMetadata vepMetadata;
+    @Getter
+    private final VcfRecordFactory vcfRecordFactory;
     private final Set<String> pathogenicClasses;
 
-    public VcfReader(VCFFileReader vcfFileReader, VepMetadata vepMetadata, Set<String> pathogenicClasses) {
+    public VcfReader(VCFFileReader vcfFileReader, VcfRecordFactory vcfRecordFactory, Set<String> pathogenicClasses) {
         this.vcfFileReader = requireNonNull(vcfFileReader);
-        this.vepMetadata = vepMetadata;
+        this.vcfRecordFactory = vcfRecordFactory;
         this.pathogenicClasses = pathogenicClasses;
     }
 
-    public Stream<VcfRecord> stream() {
-        //FIXME
-        return StreamSupport.stream(vcfFileReader.spliterator(), false).map(vc -> new VcfRecord(vc, vepMetadata, pathogenicClasses));
-    }
-
-    public Stream<VcfRecord> filteredStream(Set<String> classes) {
-        //FIXME: filter on classes
-        return StreamSupport.stream(vcfFileReader.spliterator(), false).filter(variantContext->{return variantContext != null;}).map(vc -> new VcfRecord(vc, vepMetadata, pathogenicClasses));
-    }
-
-    public Stream<VcfRecord> filteredStream(Set<String> classes, String geneId) {
-        //FIXME: filter on classes and geneId
-        return StreamSupport.stream(vcfFileReader.spliterator(), false).filter(variantContext->{return variantContext != null;}).map(vc -> new VcfRecord(vc, vepMetadata, pathogenicClasses));
+    public Stream<VariantRecord> stream() {
+        return StreamSupport.stream(vcfFileReader.spliterator(), false).map(vc -> vcfRecordFactory.create(vc, pathogenicClasses));
     }
 
     @Override

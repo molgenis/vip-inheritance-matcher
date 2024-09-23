@@ -1,6 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import static java.util.Objects.requireNonNull;
+
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.vcf.VCFHeader;
 
@@ -20,8 +22,8 @@ public class RecordWriterImpl implements RecordWriter, Closeable {
     }
 
     @Override
-    public void add(VcfRecord vcfRecord) {
-        this.vcfWriter.add(vcfRecord.unwrap());
+    public void add(VariantContext vc) {
+        this.vcfWriter.add(vc);
     }
 
     @Override

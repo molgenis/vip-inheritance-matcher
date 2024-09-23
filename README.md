@@ -93,7 +93,7 @@ Possible inheritance modes are calculated on the following rules:
 - Unaffected samples cannot have both variants.
 ##### For phased data:
 - Affected samples need to have both variants on different alleles.
-- Unaffected samples cannot have both variants on different alleles, however they can have both variants on the same alleles..
+- Unaffected samples cannot have both variants on different alleles, however they can have both variants on the same alleles.
 #### AD:
 - Affected samples have to carry the ALT allele.
 Unaffected samples have to be homozygous REF.
@@ -121,33 +121,33 @@ For variants on the X chromosome deploid genotypes are assumed to be female, sin
 
 ### Running without VEP inheritance mode annotations
 If the VEP inheritance mode annotation is missing the tool still calculates all possible inheritance modes.
-However the actual matching on genes will obviously never yield a result.
+However, the actual matching on genes will obviously never yield a result.
 
 ### Compatible Inheritance modes
 The VIP inheritance plugin adds a whole range of inheritance modes, however for matching purposes we can only use a subset: AD,AR,XL,XLD,XLR.
 
 #### Supported
-|OMIM Inheritance*|Annotation|
-|---|---|
-|X-LINKED DOMINANT|XD|
-|X-LINKED RECESSIVE|XR|
-|X-LINKED*|XL|
-|AUTOSOMAL RECESSIVE|AR|
-|AUTOSOMAL DOMINANT|AD|
+| OMIM Inheritance*   | Annotation |
+|---------------------|------------|
+| X-LINKED DOMINANT   | XD         |
+| X-LINKED RECESSIVE  | XR         |
+| X-LINKED*           | XL         |
+| AUTOSOMAL RECESSIVE | AR         |
+| AUTOSOMAL DOMINANT  | AD         |
 *: Please note that XL is matched by both XD and XR.
 
 #### Unsupported
-|OMIM Inheritance*|Annotation|
-|---|---|
-|Y-LINKED|YL|
-|PSEUDOAUTOSOMAL RECESSIVE|PR|
-|PSEUDOAUTOSOMAL DOMINANT|PD|
-|ISOLATED CASES|IC|
-|DIGENIC|DG|
-|DIGENIC RECESSIVE|DGR|
-|DIGENIC DOMINANT|DGD|
-|MITOCHONDRIAL|MT|
-|MULTIFACTORIAL|MF|
-|SOMATIC MUTATION|SM|
-|SOMATIC MOSAICISM|SMM|
-|INHERITED CHROMOSOMAL IMBALANCE|ICI|
+| OMIM Inheritance*               | Annotation |
+|---------------------------------|------------|
+| Y-LINKED                        | YL         |
+| PSEUDOAUTOSOMAL RECESSIVE       | PR         |
+| PSEUDOAUTOSOMAL DOMINANT        | PD         |
+| ISOLATED CASES                  | IC         |
+| DIGENIC                         | DG         |
+| DIGENIC RECESSIVE               | DGR        |
+| DIGENIC DOMINANT                | DGD        |
+| MITOCHONDRIAL                   | MT         |
+| MULTIFACTORIAL                  | MF         |
+| SOMATIC MUTATION                | SM         |
+| SOMATIC MOSAICISM               | SMM        |
+| INHERITED CHROMOSOMAL IMBALANCE | ICI        |

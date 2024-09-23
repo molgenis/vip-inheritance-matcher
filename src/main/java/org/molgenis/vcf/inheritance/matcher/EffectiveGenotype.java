@@ -1,105 +1,68 @@
 package org.molgenis.vcf.inheritance.matcher;
 
 import htsjdk.variant.variantcontext.Allele;
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.GenotypeBuilder;
-import htsjdk.variant.variantcontext.VariantContext;
 
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
 public class EffectiveGenotype {
-    htsjdk.variant.variantcontext.Genotype originalGenotype;
-    private final VariantContext variantContext;
-    private final List<Allele> pathogenicAlleles;
-    private Genotype effectiveGenotype;
+    final htsjdk.variant.variantcontext.Genotype genotype;
 
-    public EffectiveGenotype(htsjdk.variant.variantcontext.Genotype originalGenotype, VariantContext variantContext, List<Allele> pathogenicAlleles) {
-        this.originalGenotype = requireNonNull(originalGenotype);
-        this.variantContext = requireNonNull(variantContext);
-        this.pathogenicAlleles = requireNonNull(pathogenicAlleles);
-
-        init();
+    public EffectiveGenotype(htsjdk.variant.variantcontext.Genotype originalGenotype) {
+        this.genotype = requireNonNull(originalGenotype);
     }
 
     public htsjdk.variant.variantcontext.Genotype unwrap() {
-        return originalGenotype;
+        return genotype;
     }
 
-    //Consider Benign allele as a REF allele
-    private void init() {
-        if (originalGenotype.isNoCall()) {
-            effectiveGenotype = originalGenotype;
-        }
-        GenotypeBuilder genotypeBuilder = new GenotypeBuilder(originalGenotype);
-        genotypeBuilder.alleles(originalGenotype.getAlleles().stream().map(this::mapAllele).toList());
-        effectiveGenotype = genotypeBuilder.make();
-    }
-
-    private Allele mapAllele(Allele allele) {
-        if (isPathogenic(allele) || allele.isNoCall()) {
-            return allele;
-        }
-        return variantContext.getReference();
-    }
-
-    private boolean isPathogenic(Allele allele) {
-        //if no pathogenic classes are provided consider all ALTs pathogenic
-        if (allele.isNonReference() && pathogenicAlleles.isEmpty()) {
-            return true;
-        }
-        return pathogenicAlleles.contains(allele);
-    }
-
-    public boolean isHomRef() {
-        return effectiveGenotype.isHomRef();
-    }
-
-    public boolean isNoCall() {
-        return effectiveGenotype.isNoCall();
-    }
-
+    //combination of no_call/call or fully called gt with single VUS allele
     public boolean isMixed() {
-        return effectiveGenotype.isMixed();
+        return genotype.isMixed() || (!genotype.isHom());
     }
 
     public int getPloidy() {
-        return effectiveGenotype.getPloidy();
+        return genotype.getPloidy();
     }
 
     public boolean isCalled() {
-        return effectiveGenotype.isCalled();
-    }
-
-    public boolean isHom() {
-        //for inheritance matching consider any ALT/ALT combination HOM_ALT
-        return effectiveGenotype.isHom() || this.isHomAlt();
-    }
-
-    public boolean hasAltAllele() {
-        return effectiveGenotype.hasAltAllele();
+        return genotype.isCalled();
     }
 
     public List<Allele> getAlleles() {
-        return effectiveGenotype.getAlleles();
-    }
-
-    public boolean isHet() {
-        //for inheritance matching consider any ALT/ALT combination HOM_ALT
-        return effectiveGenotype.isHet() && effectiveGenotype.hasRefAllele();
+        return genotype.getAlleles();
     }
 
     public boolean isPhased() {
-        return effectiveGenotype.isPhased();
-    }
-
-    public boolean isHomAlt() {
-        //for inheritance matching consider any ALT/ALT combination HOM_ALT
-        return effectiveGenotype.isCalled() && !effectiveGenotype.isMixed() && !effectiveGenotype.hasRefAllele();
+        return genotype.isPhased();
     }
 
     public Allele getAllele(int i) {
-        return effectiveGenotype.getAllele(i);
+        return genotype.getAllele(i);
+    }
+
+    public boolean isHomRef() {
+        return genotype.isHomRef();
+    }
+
+    public boolean isNoCall() {
+        return genotype.isNoCall();
+    }
+
+    public boolean hasMissingAllele() {
+        return genotype.getAlleles().stream().anyMatch(Allele::isNoCall);
+    }
+
+    public boolean hasReference() {
+        return genotype.getAlleles().stream().anyMatch(Allele::isReference);
+    }
+
+    public boolean hasAlt() {
+        return genotype.getAlleles().stream().anyMatch(allele -> allele.isNonReference() && allele.isCalled());
+    }
+
+    public boolean isHom() {
+        return genotype.isHom();
     }
 }

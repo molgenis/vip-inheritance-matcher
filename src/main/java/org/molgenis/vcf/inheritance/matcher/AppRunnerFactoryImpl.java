@@ -2,7 +2,6 @@ package org.molgenis.vcf.inheritance.matcher;
 
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.util.InheritanceServiceFactory;
-import org.molgenis.vcf.inheritance.matcher.util.VepMetadataServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -17,17 +16,14 @@ class AppRunnerFactoryImpl implements AppRunnerFactory {
   private final VcfReaderFactory vcfReaderFactory;
   private final RecordWriterFactory recordWriterFactory;
   private final InheritanceServiceFactory inheritanceServiceFactory;
-  private final VepMetadataServiceFactory vepMetadataServiceFactory;
 
   AppRunnerFactoryImpl(
           VcfReaderFactory vcfReaderFactory,
           RecordWriterFactory recordWriterFactory,
-          InheritanceServiceFactory inheritanceServiceFactory,
-          VepMetadataServiceFactory vepMetadataServiceFactory) {
+          InheritanceServiceFactory inheritanceServiceFactory) {
     this.vcfReaderFactory = requireNonNull(vcfReaderFactory);
     this.recordWriterFactory = requireNonNull(recordWriterFactory);
     this.inheritanceServiceFactory = inheritanceServiceFactory;
-    this.vepMetadataServiceFactory = vepMetadataServiceFactory;
   }
 
   // Suppress 'Resources should be closed'
@@ -35,10 +31,9 @@ class AppRunnerFactoryImpl implements AppRunnerFactory {
   @Override
   public AppRunner create(Settings settings) {
     VcfReader vcfReader = vcfReaderFactory.create(settings);
-    VepMetadata vepMetadata = new VepMetadata(vcfReader.getFileHeader(), vepMetadataServiceFactory.create());
     try {
       RecordWriter recordWriter = recordWriterFactory.create(settings);
-      return new AppRunnerImpl(vcfReader, recordWriter, inheritanceServiceFactory.create(settings, vepMetadata));
+      return new AppRunnerImpl(vcfReader, recordWriter, inheritanceServiceFactory.create(settings));
     } catch (Exception e) {
       try {
         vcfReader.close();

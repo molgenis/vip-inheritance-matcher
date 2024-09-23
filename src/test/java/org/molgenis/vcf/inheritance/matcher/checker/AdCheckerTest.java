@@ -1,27 +1,23 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.createGenotype;
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VcfRecord;
-import org.molgenis.vcf.inheritance.matcher.VepMetadata;
+import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -35,16 +31,16 @@ class AdCheckerTest {
   final AdChecker adChecker = new AdChecker();
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VcfRecord vcfRecord, Pedigree family, String expectedString,
+  void check(VariantGeneRecord variantGeneRecord, Pedigree family, String expectedString,
              String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, adChecker.check(vcfRecord, family));
+    assertEquals(expected, adChecker.check(variantGeneRecord, family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
     File testFile = ResourceUtils.getFile("classpath:ADtests.tsv");
     List<String[]> lines = Files.lines(testFile.toPath())
-        .map(line -> line.split("\t")).collect(Collectors.toList());
+        .map(line -> line.split("\t")).toList();
 
     return lines.stream().skip(1).map(line -> {
       String testName = line[0];
@@ -75,8 +71,7 @@ class AdCheckerTest {
         genotypes.add(createGenotype("Brother", brotherGt));
       }
       return Arguments.of(VariantContextTestUtil
-          .createVariantContext(genotypes,
-                  new VepMetadata("CSQ",-1,-1,-1,-1,-1),""), family, expected, testName);
+          .createVariantContext(genotypes,""), family, expected, testName);
 
     });
   }

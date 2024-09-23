@@ -1,11 +1,11 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.*;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Genotype;
-import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.ContigUtils;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
@@ -15,15 +15,17 @@ import org.springframework.stereotype.Component;
 public class DeNovoChecker {
 
     //use original GT instead of inheritance matcher specific one since we are looking for "new alleles" not specifically pathogenic ones
-    public MatchEnum checkDeNovo(VcfRecord vcfRecord, Sample proband) {
-        Genotype probandGt = vcfRecord.getGenotype(proband.getPerson().getIndividualId()) != null ? vcfRecord.getGenotype(proband.getPerson().getIndividualId()).unwrap() : null;
-        Genotype fatherGt = vcfRecord.getGenotype(proband.getPerson().getPaternalId()) != null ? vcfRecord.getGenotype(proband.getPerson().getPaternalId()).unwrap() : null;
-        Genotype motherGt = vcfRecord.getGenotype(proband.getPerson().getMaternalId()) != null ? vcfRecord.getGenotype(proband.getPerson().getMaternalId()).unwrap() : null;
+    public MatchEnum checkDeNovo(VariantRecord variantRecord, Sample proband) {
+        Genotype probandGt = variantRecord.getGenotype(proband.getPerson().getIndividualId());
+        Genotype fatherGt = variantRecord.getGenotype(proband.getPerson().getPaternalId());
+        Genotype motherGt = variantRecord.getGenotype(proband.getPerson().getMaternalId());
 
         if (!hasParents(proband)) {
             return POTENTIAL;
         }
-        if (onChromosomeX(vcfRecord) && proband.getPerson().getSex() == Sex.MALE) {
+
+        String contigId = variantRecord.getContig();
+        if ((contigId != null && ContigUtils.isChromosomeX(contigId)) && proband.getPerson().getSex() == Sex.MALE) {
             if (probandGt.hasAltAllele()) {
                 if (motherGt.hasAltAllele()) {
                     return FALSE;
@@ -34,9 +36,9 @@ public class DeNovoChecker {
                 }
             }
             return probandGt.isNoCall() ? POTENTIAL : FALSE;
-        } else if (onChromosomeY(vcfRecord)) {
+        } else if ((contigId != null && ContigUtils.isChromosomeY(contigId))) {
             return checkYLinkedVariant(proband, probandGt, fatherGt);
-        } else if (onChromosomeMt(vcfRecord)) {
+        } else if ((contigId != null && ContigUtils.isChromosomeMt(contigId))) {
             return checkMtVariant(probandGt, motherGt);
         } else {
             return checkRegular(probandGt, fatherGt, motherGt);
@@ -44,14 +46,11 @@ public class DeNovoChecker {
     }
 
     private static MatchEnum checkYLinkedVariant(Sample proband, Genotype probandGt, Genotype fatherGt) {
-        switch (proband.getPerson().getSex()) {
-            case MALE:
-                return checkYLinkedVariantMale(probandGt, fatherGt);
-            case FEMALE:
-                return FALSE;
-            default:
-                return (fatherGt.hasAltAllele() || !probandGt.hasAltAllele()) ? FALSE : POTENTIAL;
-        }
+        return switch (proband.getPerson().getSex()) {
+            case MALE -> checkYLinkedVariantMale(probandGt, fatherGt);
+            case FEMALE -> FALSE;
+            default -> (fatherGt.hasAltAllele() || !probandGt.hasAltAllele()) ? FALSE : POTENTIAL;
+        };
     }
 
     private static MatchEnum checkYLinkedVariantMale(Genotype probandGt, Genotype fatherGt) {

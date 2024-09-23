@@ -3,11 +3,11 @@
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=VI,Number=.,Type=String,Description="An enumeration of possible inheritance modes based on the pedigree of the sample. Potential values: AD, AD_IP, AR, AR_C, XLR, XLD">
-##FORMAT=<ID=VIC,Number=1,Type=String,Description="Possible Compound hetrozygote variants.">
-##FORMAT=<ID=VID,Number=1,Type=Integer,Description="De novo variant.">
+##FORMAT=<ID=VIC,Number=.,Type=String,Description="Possible Compound hetrozygote variants.">
+##FORMAT=<ID=VID,Number=.,Type=Integer,Description="De novo variant.">
 ##FORMAT=<ID=VIG,Number=.,Type=String,Description="Genes with a (potential) inheritance match.">
-##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match.">
-##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|SYMBOL_SOURCE|Gene|IncompletePenetrance|InheritanceModesGene">
+##FORMAT=<ID=VIM,Number=.,Type=Integer,Description="Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match.">
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: VIPC|ALLELE_NUM|Allele|SYMBOL|SYMBOL_SOURCE|Gene|IncompletePenetrance|InheritanceModesGene">
 ##INFO=<ID=Compounds,Number=.,Type=String,Description="List of compound pairs for this variant.The list is splitted on ',' family id is separated with compoundswith ':'. Compounds are separated with '|'.">
 ##INFO=<ID=GeneticModels,Number=.,Type=String,Description="':'-separated list of genetic models for this variant.">
 ##INFO=<ID=ModelScore,Number=.,Type=String,Description="\"PHRED score for genotype models.\"">
@@ -41,17 +41,17 @@
 ##contig=<ID=MT,length=16569,assembly=b37>
 ##fileDate=20200320
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Patient	Mother	Father	Patient2	Mother2	Father2
-1	123457	.	C	G	.	PASS	CSQ=G|GENE1|EntrezGene|ID1|1|AR,G|GENE2|EntrezGene|ID2||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD:.:.:ID2:1	0/0:50	0/0:50	1/0:50:AD_IP,AR_C:1_123459_C_G:.:ID1,ID2:1	0/0:50	1/0:50
-1	123458	.	C	G	.	PASS	CSQ=G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD,AR_C:1_123460_C_G:.:ID3	./.:50	0/0:50	1/0:50:AD,AR_C:1_123460_C_G,1_123459_C_G:.:ID3:1	1/0:50	0/0:50
-1	123459	.	C	G	.	PASS	CSQ=G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AD_IP:.:.:.:0	1/1:50	0/1:50	1/0:50:AD,AR_C:1_123458_C_G,1_123460_C_G:.:ID3:1	1/1:50	0/0:50
-1	123459	.	C	G	.	PASS	CSQ=G|GENE1|EntrezGene|ID1|1|AR,G|GENE2|EntrezGene|ID2||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AR,AD_IP:.:.:ID1,ID2:1	0/1:50	0/1:50	1/0:50:AD,AR_C:1_123457_C_G:.:ID1,ID2:1	1/0:50	0/0:50
-1	123460	.	C	G	.	PASS	CSQ=G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD_IP,AR_C:1_123458_C_G:.:ID3:1	1/0:50	0/0:50	1/0:50:AD,AR_C:1_123458_C_G,1_123459_C_G:.:ID3:1	1/0:50	0/0:50
-1	123461	.	C	G	.	PASS	CSQ=G|GENE4|EntrezGene|ID4|1|AD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD_IP:.:.:ID4:1	0/0:50	1/0:50	1/0:50:AD:.:.:ID4:1	1/0:50	0/0:50
-2	1	empty_gene	C	G	.	PASS	CSQ=G|UNUSED_GENE_NAME||||	GT:DP:VI:VIC:VID:VIM	1/0:50:AD_IP	0/0:50	1/0:50	1/0:50:AD	1/0:50	0/0:50
-3	2	empty_gene	C	G	.	PASS	CSQ=G|UNUSED_GENE_NAME||||	GT:DP:VI:VIC:VID:VIM	1/0:50:AD_IP	0/0:50	1/0:50	1/0:50:AD	1/0:50	0/0:50
-4	123457	.	C	G	.	PASS	CSQ=G|GENE8|EntrezGene|ID8||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD:.:.:ID8:1	0/0:50	0/0:50	1/0:50:AD,AR_C:4_123459_C_G,4_123458_C_G:.:ID8:1	1/0:50	0/0:50
-4	123458	.	C	G	.	PASS	CSQ=G|GENE8|EntrezGene|ID8||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AR,AD_IP:.:.:ID8:1	1/0:50	0/0:50	1/0:50:AD,AR_C:4_123459_C_G,4_123457_C_G:.:ID8:1	1/0:50	0/0:50
-4	123459	.	C	G	.	PASS	CSQ=G|GENE8|EntrezGene|ID8||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AR,AD:.:.:ID8:1	0/0:50	0/0:50	1/0:50:AD,AR_C:4_123458_C_G,4_123457_C_G:.:ID8:1	1/0:50	0/0:50
-X	123457	.	C	G	.	PASS	CSQ=G|GENE5|EntrezGene|ID5||XLR,G|GENE7|EntrezGene|ID7||XLD	GT:DP:VI:VIC:VID:VIM	1/0:50:XLD,XLR:.:.:0	0/0:50	0/0:50	1/0:50:.:.:.:0	0/0:50	1/0:50
-X	123458	.	C	G	.	PASS	CSQ=G|GENE6|EntrezGene|ID6||	GT:DP:VI:VIC:VID:VIM	1/0:50:XLD,XLR	./.:50	0/0:50	1/0:50:XLD,XLR	1/0:50	0/0:50
-X	123459	.	C	G	.	PASS	CSQ=G|GENE6|EntrezGene|ID6||XLR	GT:DP:VI:VIC:VID:VIM	1/1:50:.:.:.:0	0/1:50	0/1:50	1/0:50:XLD,XLR:.:.:0	1/0:50	0/0:50
+1	123457	.	C	G	.	PASS	CSQ=P|1|G|GENE1|EntrezGene|ID1|1|AR,P|1|G|GENE2|EntrezGene|ID2||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD,AD:,::ID2:0,1	0/0:50	0/0:50	1/0:50:AD_IP,AD_IP:,::ID2:0,1	0/0:50	1/0:50
+1	123458	.	C	G	.	PASS	CSQ=P|1|G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD::::0	./.:50	0/0:50	1/0:50:AD::::0	1/0:50	0/0:50
+1	123459	.	C	G	.	PASS	CSQ=P|1|G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AD_IP::::0	1/1:50	0/1:50	1/0:50:AD::::0	1/1:50	0/0:50
+1	123459	.	C	G	.	PASS	CSQ=P|1|G|GENE1|EntrezGene|ID1|1|AR,P|1|G|GENE2|EntrezGene|ID2||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AR&AD_IP,AR&AD_IP:,::ID1,ID2:1,1	0/1:50	0/1:50	1/0:50:AD,AD:,::ID2:0,1	1/0:50	0/0:50
+1	123460	.	C	G	.	PASS	CSQ=P|1|G|GENE3|EntrezGene|ID3|1|AR	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD_IP::::0	1/0:50	0/0:50	1/0:50:AD::::0	1/0:50	0/0:50
+1	123461	.	C	G	.	PASS	CSQ=P|1|G|GENE4|EntrezGene|ID4|1|AD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD_IP:::ID4:1	0/0:50	1/0:50	1/0:50:AD:::ID4:1	1/0:50	0/0:50
+2	1	empty_gene	C	G	.	PASS	CSQ=P|1|G|UNUSED_GENE_NAME||||	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD_IP	0/0:50	1/0:50	1/0:50:AD	1/0:50	0/0:50
+3	2	empty_gene	C	G	.	PASS	CSQ=P|1|G|UNUSED_GENE_NAME||||	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD_IP	0/0:50	1/0:50	1/0:50:AD	1/0:50	0/0:50
+4	123457	.	C	G	.	PASS	CSQ=P|1|G|GENE8|EntrezGene|ID8||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:AD:::ID8:1	0/0:50	0/0:50	1/0:50:AD:::ID8:1	1/0:50	0/0:50
+4	123458	.	C	G	.	PASS	CSQ=P|1|G|GENE8|EntrezGene|ID8||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AR&AD_IP:::ID8:1	1/0:50	0/0:50	1/0:50:AD:::ID8:1	1/0:50	0/0:50
+4	123459	.	C	G	.	PASS	CSQ=P|1|G|GENE8|EntrezGene|ID8||AD	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:AR&AD:::ID8:1	0/0:50	0/0:50	1/0:50:AD:::ID8:1	1/0:50	0/0:50
+X	123457	.	C	G	.	PASS	CSQ=P|1|G|GENE5|EntrezGene|ID5||XLR,P|1|G|GENE7|EntrezGene|ID7||XLD	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:XLD,XLD:,:::0,0	0/0:50	0/0:50	1/0:50:XLD,XLD:,:::0,0	0/0:50	1/0:50
+X	123458	.	C	G	.	PASS	CSQ=P|1|G|GENE6|EntrezGene|ID6||	GT:DP:VI:VIC:VID:VIG:VIM	1/0:50:XLD:::ID6	./.:50	0/0:50	1/0:50:XLD:::ID6	1/0:50	0/0:50
+X	123459	.	C	G	.	PASS	CSQ=P|1|G|GENE6|EntrezGene|ID6||XLR	GT:DP:VI:VIC:VID:VIG:VIM	1/1:50:XLD&XLR::::0	0/1:50	0/1:50	1/0:50:XLD::::0	1/0:50	0/0:50

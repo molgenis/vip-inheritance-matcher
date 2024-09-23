@@ -18,8 +18,8 @@ public class VepMetadata {
   private static final String INFO_DESCRIPTION_PREFIX =
       "Consequence annotations from Ensembl VEP. Format: ";
   private static final String INHERITANCE = "InheritanceModesGene";
-  private VCFHeader vcfHeader = null;
-  private FieldMetadataService fieldMetadataService = null;
+  private final VCFHeader vcfHeader;
+  private final FieldMetadataService fieldMetadataService;
   @Getter
   private String vepFieldId = null;
   @Getter
@@ -62,15 +62,5 @@ public class VepMetadata {
       }
     }
     throw new MissingInfoException("VEP");
-  }
-
-  //For testing purposes
-  public VepMetadata(String vepFieldId, int geneIndex, int geneSourceIndex, int inheritanceIndex, int alleleNumIndex, int classIndex) {
-    this.vepFieldId = vepFieldId;
-    this.geneIndex = geneIndex;
-    this.geneSourceIndex = geneSourceIndex;
-    this.inheritanceIndex = inheritanceIndex;
-    this.alleleNumIndex = alleleNumIndex;
-    this.classIndex = classIndex;
   }
 }

@@ -6,7 +6,7 @@ import java.util.Map;
 @Data
 @Builder
 public class VcfRecordGenes {
-    Map<String, Gene> genes;
+    Map<String, GeneInfo> genes;
     //FIXME: is this used?
     @Builder.Default
     boolean containsVcWithoutGene = false;

@@ -4,7 +4,7 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.VcfRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -14,25 +14,25 @@ import org.springframework.stereotype.Component;
 public class AdNonPenetranceChecker extends InheritanceChecker{
 
   public MatchEnum check(
-          VcfRecord vcfRecord, Pedigree family, MatchEnum isAd) {
-    if (!VariantContextUtils.onAutosome(vcfRecord) || isAd == TRUE) {
+          VariantGeneRecord variantGeneRecord, Pedigree family) {
+    if (!VariantContextUtils.onAutosome(variantGeneRecord)) {
       return FALSE;
     }
 
-    return checkFamily(vcfRecord, family);
+    return checkFamily(variantGeneRecord, family);
   }
 
-  MatchEnum checkSample(Sample sample, VcfRecord vcfRecord) {
-    EffectiveGenotype sampleGt = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+  MatchEnum checkSample(Sample sample, VariantGeneRecord variantGeneRecord) {
+    EffectiveGenotype sampleGt = variantGeneRecord.getGenotype(sample.getPerson().getIndividualId());
     switch (sample.getPerson().getAffectedStatus()) {
       case AFFECTED -> {
-        if (sampleGt.isMixed()) {
-          return sampleGt.hasAltAllele() ? TRUE : POTENTIAL;
+        if(sampleGt.isHomRef()){
+          return FALSE;
         }
-        if(sampleGt.isNoCall()){
-          return POTENTIAL;
-        }else{
-          return sampleGt.isHomRef() ? FALSE : TRUE;
+        else if (sampleGt.isMixed()) {
+          return sampleGt.hasAlt() ? TRUE : POTENTIAL;
+        } else{
+          return TRUE;
         }
       }
       case UNAFFECTED -> {
