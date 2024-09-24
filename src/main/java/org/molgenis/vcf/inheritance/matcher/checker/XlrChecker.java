@@ -11,55 +11,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeX;
+import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 @Component
-public class XlrChecker extends XlChecker {
+public class XlrChecker extends InheritanceChecker {
 
-    protected MatchEnum checkFamily(VariantGeneRecord variantGeneRecord, Pedigree family) {
-        Map<AffectedStatus, Set<Sample>> membersByStatus = getMembersByStatus(family);
-        Set<EffectiveGenotype> affectedGenotypes = new HashSet<>();
-        Set<MatchEnum> matches = new HashSet<>();
-        matches.add(checkAffected(variantGeneRecord, membersByStatus, affectedGenotypes));
-        Set<Allele> affectedAltAlleles = new HashSet<>();
-        affectedGenotypes.forEach(genotype -> genotype.getAlleles().stream().filter(allele -> allele.isNonReference() && allele.isCalled()).forEach(affectedAltAlleles::add));
-        matches.add(checkUnaffected(variantGeneRecord, membersByStatus, affectedAltAlleles));
-        if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
-            matches.add(POTENTIAL);
-        }
-        return merge(matches);
-    }
-
-    private static MatchEnum merge(Set<MatchEnum> matches) {
-        if (matches.contains(FALSE)) {
+    public MatchEnum check(VariantGeneRecord variantGeneRecord, Pedigree family) {
+        if (!onChromosomeX(variantGeneRecord)) {
             return FALSE;
-        } else if (matches.contains(POTENTIAL)) {
-            return POTENTIAL;
         }
-        return TRUE;
+        return checkFamily(variantGeneRecord, family);
     }
 
-    private Map<AffectedStatus, Set<Sample>> getMembersByStatus(Pedigree family) {
-        Map<AffectedStatus, Set<Sample>> membersByStatus = new HashMap<>();
-        Set<Sample> affected = new HashSet<>();
-        Set<Sample> unAffected = new HashSet<>();
-        Set<Sample> missing = new HashSet<>();
-        for (Sample sample : family.getMembers().values()) {
-            if (sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED) {
-                affected.add(sample);
-            } else if (sample.getPerson().getAffectedStatus() == AffectedStatus.UNAFFECTED) {
-                unAffected.add(sample);
-            } else {
-                missing.add(sample);
-            }
-        }
-        membersByStatus.put(AffectedStatus.AFFECTED, affected);
-        membersByStatus.put(AffectedStatus.UNAFFECTED, unAffected);
-        membersByStatus.put(AffectedStatus.MISSING, missing);
-        return membersByStatus;
-    }
-
-    private static MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
+    protected MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
             EffectiveGenotype genotype = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
@@ -75,7 +41,7 @@ public class XlrChecker extends XlChecker {
         return merge(matches);
     }
 
-    private static MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
+    protected MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
             EffectiveGenotype genotype = variantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());

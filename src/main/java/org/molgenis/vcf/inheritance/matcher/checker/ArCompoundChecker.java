@@ -1,6 +1,8 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
+import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.getMembersByStatus;
+import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 import htsjdk.variant.variantcontext.Allele;
@@ -129,34 +131,5 @@ public class ArCompoundChecker {
             }
         }
         return merge(matches);
-    }
-
-    private static MatchEnum merge(Set<MatchEnum> matches) {
-        if (matches.contains(FALSE)) {
-            return FALSE;
-        } else if (matches.contains(POTENTIAL)) {
-            return POTENTIAL;
-        }
-        return TRUE;
-    }
-
-    private Map<AffectedStatus, Set<Sample>> getMembersByStatus(Pedigree family) {
-        Map<AffectedStatus, Set<Sample>> membersByStatus = new HashMap<>();
-        Set<Sample> affected = new HashSet<>();
-        Set<Sample> unAffected = new HashSet<>();
-        Set<Sample> missing = new HashSet<>();
-        for (Sample sample : family.getMembers().values()) {
-            if (sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED) {
-                affected.add(sample);
-            } else if (sample.getPerson().getAffectedStatus() == AffectedStatus.UNAFFECTED) {
-                unAffected.add(sample);
-            } else {
-                missing.add(sample);
-            }
-        }
-        membersByStatus.put(AffectedStatus.AFFECTED, affected);
-        membersByStatus.put(AffectedStatus.UNAFFECTED, unAffected);
-        membersByStatus.put(AffectedStatus.MISSING, missing);
-        return membersByStatus;
     }
 }

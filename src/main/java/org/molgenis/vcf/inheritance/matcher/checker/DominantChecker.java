@@ -1,6 +1,5 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import htsjdk.variant.variantcontext.Allele;
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
@@ -16,23 +15,21 @@ import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.getMembe
 import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
-public abstract class InheritanceChecker {
+public abstract class DominantChecker {
 
-    protected MatchEnum checkFamily(VariantGeneRecord variantGeneRecord, Pedigree family) {
+    MatchEnum checkFamily(VariantGeneRecord variantGeneRecord, Pedigree family) {
         Map<AffectedStatus, Set<Sample>> membersByStatus = getMembersByStatus(family);
         Set<EffectiveGenotype> affectedGenotypes = new HashSet<>();
         Set<MatchEnum> matches = new HashSet<>();
         matches.add(checkAffected(variantGeneRecord, membersByStatus, affectedGenotypes));
-        Set<Allele> affectedAltAlleles = new HashSet<>();
-        affectedGenotypes.forEach(genotype -> genotype.getAlleles().stream().filter(allele -> allele.isNonReference() && allele.isCalled()).forEach(affectedAltAlleles::add));
-        matches.add(checkUnaffected(variantGeneRecord, membersByStatus, affectedAltAlleles));
-        if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
+        matches.add(checkUnaffected(variantGeneRecord, membersByStatus, affectedGenotypes));
+        if(!membersByStatus.get(AffectedStatus.MISSING).isEmpty()){
             matches.add(POTENTIAL);
         }
         return merge(matches);
     }
 
-    protected abstract MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
+    protected abstract MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
 
-    protected abstract MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAltAlleles);
+    protected abstract MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
 }
