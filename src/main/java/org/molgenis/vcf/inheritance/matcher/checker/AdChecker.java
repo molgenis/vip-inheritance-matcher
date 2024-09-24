@@ -2,7 +2,7 @@ package org.molgenis.vcf.inheritance.matcher.checker;
 
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -23,18 +23,18 @@ public class AdChecker extends DominantChecker {
      * Check whether the AD inheritance pattern could match for a variant in a pedigree
      */
     public MatchEnum check(
-            VariantGeneRecord variantGeneRecord, Pedigree family) {
-        if (!VariantContextUtils.onAutosome(variantGeneRecord)) {
+            VariantRecord variantRecord, Pedigree family) {
+        if (!VariantContextUtils.onAutosome(variantRecord)) {
             return FALSE;
         }
 
-        return checkFamily(variantGeneRecord, family);
+        return checkFamily(variantRecord, family);
     }
 
-    public MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
+    public MatchEnum checkUnaffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
-            EffectiveGenotype genotype = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+            EffectiveGenotype genotype = variantRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
             if(genotype == null){
                 matches.add(POTENTIAL);
             }
@@ -48,14 +48,14 @@ public class AdChecker extends DominantChecker {
         return merge(matches);
     }
 
-    public MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
+    public MatchEnum checkAffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
-            EffectiveGenotype genotype = variantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            EffectiveGenotype genotype = variantRecord.getGenotype(affectedSample.getPerson().getIndividualId());
             affectedGenotypes.add(genotype);
-            if (genotype.isHomRef()) {
+            if (genotype != null && genotype.isHomRef()) {
                 return FALSE;
-            } else if ((genotype.hasMissingAllele() && genotype.hasReference()) || genotype.isNoCall()) {
+            } else if (genotype == null || (genotype.hasMissingAllele() && genotype.hasReference()) || genotype.isNoCall()) {
                 matches.add(POTENTIAL);
             } else {
                 matches.add(TRUE);

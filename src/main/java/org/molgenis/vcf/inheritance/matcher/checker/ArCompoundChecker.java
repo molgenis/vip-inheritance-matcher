@@ -10,7 +10,7 @@ import htsjdk.variant.variantcontext.Allele;
 import java.util.*;
 
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
 import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
@@ -20,24 +20,27 @@ import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class ArCompoundChecker {
 
-    public Set<CompoundCheckResult> check(
-            Map<GeneInfo, Set<VariantGeneRecord>> geneVariantMap,
-            VariantGeneRecord variantGeneRecord, Pedigree family) {
-        if (onAutosome(variantGeneRecord)) {
-            Set<CompoundCheckResult> compounds = new HashSet<>();
-            checkForGene(geneVariantMap, variantGeneRecord, family, compounds);
+    public Map<GeneInfo, Set<CompoundCheckResult>> check(
+            Map<GeneInfo, Set<VariantRecord>> geneVariantMap,
+            VariantRecord variantRecord, Pedigree family) {
+        if (onAutosome(variantRecord)) {
+            Map<GeneInfo, Set<CompoundCheckResult>> compounds = new HashMap<>();
+            for (GeneInfo geneInfo : variantRecord.geneInfos()) {
+                checkForGene(geneVariantMap, variantRecord, family, compounds, geneInfo);
+            }
             return compounds;
         }
-        return Collections.emptySet();
+        return Collections.emptyMap();
     }
 
-    private void checkForGene(Map<GeneInfo, Set<VariantGeneRecord>> geneVariantMap,
-                              VariantGeneRecord variantGeneRecord, Pedigree family, Set<CompoundCheckResult> compounds) {
-        Collection<VariantGeneRecord> variantGeneRecords = geneVariantMap.get(variantGeneRecord.getGeneInfo());
+    private void checkForGene(Map<GeneInfo, Set<VariantRecord>> geneVariantMap,
+                              VariantRecord variantRecord, Pedigree family, Map<GeneInfo, Set<CompoundCheckResult>> compoundsMap, GeneInfo geneInfo) {
+        Collection<VariantRecord> variantGeneRecords = geneVariantMap.get(geneInfo);
+        Set<CompoundCheckResult> compounds = new HashSet<>();
         if (variantGeneRecords != null) {
-            for (VariantGeneRecord otherRecord : variantGeneRecords) {
-                if (!otherRecord.equals(variantGeneRecord)) {
-                    MatchEnum isPossibleCompound = checkFamily(family, variantGeneRecord, otherRecord);
+            for (VariantRecord otherRecord : variantGeneRecords) {
+                if (!otherRecord.equals(variantRecord)) {
+                    MatchEnum isPossibleCompound = checkFamily(family, variantRecord, otherRecord);
                     if (isPossibleCompound != FALSE) {
                         CompoundCheckResult result = CompoundCheckResult.builder().possibleCompound(otherRecord).isCertain(isPossibleCompound != POTENTIAL).build();
                         compounds.add(result);
@@ -45,91 +48,100 @@ public class ArCompoundChecker {
                 }
             }
         }
+        compoundsMap.put(geneInfo, compounds);
     }
 
-    private MatchEnum checkFamily(Pedigree family, VariantGeneRecord variantGeneRecord,
-                                VariantGeneRecord otherVariantGeneRecord) {
+    private MatchEnum checkFamily(Pedigree family, VariantRecord variantRecord,
+                                  VariantRecord otherVariantGeneRecord) {
         Map<AffectedStatus, Set<Sample>> membersByStatus = getMembersByStatus(family);
         Set<List<Allele>> affectedGenotypes = new HashSet<>();
         Set<List<Allele>> otherAffectedGenotypes = new HashSet<>();
         Set<MatchEnum> matches = new HashSet<>();
-        matches.add(checkAffected(variantGeneRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
-        matches.add(checkUnaffected(variantGeneRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
-        if(!membersByStatus.get(AffectedStatus.MISSING).isEmpty()){
+        matches.add(checkAffected(variantRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
+        matches.add(checkUnaffected(variantRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
+        if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
             matches.add(POTENTIAL);
         }
         return merge(matches);
     }
 
-    private MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, VariantGeneRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
+    private MatchEnum checkUnaffected(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
-            matches.add(checkUnaffectedSample(variantGeneRecord, otherVariantGeneRecord, affectedGenotypes, otherAffectedGenotypes, unAffectedSample));
+            matches.add(checkUnaffectedSample(variantRecord, otherVariantGeneRecord, affectedGenotypes, otherAffectedGenotypes, unAffectedSample));
         }
         return merge(matches);
     }
 
-    private static MatchEnum checkUnaffectedSample(VariantGeneRecord variantGeneRecord, VariantGeneRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample unAffectedSample) {
+    private static MatchEnum checkUnaffectedSample(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample unAffectedSample) {
         Set<MatchEnum> matches = new HashSet<>();
-        matches.add(checkSingleUnaffectedSampleVariant(variantGeneRecord, affectedGenotypes, unAffectedSample));
+        matches.add(checkSingleUnaffectedSampleVariant(variantRecord, affectedGenotypes, unAffectedSample));
         matches.add(checkSingleUnaffectedSampleVariant(otherVariantGeneRecord, otherAffectedGenotypes, unAffectedSample));
-        if(matches.contains(TRUE)){
+        if (matches.contains(TRUE)) {
             return TRUE;
         } else if (matches.contains(POTENTIAL)) {
             return POTENTIAL;
         }
 
-        EffectiveGenotype sampleGt = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+        EffectiveGenotype sampleGt = variantRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
         EffectiveGenotype sampleOtherGt = otherVariantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
-        if(sampleGt.isPhased() && sampleOtherGt.isPhased() &&
+
+        if ((sampleGt != null && sampleOtherGt != null) && (sampleGt.isPhased() && sampleOtherGt.isPhased() &&
                 (sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
-                (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference())){
+                (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference()))) {
             return TRUE;
         }
         return FALSE;
     }
 
-    private static MatchEnum checkSingleUnaffectedSampleVariant(VariantGeneRecord variantGeneRecord, Set<List<Allele>> affectedGenotypes, Sample unAffectedSample) {
+    private static MatchEnum checkSingleUnaffectedSampleVariant(VariantRecord variantRecord, Set<List<Allele>> affectedGenotypes, Sample unAffectedSample) {
         Set<MatchEnum> matches = new HashSet<>();
-        EffectiveGenotype genotype = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+        EffectiveGenotype genotype = variantRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
         for (List<Allele> affectedGenotype : affectedGenotypes) {
-            if(genotype != null && genotype.isHomRef()){
+            if (genotype != null && genotype.isHomRef()) {
                 matches.add(TRUE);
-            }
-            else if (affectedGenotype.stream().filter(Allele::isNonReference).allMatch(
-                    allele -> allele.isCalled() && genotype!= null && genotype.getAlleles().contains(allele))) {
+            } else if (affectedGenotype.stream().filter(Allele::isNonReference).allMatch(
+                    allele -> allele.isCalled() && genotype != null && genotype.getAlleles().contains(allele))) {
                 matches.add(FALSE);
-            } else{
+            } else {
                 matches.add(POTENTIAL);
             }
         }
         return merge(matches);
     }
 
-    private MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, VariantGeneRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
+    private MatchEnum checkAffected(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
-            EffectiveGenotype sampleGt = variantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
-            EffectiveGenotype sampleOtherGt = otherVariantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
-            if(sampleGt != null) {
-                affectedGenotypes.add(sampleGt.getAlleles());
-            }
-            if(sampleOtherGt != null) {
-                otherAffectedGenotypes.add(sampleOtherGt.getAlleles());
-            }
-            if((sampleGt != null && sampleGt.isHom()) || (sampleOtherGt != null && sampleOtherGt.isHom())){
-                return FALSE;
-            } else if ((sampleGt == null || !sampleGt.hasReference()) || (sampleOtherGt == null || !sampleOtherGt.hasReference())) {
-                matches.add(POTENTIAL);
-            } else{
-                if(sampleGt.isPhased() && sampleOtherGt.isPhased() &&
-                        (sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
-                        (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference())){
-                    return FALSE;
-                }
-                matches.add(TRUE);
-            }
+            checkAffectedSample(variantRecord, otherVariantGeneRecord, affectedGenotypes, otherAffectedGenotypes, affectedSample, matches);
         }
         return merge(matches);
+    }
+
+    private static void checkAffectedSample(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample affectedSample, Set<MatchEnum> matches) {
+        EffectiveGenotype sampleGt = variantRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+        EffectiveGenotype sampleOtherGt = otherVariantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+        if (sampleGt != null) {
+            affectedGenotypes.add(sampleGt.getAlleles());
+        }
+        if (sampleOtherGt != null) {
+            otherAffectedGenotypes.add(sampleOtherGt.getAlleles());
+        }
+        if ((sampleGt != null && sampleGt.isHom()) || (sampleOtherGt != null && sampleOtherGt.isHom())) {
+            matches.add(FALSE);
+        } else if ((sampleGt == null || !sampleGt.hasReference()) || (sampleOtherGt == null || !sampleOtherGt.hasReference())) {
+            matches.add(POTENTIAL);
+        } else {
+            if (checkAffectedPhased(sampleGt, sampleOtherGt)) {
+                matches.add(FALSE);
+            }
+            matches.add(TRUE);
+        }
+    }
+
+    private static boolean checkAffectedPhased(EffectiveGenotype sampleGt, EffectiveGenotype sampleOtherGt) {
+        return sampleGt.isPhased() && sampleOtherGt.isPhased() &&
+                (sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
+                (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference());
     }
 }

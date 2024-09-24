@@ -23,7 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -36,19 +36,39 @@ class ArCompoundCheckerTest {
 
     @ParameterizedTest(name = "{index} {4}")
     @MethodSource("provideTestCases")
-    void check(VariantGeneRecord variantGeneRecord, Map<GeneInfo, Set<VariantGeneRecord>> geneVariantMap,
+    void check(VariantRecord variantRecord, Map<GeneInfo, Set<VariantRecord>> geneVariantMap,
                Pedigree family, String expectedString,
                String displayName) {
         MatchEnum expected = mapExpectedString(expectedString);
         ArCompoundChecker arCompoundChecker = new ArCompoundChecker();
-        Set<CompoundCheckResult> compounds = arCompoundChecker.check(geneVariantMap, variantGeneRecord, family);
+        Map<GeneInfo, Set<CompoundCheckResult>> compounds = arCompoundChecker.check(geneVariantMap, variantRecord, family);
         if (expected == FALSE) {
-            assertTrue(compounds.isEmpty());
+            assertTrue(isEmpty(compounds));
         } else if (expected == TRUE) {
-            assertTrue(compounds.stream().anyMatch(CompoundCheckResult::isCertain));
+            assertTrue(!isEmpty(compounds) && containsCertainMatch(compounds));
         } else {
-            assertTrue(!compounds.isEmpty() && compounds.stream().noneMatch(CompoundCheckResult::isCertain));
+            assertTrue(!isEmpty(compounds) && !containsCertainMatch(compounds));
         }
+    }
+
+    private boolean isEmpty(Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
+        for(Set<CompoundCheckResult> compoundCheckResults : compounds.values()) {
+            if(!compoundCheckResults.isEmpty()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean containsCertainMatch(Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
+        for(Set<CompoundCheckResult> compoundCheckResults : compounds.values()) {
+            for(CompoundCheckResult compoundCheckResult : compoundCheckResults) {
+                if(compoundCheckResult.isCertain()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static Stream<Arguments> provideTestCases() throws IOException {

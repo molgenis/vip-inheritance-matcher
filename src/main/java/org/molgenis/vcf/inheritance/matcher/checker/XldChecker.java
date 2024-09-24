@@ -1,7 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -17,21 +17,21 @@ import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 @Component
 public class XldChecker extends DominantChecker  {
 
-    public MatchEnum check(VariantGeneRecord variantGeneRecord, Pedigree family) {
-        if (!onChromosomeX(variantGeneRecord)) {
+    public MatchEnum check(VariantRecord variantRecord, Pedigree family) {
+        if (!onChromosomeX(variantRecord)) {
             return FALSE;
         }
-        return checkFamily(variantGeneRecord, family);
+        return checkFamily(variantRecord, family);
     }
 
-    public MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
+    public MatchEnum checkUnaffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
-            EffectiveGenotype genotype = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+            EffectiveGenotype genotype = variantRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
             if(genotype == null){
                 matches.add(POTENTIAL);
             }
-            else if(!genotype.hasAlt() && !genotype.isMixed() || (genotype.hasReference() && genotype.getPloidy() == 2)){
+            else if(!genotype.hasAltAllele() && !genotype.isMixed() || (genotype.hasReference() && genotype.getPloidy() == 2)){
                 matches.add(TRUE);
             }
             else {
@@ -41,14 +41,14 @@ public class XldChecker extends DominantChecker  {
         return merge(matches);
     }
 
-    public MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
+    public MatchEnum checkAffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
-            EffectiveGenotype genotype = variantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            EffectiveGenotype genotype = variantRecord.getGenotype(affectedSample.getPerson().getIndividualId());
             affectedGenotypes.add(genotype);
-            if (!genotype.hasAlt() && !genotype.isMixed()) {
+            if (genotype != null && !genotype.hasAltAllele() && !genotype.isMixed()) {
                 return FALSE;
-            } else if ((genotype.hasMissingAllele() && genotype.hasReference()) || genotype.isNoCall()) {
+            } else if (genotype == null || (genotype.hasMissingAllele() && genotype.hasReference()) || genotype.isNoCall()) {
                 matches.add(POTENTIAL);
             } else {
                 matches.add(TRUE);

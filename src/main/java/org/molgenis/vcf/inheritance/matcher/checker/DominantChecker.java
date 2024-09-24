@@ -1,7 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -17,12 +17,12 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 public abstract class DominantChecker {
 
-    MatchEnum checkFamily(VariantGeneRecord variantGeneRecord, Pedigree family) {
+    MatchEnum checkFamily(VariantRecord variantRecord, Pedigree family) {
         Map<AffectedStatus, Set<Sample>> membersByStatus = getMembersByStatus(family);
         Set<EffectiveGenotype> affectedGenotypes = new HashSet<>();
         Set<MatchEnum> matches = new HashSet<>();
-        matches.add(checkAffected(variantGeneRecord, membersByStatus, affectedGenotypes));
-        matches.add(checkUnaffected(variantGeneRecord, membersByStatus, affectedGenotypes));
+        matches.add(checkAffected(variantRecord, membersByStatus, affectedGenotypes));
+        matches.add(checkUnaffected(variantRecord, membersByStatus, affectedGenotypes));
         if(!membersByStatus.get(AffectedStatus.MISSING).isEmpty()){
             matches.add(POTENTIAL);
         }
@@ -31,7 +31,7 @@ public abstract class DominantChecker {
 
     static void checkAffectedGenotypes(Set<EffectiveGenotype> affectedGenotypes, Set<MatchEnum> matches, EffectiveGenotype genotype) {
         for (EffectiveGenotype affectedGenotype : affectedGenotypes) {
-            if (affectedGenotype.hasAlt() && affectedGenotype.getAlleles().stream().filter(allele -> allele.isCalled() && allele.isNonReference()).allMatch(
+            if (affectedGenotype.hasAltAllele() && affectedGenotype.getAlleles().stream().filter(allele -> allele.isCalled() && allele.isNonReference()).allMatch(
                     allele -> genotype.getAlleles().contains(allele))) {
                 matches.add(FALSE);
             } else {
@@ -40,7 +40,7 @@ public abstract class DominantChecker {
         }
     }
 
-    protected abstract MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
+    protected abstract MatchEnum checkUnaffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
 
-    protected abstract MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
+    protected abstract MatchEnum checkAffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
 }

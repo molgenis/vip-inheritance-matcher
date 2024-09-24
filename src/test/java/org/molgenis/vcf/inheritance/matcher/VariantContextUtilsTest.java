@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class VariantContextUtilsTest {
 
   @Mock
-  private VariantGeneRecord variantContext;
+  private VariantRecord variantContext;
 
   @Test
   void onAutosomeTrue() {

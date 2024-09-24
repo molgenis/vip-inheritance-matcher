@@ -1,5 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.*;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFilterHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
@@ -55,37 +56,54 @@ public class Annotator {
         VariantContextBuilder variantContextBuilder = new VariantContextBuilder(variantRecord.variantContext());
         for (Pedigree pedigree : pedigrees) {
             pedigree.getMembers().values().stream().filter(sample -> probands.isEmpty() || probands.contains(sample.getPerson().getIndividualId())).forEach(sample -> {
-                Genotype genotype = variantRecord.getGenotype(sample.getPerson().getIndividualId());
+                EffectiveGenotype effectiveGenotype = variantRecord.getGenotype(sample.getPerson().getIndividualId());
+                Genotype genotype = effectiveGenotype != null ? effectiveGenotype.unwrap() : null;
                 if (inheritanceResultMap.containsKey(pedigree) && genotype != null) {
-                    genotypesContext.replace(annotateGenotype(inheritanceResultMap.get(pedigree), genotype, sample));
+                    genotypesContext.replace(annotateGenotype(inheritanceResultMap.get(pedigree), genotype, sample, variantRecord));
                 }
             });
         }
         return variantContextBuilder.genotypes(genotypesContext).make();
     }
 
-    private Genotype annotateGenotype(InheritanceResult inheritanceResult, Genotype genotype, Sample sample) {
+    private Genotype annotateGenotype(InheritanceResult inheritanceResult, Genotype genotype, Sample sample, VariantRecord variantRecord) {
         GenotypeBuilder genotypeBuilder = new GenotypeBuilder(genotype);
-        List<String> vim = new ArrayList<>();
-        List<String> vic = new ArrayList<>();
         List<String> vig = new ArrayList<>();
-        List<String> vi = new ArrayList<>();
-        inheritanceResult.getInheritanceGeneResults().stream().sorted().forEach(inheritanceGeneResult -> {
-            String compounds = inheritanceGeneResult.getCompounds().isEmpty() ? "" : String.join("&", inheritanceGeneResult.getCompounds().stream().map(this::createKey).toList());
-            MatchEnum match = inheritanceGeneResult.getMatch();
-            vi.add(String.join("&", mapInheritanceModes(inheritanceGeneResult)));
-            vim.add(mapInheritanceMatch(match));
-            vic.add(compounds);
-            if ((match == TRUE || match == POTENTIAL)) {
-                vig.add(inheritanceGeneResult.getGeneInfo().geneId());
-            }
-        });
+        Set<String> compounds = getCompoundStrings(inheritanceResult.getCompounds());
+        String vic = inheritanceResult.getCompounds().isEmpty() ? "" : String.join(",", compounds);
+        MatchEnum match = getMatch(inheritanceResult, variantRecord);
+        Set<String> vi = mapInheritanceModes(inheritanceResult);
+        String vim = mapInheritanceMatch(match);
+        if ((match == TRUE || match == POTENTIAL)) {
+            vig = getMatchingGenes(inheritanceResult.getPedigreeInheritanceMatches(), variantRecord.geneInfos(), inheritanceResult.getCompounds());
+        }
+
         genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", vi));
-        genotypeBuilder.attribute(INHERITANCE_MATCH, String.join(",", vim));
-        genotypeBuilder.attribute(POSSIBLE_COMPOUND, String.join(",", vic));
+        genotypeBuilder.attribute(INHERITANCE_MATCH, vim);
+        genotypeBuilder.attribute(POSSIBLE_COMPOUND, vic);
         genotypeBuilder.attribute(MATCHING_GENES, String.join(",", vig));
         genotypeBuilder.attribute(DENOVO, mapDenovoValue(inheritanceResult, sample));
         return genotypeBuilder.make();
+    }
+
+    private Set<String> getCompoundStrings(Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
+        Set<String> result = new HashSet<>();
+        compounds.values().forEach(compoundsForGene -> compoundsForGene.forEach(compound -> result.add(createKey(compound))));
+        return result;
+    }
+
+    private List<String> getMatchingGenes(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, Set<GeneInfo> geneInfos, Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
+        List<String> results = new ArrayList<>();
+        for (PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
+            for (GeneInfo geneInfo : geneInfos) {
+                if (geneInfo.inheritanceModes().stream().anyMatch(geneMode -> isMatch(geneMode,
+                        pedigreeInheritanceMatch.inheritanceMode())) && pedigreeInheritanceMatch.inheritanceMode() != AR_C
+                        || !compounds.get(geneInfo).isEmpty()) {
+                    results.add(geneInfo.geneId());
+                }
+            }
+        }
+        return results;
     }
 
     private static String mapDenovoValue(InheritanceResult inheritanceResult, Sample sample) {
@@ -107,7 +125,7 @@ public class Annotator {
         return inheritanceMatch;
     }
 
-    private Set<String> mapInheritanceModes(InheritanceGeneResult inheritanceResult) {
+    private Set<String> mapInheritanceModes(InheritanceResult inheritanceResult) {
         Set<String> result = new HashSet<>();
         for (PedigreeInheritanceMatch pedigreeInheritanceMatch : inheritanceResult.getPedigreeInheritanceMatches()) {
             result.add(pedigreeInheritanceMatch.inheritanceMode().name());
@@ -116,7 +134,84 @@ public class Annotator {
     }
 
     private String createKey(CompoundCheckResult result) {
-        VariantGeneRecord variantGeneRecord = result.getPossibleCompound();
-        return String.format("%s_%s_%s_%s", variantGeneRecord.getContig(), variantGeneRecord.getStart(), variantGeneRecord.getReference().getBaseString(), variantGeneRecord.getAlternateAlleles().stream().map(Allele::getBaseString).collect(Collectors.joining("/")));
+        VariantRecord variantRecord = result.getPossibleCompound();
+        return String.format("%s_%s_%s_%s", variantRecord.getContig(), variantRecord.getStart(), variantRecord.getReference().getBaseString(), variantRecord.getAlternateAlleles().stream().map(Allele::getBaseString).collect(Collectors.joining("/")));
     }
+
+    /**
+     * If there is a match between sample inheritance modes and gene inheritance modes:
+     * - inheritance match is true
+     * If there are no matches between sample inheritance modes and gene inheritance modes:
+     * - inheritance match is unknown ifa gene has unknown inheritance pattern.
+     * - inheritance match is false if a gene has known (but mismatching) inheritance pattern.
+     */
+    public MatchEnum getMatch(InheritanceResult inheritanceResult, VariantRecord variantRecord) {
+        //If no inheritance pattern is suitable for the sample, regardless of the gene: inheritance match is false.
+        Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = inheritanceResult.getPedigreeInheritanceMatches();
+        if (pedigreeInheritanceMatches.isEmpty()) {
+            return FALSE;
+        }
+        boolean containsUnknownGene = variantRecord.geneInfos().isEmpty() || variantRecord.geneInfos().stream().anyMatch(geneInfo -> geneInfo.inheritanceModes().isEmpty());
+
+        Set<MatchEnum> result = new HashSet<>();
+        for (GeneInfo geneInfo : variantRecord.geneInfos()) {
+            if (geneInfo.inheritanceModes().stream()
+                    .anyMatch(geneInheritanceMode -> isMatch(pedigreeInheritanceMatches, geneInheritanceMode))) {
+                if (pedigreeInheritanceMatches.stream().anyMatch(pedigreeInheritanceMatch -> !pedigreeInheritanceMatch.isUncertain())) {
+                    result.add(TRUE);
+                } else {
+                    result.add(POTENTIAL);
+                }
+            }
+        }
+        if (result.contains(TRUE)) {
+            return TRUE;
+        }
+        if (result.contains(POTENTIAL) || containsUnknownGene) {
+            return POTENTIAL;
+        }
+        return FALSE;
+    }
+
+    private static Boolean isMatch(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, InheritanceMode geneInheritanceMode) {
+        boolean isMatch = false;
+        for (PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
+            InheritanceMode pedigreeInheritanceMode = pedigreeInheritanceMatch.inheritanceMode();
+            isMatch = isMatch(geneInheritanceMode, pedigreeInheritanceMode);
+        }
+        return isMatch;
+    }
+
+    private static boolean isMatch(InheritanceMode geneInheritanceMode, InheritanceMode pedigreeInheritanceMode) {
+        switch (pedigreeInheritanceMode) {
+            case AD, AD_IP -> {
+                if (geneInheritanceMode == AD) {
+                    return true;
+                }
+            }
+            case AR, AR_C -> {
+                if (geneInheritanceMode == AR) {
+                    return true;
+                }
+            }
+            case XLR, XLD -> {
+                if (geneInheritanceMode == XL) {
+                    return true;
+                }
+            }
+            case YL -> {
+                if (geneInheritanceMode == YL) {
+                    return true;
+                }
+            }
+            case MT -> {
+                if (geneInheritanceMode == MT) {
+                    return true;
+                }
+            }
+            default -> throw new UnexpectedEnumException(pedigreeInheritanceMode);
+        }
+        return false;
+    }
+
 }

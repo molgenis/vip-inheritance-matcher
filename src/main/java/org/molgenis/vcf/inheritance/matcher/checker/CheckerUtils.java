@@ -11,7 +11,7 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 public class CheckerUtils {
 
-    private CheckerUtils(){};
+    private CheckerUtils(){}
 
     public static Map<AffectedStatus, Set<Sample>> getMembersByStatus(Pedigree family) {
         Map<AffectedStatus, Set<Sample>> membersByStatus = new EnumMap<>(AffectedStatus.class);

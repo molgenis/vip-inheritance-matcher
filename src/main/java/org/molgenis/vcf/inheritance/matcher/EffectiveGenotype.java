@@ -58,11 +58,15 @@ public class EffectiveGenotype {
         return genotype.getAlleles().stream().anyMatch(Allele::isReference);
     }
 
-    public boolean hasAlt() {
-        return genotype.getAlleles().stream().anyMatch(allele -> allele.isNonReference() && allele.isCalled());
+    public boolean hasAltAllele() {
+        return genotype.hasAltAllele();
     }
 
     public boolean isHom() {
         return genotype.isHom();
+    }
+
+    public boolean isHet() {
+        return genotype.isHet();
     }
 }

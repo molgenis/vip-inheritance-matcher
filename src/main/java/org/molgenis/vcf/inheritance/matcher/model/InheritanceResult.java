@@ -11,6 +11,13 @@ import org.molgenis.vcf.utils.sample.model.Sample;
 public class InheritanceResult {
 
   @Builder.Default
-  Collection<InheritanceGeneResult> inheritanceGeneResults = new HashSet<>();
+  Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = new HashSet<>();
+  @Builder.Default
+  Map<GeneInfo,Set<CompoundCheckResult>> compounds = new HashMap<>();
+
+  public void addInheritanceMode(PedigreeInheritanceMatch pedigreeInheritanceMatch) {
+    pedigreeInheritanceMatches.add(pedigreeInheritanceMatch);
+  }
+
   Map<Sample, MatchEnum> denovo;
 }

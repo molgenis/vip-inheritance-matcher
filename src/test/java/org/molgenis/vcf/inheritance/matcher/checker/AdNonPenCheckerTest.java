@@ -1,5 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
+import static htsjdk.variant.variantcontext.Allele.*;
 import static java.util.Collections.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
@@ -37,17 +39,18 @@ class AdNonPenCheckerTest {
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantGeneRecord variantGeneRecord, Pedigree family, String expectedString,
+  void check(VariantRecord variantRecord, Pedigree family, String expectedString,
              String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, adNonPenetranceChecker.check(variantGeneRecord, family));
+    assertEquals(expected, adNonPenetranceChecker.check(variantRecord, family));
   }
 
   @Test
   void testCheckAd() {
     VariantContext variantContext = mock(VariantContext.class);
     Pedigree family = mock(Pedigree.class);
-    assertEquals(FALSE, adNonPenetranceChecker.check(new VariantGeneRecord(variantContext, emptySet(), new GeneInfo("TEST", "SOURCE", emptySet())), family));
+
+    assertEquals(FALSE, adNonPenetranceChecker.check(new VariantRecord(variantContext, Set.of(ALT_A,ALT_G,ALT_N), Set.of(new GeneInfo("GENE1", "SOURCE", emptySet()))), family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {

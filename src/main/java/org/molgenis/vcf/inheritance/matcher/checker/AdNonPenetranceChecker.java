@@ -4,7 +4,7 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
 import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -17,28 +17,28 @@ import java.util.Set;
 public class AdNonPenetranceChecker {
 
     public MatchEnum check(
-            VariantGeneRecord variantGeneRecord, Pedigree family) {
-        if (!VariantContextUtils.onAutosome(variantGeneRecord)) {
+            VariantRecord variantRecord, Pedigree family) {
+        if (!VariantContextUtils.onAutosome(variantRecord)) {
             return FALSE;
         }
 
         Set<MatchEnum> results = new HashSet<>();
         for (Sample sample : family.getMembers().values()) {
-            results.add(checkSample(sample, variantGeneRecord));
+            results.add(checkSample(sample, variantRecord));
         }
         return CheckerUtils.merge(results);
     }
 
-    MatchEnum checkSample(Sample sample, VariantGeneRecord variantGeneRecord) {
-        EffectiveGenotype sampleGt = variantGeneRecord.getGenotype(sample.getPerson().getIndividualId());
+    MatchEnum checkSample(Sample sample, VariantRecord variantRecord) {
+        EffectiveGenotype sampleGt = variantRecord.getGenotype(sample.getPerson().getIndividualId());
         switch (sample.getPerson().getAffectedStatus()) {
             case AFFECTED -> {
-                if (sampleGt.isHomRef()) {
+                if (sampleGt != null && sampleGt.isHomRef()) {
                     return FALSE;
-                } else if (sampleGt.isMixed()) {
-                    return sampleGt.hasAlt() ? TRUE : POTENTIAL;
+                } else if (sampleGt != null && sampleGt.isMixed()) {
+                    return sampleGt.hasAltAllele() ? TRUE : POTENTIAL;
                 } else {
-                    return TRUE;
+                    return sampleGt == null ? POTENTIAL : TRUE;
                 }
             }
             case UNAFFECTED -> {

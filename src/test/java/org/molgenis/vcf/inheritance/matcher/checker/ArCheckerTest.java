@@ -17,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VariantGeneRecord;
+import org.molgenis.vcf.inheritance.matcher.VariantRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -31,10 +31,10 @@ class ArCheckerTest {
   final ArChecker arChecker = new ArChecker();
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantGeneRecord variantGeneRecord, Pedigree family, String expectedString,
+  void check(VariantRecord variantRecord, Pedigree family, String expectedString,
              String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, arChecker.check(variantGeneRecord, family));
+    assertEquals(expected, arChecker.check(variantRecord, family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {

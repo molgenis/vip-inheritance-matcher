@@ -2,7 +2,6 @@ package org.molgenis.vcf.inheritance.matcher;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.InheritanceResult;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
 
@@ -20,12 +19,10 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
 
     @Override
     public VariantRecord create(VariantContext variantContext, Set<String> pathogenicClasses) {
-        Map<GeneInfo, VariantGeneRecord> result = new HashMap<>();
-        for (GeneInfo geneInfo : getVcfGeneInfos(variantContext)) {
-            Set<Allele> pathogenicAlleles = getPathogenicAlleles(variantContext, vepMetadata, pathogenicClasses, geneInfo);
-            result.put(geneInfo, new VariantGeneRecord(variantContext, pathogenicAlleles, geneInfo));
-        }
-        return new VariantRecord(result, variantContext, InheritanceResult.builder().build());
+        Set<GeneInfo> geneInfos = getVcfGeneInfos(variantContext);
+        Set<Allele> pathogenicAlleles = getPathogenicAlleles(variantContext, vepMetadata, pathogenicClasses);
+
+        return new VariantRecord(variantContext, pathogenicAlleles, geneInfos);
     }
 
     private Set<GeneInfo> getVcfGeneInfos(VariantContext variantContext) {
@@ -41,19 +38,19 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
         return result;
     }
 
-    private Set<Allele> getPathogenicAlleles(VariantContext variantContext, VepMetadata vepMetadata, Set<String> pathogenicClasses, GeneInfo geneInfo) {
+    private Set<Allele> getPathogenicAlleles(VariantContext variantContext, VepMetadata vepMetadata, Set<String> pathogenicClasses) {
         Set<Allele> pathogenicAlleles = new HashSet<>();
 
         for (int i = 1; i <= variantContext.getAlternateAlleles().size(); i++) {
             Allele allele = variantContext.getAlleles().get(i);
-            if (isAllelePathogenic(variantContext, vepMetadata, i, geneInfo, pathogenicClasses)) {
+            if (isAllelePathogenic(variantContext, vepMetadata, i, pathogenicClasses)) {
                 pathogenicAlleles.add(allele);
             }
         }
         return pathogenicAlleles;
     }
 
-    public boolean isAllelePathogenic(VariantContext variantContext, VepMetadata vepMetadata, int alleleIndex, GeneInfo geneInfo, Set<String> pathogenicClasses) {
+    public boolean isAllelePathogenic(VariantContext variantContext, VepMetadata vepMetadata, int alleleIndex, Set<String> pathogenicClasses) {
         if (pathogenicClasses.isEmpty()) {
             return true;
         }
@@ -65,7 +62,7 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
         for (String vepValue : vepValues) {
             String[] vepSplit = vepValue.split("\\|", -1);
             int csqAlleleIndex = Integer.parseInt(vepSplit[vepMetadata.getAlleleNumIndex()]);
-            if (csqAlleleIndex == alleleIndex && geneInfo.geneId().equals(vepSplit[vepMetadata.getGeneIndex()])) {
+            if (csqAlleleIndex == alleleIndex) {
                 result = pathogenicClasses.contains(vepSplit[vepMetadata.getClassIndex()]);
             }
         }

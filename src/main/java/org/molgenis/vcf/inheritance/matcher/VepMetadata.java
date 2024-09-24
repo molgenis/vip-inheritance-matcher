@@ -53,14 +53,18 @@ public class VepMetadata {
         FieldMetadata fieldMetadata = fieldMetadataService.load(
             vcfInfoHeaderLine);
         Map<String, NestedField> nestedFields = fieldMetadata.getNestedFields();
-        geneIndex = nestedFields.get(GENE) != null ? nestedFields.get(GENE).getIndex():-1;
-        geneSourceIndex = nestedFields.get(SYMBOL_SOURCE) != null ? nestedFields.get(SYMBOL_SOURCE).getIndex():-1;
-        inheritanceIndex = nestedFields.get(INHERITANCE) != null ? nestedFields.get(INHERITANCE).getIndex():-1;
-        alleleNumIndex = nestedFields.get(ALLELE_NUM) != null ? nestedFields.get(ALLELE_NUM).getIndex():-1;
-        classIndex = nestedFields.get(VIP_CLASS) != null ? nestedFields.get(VIP_CLASS).getIndex():-1;
+        geneIndex = getIndex(nestedFields, GENE);
+        geneSourceIndex = getIndex(nestedFields, SYMBOL_SOURCE);
+        inheritanceIndex = getIndex(nestedFields, INHERITANCE);
+        alleleNumIndex = getIndex(nestedFields, ALLELE_NUM);
+        classIndex = getIndex(nestedFields, VIP_CLASS);
         return;
       }
     }
     throw new MissingInfoException("VEP");
+  }
+
+  private static int getIndex(Map<String, NestedField> nestedFields, String fieldName) {
+    return nestedFields.get(fieldName) != null ? nestedFields.get(fieldName).getIndex() : -1;
   }
 }
