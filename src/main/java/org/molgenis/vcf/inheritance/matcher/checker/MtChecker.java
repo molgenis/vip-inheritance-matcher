@@ -46,17 +46,15 @@ public class MtChecker {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
             EffectiveGenotype genotype = variantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
-            if (genotype.isHomRef() || (genotype.getPloidy() == 1 && genotype.hasReference())) {
+            if (genotype != null && (genotype.isHomRef() || (genotype.getPloidy() == 1 && genotype.hasReference()))) {
                 matches.add(TRUE);
+            } else if (genotype != null && genotype.getAlleles().stream().allMatch(
+                    allele -> allele.isCalled() && affectedAlleles.contains(allele))) {
+                matches.add(FALSE);
+            } else {
+                matches.add(POTENTIAL);
             }
-            else {
-                if (genotype.getAlleles().stream().allMatch(
-                        allele -> allele.isCalled() && affectedAlleles.contains(allele))) {
-                    matches.add(FALSE);
-                } else {
-                    matches.add(POTENTIAL);
-                }
-            }
+
         }
         return merge(matches);
     }
