@@ -98,7 +98,7 @@ public class Annotator {
             for (GeneInfo geneInfo : geneInfos) {
                 if (geneInfo.inheritanceModes().stream().anyMatch(geneMode -> isMatch(geneMode,
                         pedigreeInheritanceMatch.inheritanceMode())) && pedigreeInheritanceMatch.inheritanceMode() != AR_C
-                        || !compounds.get(geneInfo).isEmpty()) {
+                        || compounds.get(geneInfo) != null && !compounds.get(geneInfo).isEmpty()) {
                     results.add(geneInfo.geneId());
                 }
             }
