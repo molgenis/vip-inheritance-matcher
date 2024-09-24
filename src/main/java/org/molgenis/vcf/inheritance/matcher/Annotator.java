@@ -70,7 +70,7 @@ public class Annotator {
         List<String> VIC = new ArrayList<>();
         List<String> VIG = new ArrayList<>();
         List<String> VI = new ArrayList<>();
-        for (InheritanceGeneResult inheritanceGeneResult : inheritanceResult.getInheritanceGeneResults()) {
+        inheritanceResult.getInheritanceGeneResults().stream().sorted().forEach(inheritanceGeneResult -> {
             String compounds = inheritanceGeneResult.getCompounds().isEmpty() ? "" : String.join("&", inheritanceGeneResult.getCompounds().stream().map(this::createKey).toList());
             MatchEnum match = inheritanceGeneResult.getMatch();
             VI.add(String.join("&", mapInheritanceModes(inheritanceGeneResult)));
@@ -79,7 +79,7 @@ public class Annotator {
             if ((match == TRUE || match == POTENTIAL)) {
                 VIG.add(inheritanceGeneResult.getGeneInfo().geneId());
             }
-        }
+        });
         genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", VI));
         genotypeBuilder.attribute(INHERITANCE_MATCH, String.join(",", VIM));
         genotypeBuilder.attribute(POSSIBLE_COMPOUND, String.join(",", VIC));

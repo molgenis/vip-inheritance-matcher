@@ -13,7 +13,7 @@ import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 @Data
 @Builder
-public class InheritanceGeneResult {
+public class InheritanceGeneResult implements Comparable<InheritanceGeneResult> {
 
     @NonNull
     GeneInfo geneInfo;
@@ -73,9 +73,24 @@ public class InheritanceGeneResult {
                         return true;
                     }
                 }
+                case YL -> {
+                    if (geneInheritanceMode == YL) {
+                        return true;
+                    }
+                }
+                case MT -> {
+                    if (geneInheritanceMode == MT) {
+                        return true;
+                    }
+                }
                 default -> throw new UnexpectedEnumException(pedigreeInheritanceMatch.inheritanceMode());
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(InheritanceGeneResult o) {
+        return geneInfo.compareTo(o.getGeneInfo());
     }
 }

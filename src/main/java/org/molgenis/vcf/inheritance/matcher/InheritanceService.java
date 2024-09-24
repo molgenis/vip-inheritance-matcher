@@ -63,7 +63,7 @@ public class InheritanceService {
             Map<Pedigree, InheritanceResult> inheritanceResultMap = new HashMap<>();
             for (Pedigree pedigree : pedigrees) {
                 Map<GeneInfo, InheritanceGeneResult> geneInheritanceResults = new HashMap<>();
-                for (VariantGeneRecord variantGeneRecord : variantRecord.variantGeneRecords().values().stream().toList()) {//FIXME stream directly
+                variantRecord.variantGeneRecords().values().forEach(variantGeneRecord -> {
                     InheritanceGeneResult geneInheritanceResult = InheritanceGeneResult.builder().geneInfo(variantGeneRecord.getGeneInfo()).build();
                     Set<Allele> altAllelesForPedigree = getAltAlleles(variantGeneRecord, pedigree);
                     //Only perform matching if a family member with a pathogenic allele is present
@@ -83,7 +83,7 @@ public class InheritanceService {
                             }
                         }
                     }
-                    if(!variantGeneRecord.getGeneInfo().geneId().isEmpty()) {
+                    if (!variantGeneRecord.getGeneInfo().geneId().isEmpty()) {
                         Set<CompoundCheckResult> compounds = arCompoundChecker.check(vcfRecordGeneInfoMap, variantGeneRecord, pedigree);
                         if (!compounds.isEmpty()) {
                             geneInheritanceResult.setCompounds(compounds);
@@ -91,11 +91,13 @@ public class InheritanceService {
                             Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = geneInheritanceResult.getPedigreeInheritanceMatches();
                             pedigreeInheritanceMatches.add(new PedigreeInheritanceMatch(AR_C, !isCertain));
                             geneInheritanceResult.setPedigreeInheritanceMatches(pedigreeInheritanceMatches);
+                            geneInheritanceResult.setCompounds(compounds);
                             geneInheritanceResults.put(variantGeneRecord.getGeneInfo(), geneInheritanceResult);
                         }
                     }
                     geneInheritanceResults.put(variantGeneRecord.getGeneInfo(), geneInheritanceResult);
-                }
+                });
+
                 Map<Sample, MatchEnum> denovoResult = new HashMap<>();
                 pedigree.getMembers().values().stream().filter(sample -> probands.isEmpty() || probands.contains(sample.getPerson().getIndividualId())).forEach(proband ->
                         denovoResult.put(proband, deNovoChecker.checkDeNovo(variantRecord, proband)));
