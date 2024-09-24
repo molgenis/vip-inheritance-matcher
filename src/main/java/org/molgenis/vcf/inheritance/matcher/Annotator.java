@@ -68,7 +68,7 @@ public class Annotator {
 
     private Genotype annotateGenotype(InheritanceResult inheritanceResult, Genotype genotype, Sample sample, VariantRecord variantRecord) {
         GenotypeBuilder genotypeBuilder = new GenotypeBuilder(genotype);
-        List<String> vig = new ArrayList<>();
+        Set<String> vig = new HashSet<>();
         Set<String> compounds = getCompoundStrings(inheritanceResult.getCompounds());
         String vic = inheritanceResult.getCompounds().isEmpty() ? "" : String.join(",", compounds);
         MatchEnum match = getMatch(inheritanceResult, variantRecord);
@@ -81,7 +81,7 @@ public class Annotator {
         genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", vi));
         genotypeBuilder.attribute(INHERITANCE_MATCH, vim);
         genotypeBuilder.attribute(POSSIBLE_COMPOUND, vic);
-        genotypeBuilder.attribute(MATCHING_GENES, String.join(",", vig));
+        genotypeBuilder.attribute(MATCHING_GENES, vig.stream().sorted().collect(Collectors.joining(",")));
         genotypeBuilder.attribute(DENOVO, mapDenovoValue(inheritanceResult, sample));
         return genotypeBuilder.make();
     }
@@ -92,8 +92,8 @@ public class Annotator {
         return result;
     }
 
-    private List<String> getMatchingGenes(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, Set<GeneInfo> geneInfos, Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
-        List<String> results = new ArrayList<>();
+    private Set<String> getMatchingGenes(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, Set<GeneInfo> geneInfos, Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
+        Set<String> results = new HashSet<>();
         for (PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
             for (GeneInfo geneInfo : geneInfos) {
                 if (geneInfo.inheritanceModes().stream().anyMatch(geneMode -> isMatch(geneMode,
@@ -174,12 +174,13 @@ public class Annotator {
     }
 
     private static Boolean isMatch(Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches, InheritanceMode geneInheritanceMode) {
-        boolean isMatch = false;
         for (PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
             InheritanceMode pedigreeInheritanceMode = pedigreeInheritanceMatch.inheritanceMode();
-            isMatch = isMatch(geneInheritanceMode, pedigreeInheritanceMode);
+            if(isMatch(geneInheritanceMode, pedigreeInheritanceMode)){
+                return true;
+            }
         }
-        return isMatch;
+        return false;
     }
 
     private static boolean isMatch(InheritanceMode geneInheritanceMode, InheritanceMode pedigreeInheritanceMode) {
