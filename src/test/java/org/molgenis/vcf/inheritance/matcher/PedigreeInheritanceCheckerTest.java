@@ -46,70 +46,70 @@ class PedigreeInheritanceCheckerTest {
     @Test
     void testAdPotential() {
         VariantContext vc = mock(VariantContext.class);
-        VariantGeneRecord record = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
+        VariantGeneRecord variantGeneRecord = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
         Pedigree family = mock(Pedigree.class);
-        when(adChecker.check(record, family)).thenReturn(POTENTIAL);
-        MatchEnum actual = pedigreeInheritanceChecker.check(record, family, InheritanceMode.AD);
+        when(adChecker.check(variantGeneRecord, family)).thenReturn(POTENTIAL);
+        MatchEnum actual = pedigreeInheritanceChecker.check(variantGeneRecord, family, InheritanceMode.AD);
         assertEquals(POTENTIAL, actual);
     }
 
     @Test
     void testAdIpTrue() {
         VariantContext vc = mock(VariantContext.class);
-        VariantGeneRecord record = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
+        VariantGeneRecord variantGeneRecord = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
         Pedigree family = mock(Pedigree.class);
-        when(adNonPenetranceChecker.check(record, family)).thenReturn(TRUE);
-        MatchEnum actual = pedigreeInheritanceChecker.check(record, family, InheritanceMode.AD_IP);
+        when(adNonPenetranceChecker.check(variantGeneRecord, family)).thenReturn(TRUE);
+        MatchEnum actual = pedigreeInheritanceChecker.check(variantGeneRecord, family, InheritanceMode.AD_IP);
         assertEquals(TRUE, actual);
     }
 
     @Test
     void testArPotential() {
         VariantContext vc = mock(VariantContext.class);
-        VariantGeneRecord record = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
+        VariantGeneRecord variantGeneRecord = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
         Pedigree family = mock(Pedigree.class);
-        when(arChecker.check(record, family)).thenReturn(POTENTIAL);
-        MatchEnum actual = pedigreeInheritanceChecker.check(record, family, InheritanceMode.AR);
+        when(arChecker.check(variantGeneRecord, family)).thenReturn(POTENTIAL);
+        MatchEnum actual = pedigreeInheritanceChecker.check(variantGeneRecord, family, InheritanceMode.AR);
         assertEquals(POTENTIAL, actual);
     }
 
     @Test
     void testXldFalse() {
         VariantContext vc = mock(VariantContext.class);
-        VariantGeneRecord record = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
+        VariantGeneRecord variantGeneRecord = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
         Pedigree family = mock(Pedigree.class);
-        when(xldChecker.check(record, family)).thenReturn(FALSE);
-        MatchEnum actual = pedigreeInheritanceChecker.check(record, family, InheritanceMode.XLD);
+        when(xldChecker.check(variantGeneRecord, family)).thenReturn(FALSE);
+        MatchEnum actual = pedigreeInheritanceChecker.check(variantGeneRecord, family, InheritanceMode.XLD);
         assertEquals(FALSE, actual);
     }
 
     @Test
     void testXlrPotential() {
         VariantContext vc = mock(VariantContext.class);
-        VariantGeneRecord record = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
+        VariantGeneRecord variantGeneRecord = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
         Pedigree family = mock(Pedigree.class);
-        when(xlrChecker.check(record, family)).thenReturn(POTENTIAL);
-        MatchEnum actual = pedigreeInheritanceChecker.check(record, family, InheritanceMode.XLR);
+        when(xlrChecker.check(variantGeneRecord, family)).thenReturn(POTENTIAL);
+        MatchEnum actual = pedigreeInheritanceChecker.check(variantGeneRecord, family, InheritanceMode.XLR);
         assertEquals(POTENTIAL, actual);
     }
 
     @Test
     void testYlTrue() {
         VariantContext vc = mock(VariantContext.class);
-        VariantGeneRecord record = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
+        VariantGeneRecord variantGeneRecord = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
         Pedigree family = mock(Pedigree.class);
-        when(ylChecker.check(record, family)).thenReturn(TRUE);
-        MatchEnum actual = pedigreeInheritanceChecker.check(record, family, InheritanceMode.YL);
+        when(ylChecker.check(variantGeneRecord, family)).thenReturn(TRUE);
+        MatchEnum actual = pedigreeInheritanceChecker.check(variantGeneRecord, family, InheritanceMode.YL);
         assertEquals(TRUE, actual);
     }
 
     @Test
     void testMtPotential() {
         VariantContext vc = mock(VariantContext.class);
-        VariantGeneRecord record = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
+        VariantGeneRecord variantGeneRecord = new VariantGeneRecord(vc, Set.of(Allele.ALT_A, Allele.ALT_G), new GeneInfo("","",Set.of(InheritanceMode.AD_IP)));
         Pedigree family = mock(Pedigree.class);
-        when(mtChecker.check(record, family)).thenReturn(POTENTIAL);
-        MatchEnum actual = pedigreeInheritanceChecker.check(record, family, InheritanceMode.MT);
+        when(mtChecker.check(variantGeneRecord, family)).thenReturn(POTENTIAL);
+        MatchEnum actual = pedigreeInheritanceChecker.check(variantGeneRecord, family, InheritanceMode.MT);
         assertEquals(POTENTIAL, actual);
     }
 }

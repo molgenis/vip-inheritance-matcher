@@ -29,6 +29,17 @@ public abstract class DominantChecker {
         return merge(matches);
     }
 
+    static void checkAffectedGenotypes(Set<EffectiveGenotype> affectedGenotypes, Set<MatchEnum> matches, EffectiveGenotype genotype) {
+        for (EffectiveGenotype affectedGenotype : affectedGenotypes) {
+            if (affectedGenotype.hasAlt() && affectedGenotype.getAlleles().stream().filter(allele -> allele.isCalled() && allele.isNonReference()).allMatch(
+                    allele -> genotype.getAlleles().contains(allele))) {
+                matches.add(FALSE);
+            } else {
+                matches.add(POTENTIAL);
+            }
+        }
+    }
+
     protected abstract MatchEnum checkUnaffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);
 
     protected abstract MatchEnum checkAffected(VariantGeneRecord variantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes);

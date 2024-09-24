@@ -18,18 +18,18 @@ public class VariantContextTestUtil {
 
     public static final Allele REF = Allele.REF_T;
 
-    public static VariantGeneRecord createVariantContext(List<Genotype> genotypes, String VepData) {
-        return createVariantContext(genotypes, VepData, "1");
+    public static VariantGeneRecord createVariantContext(List<Genotype> genotypes, String vepData) {
+        return createVariantContext(genotypes, vepData, "1");
     }
 
-    public static VariantGeneRecord createVariantContext(List<Genotype> genotypes, String VepData, String contig) {
+    public static VariantGeneRecord createVariantContext(List<Genotype> genotypes, String vepData, String contig) {
         VariantContextBuilder builder = new VariantContextBuilder();
         builder.chr(contig);
         builder.start(12345);
         builder.stop(12345);
         builder.alleles(Arrays.asList(REF, ALT_A, Allele.ALT_G, Allele.ALT_C, Allele.ALT_N));
         builder.genotypes(genotypes);
-        builder.attribute("CSQ", VepData);
+        builder.attribute("CSQ", vepData);
 
         return new VariantGeneRecord(builder.make(), Set.of(ALT_A,ALT_G,ALT_N), new GeneInfo("GENE1", "SOURCE", emptySet()));
     }

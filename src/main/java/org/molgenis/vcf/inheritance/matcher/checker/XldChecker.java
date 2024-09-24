@@ -35,14 +35,7 @@ public class XldChecker extends DominantChecker  {
                 matches.add(TRUE);
             }
             else {
-                for (EffectiveGenotype affectedGenotype : affectedGenotypes) {
-                     if (affectedGenotype.hasAlt() && affectedGenotype.getAlleles().stream().filter(allele -> allele.isCalled() && allele.isNonReference()).allMatch(
-                            allele -> genotype.getAlleles().contains(allele))) {
-                        matches.add(FALSE);
-                    } else{
-                        matches.add(POTENTIAL);
-                    }
-                }
+                checkAffectedGenotypes(affectedGenotypes, matches, genotype);
             }
         }
         return merge(matches);

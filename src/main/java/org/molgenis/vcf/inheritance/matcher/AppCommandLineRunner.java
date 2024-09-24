@@ -31,7 +31,7 @@ class AppCommandLineRunner implements CommandLineRunner {
 
   AppCommandLineRunner(
           @Value("${app.name}") String appName,
-          @Value("${app.version}") String appVersion, AppRunnerFactoryImpl appRunnerFactoryImpl, App app) {
+          @Value("${app.version}") String appVersion, AppRunnerFactoryImpl appRunnerFactoryImpl) {
     this.appName = requireNonNull(appName);
     this.appVersion = requireNonNull(appVersion);
     this.appRunnerFactoryImpl = requireNonNull(appRunnerFactoryImpl);

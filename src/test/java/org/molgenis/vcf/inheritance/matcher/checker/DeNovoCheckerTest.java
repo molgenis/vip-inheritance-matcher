@@ -54,12 +54,12 @@ class DeNovoCheckerTest {
       Pedigree family = PedigreeTestUtil
           .createFamily(probandSex, AffectedStatus.MISSING, AffectedStatus.MISSING,
               AffectedStatus.MISSING, "FAM001");
-        VariantGeneRecord record = VariantContextTestUtil
+        VariantGeneRecord variantGeneRecord = VariantContextTestUtil
                 .createVariantContext(Arrays.asList(createGenotype("Patient", probandGt),
                                 createGenotype("Father", fatherGt),
                                 createGenotype("Mother", motherGt)), "", chrom);
 
-      return Arguments.of(new VariantRecord(Map.of(record.getGeneInfo(), record), record.unwrap(),InheritanceResult.builder().build()), family, expected, testName);
+      return Arguments.of(new VariantRecord(Map.of(variantGeneRecord.getGeneInfo(), variantGeneRecord), variantGeneRecord.unwrap(),InheritanceResult.builder().build()), family, expected, testName);
 
     });
   }

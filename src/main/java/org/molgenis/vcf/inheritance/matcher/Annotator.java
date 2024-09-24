@@ -66,24 +66,24 @@ public class Annotator {
 
     private Genotype annotateGenotype(InheritanceResult inheritanceResult, Genotype genotype, Sample sample) {
         GenotypeBuilder genotypeBuilder = new GenotypeBuilder(genotype);
-        List<String> VIM = new ArrayList<>();
-        List<String> VIC = new ArrayList<>();
-        List<String> VIG = new ArrayList<>();
-        List<String> VI = new ArrayList<>();
+        List<String> vim = new ArrayList<>();
+        List<String> vic = new ArrayList<>();
+        List<String> vig = new ArrayList<>();
+        List<String> vi = new ArrayList<>();
         inheritanceResult.getInheritanceGeneResults().stream().sorted().forEach(inheritanceGeneResult -> {
             String compounds = inheritanceGeneResult.getCompounds().isEmpty() ? "" : String.join("&", inheritanceGeneResult.getCompounds().stream().map(this::createKey).toList());
             MatchEnum match = inheritanceGeneResult.getMatch();
-            VI.add(String.join("&", mapInheritanceModes(inheritanceGeneResult)));
-            VIM.add(mapInheritanceMatch(match));
-            VIC.add(compounds);
+            vi.add(String.join("&", mapInheritanceModes(inheritanceGeneResult)));
+            vim.add(mapInheritanceMatch(match));
+            vic.add(compounds);
             if ((match == TRUE || match == POTENTIAL)) {
-                VIG.add(inheritanceGeneResult.getGeneInfo().geneId());
+                vig.add(inheritanceGeneResult.getGeneInfo().geneId());
             }
         });
-        genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", VI));
-        genotypeBuilder.attribute(INHERITANCE_MATCH, String.join(",", VIM));
-        genotypeBuilder.attribute(POSSIBLE_COMPOUND, String.join(",", VIC));
-        genotypeBuilder.attribute(MATCHING_GENES, String.join(",", VIG));
+        genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", vi));
+        genotypeBuilder.attribute(INHERITANCE_MATCH, String.join(",", vim));
+        genotypeBuilder.attribute(POSSIBLE_COMPOUND, String.join(",", vic));
+        genotypeBuilder.attribute(MATCHING_GENES, String.join(",", vig));
         genotypeBuilder.attribute(DENOVO, mapDenovoValue(inheritanceResult, sample));
         return genotypeBuilder.make();
     }
@@ -116,7 +116,7 @@ public class Annotator {
     }
 
     private String createKey(CompoundCheckResult result) {
-        VariantGeneRecord record = result.getPossibleCompound();
-        return String.format("%s_%s_%s_%s", record.getContig(), record.getStart(), record.getReference().getBaseString(), record.getAlternateAlleles().stream().map(Allele::getBaseString).collect(Collectors.joining("/")));
+        VariantGeneRecord variantGeneRecord = result.getPossibleCompound();
+        return String.format("%s_%s_%s_%s", variantGeneRecord.getContig(), variantGeneRecord.getStart(), variantGeneRecord.getReference().getBaseString(), variantGeneRecord.getAlternateAlleles().stream().map(Allele::getBaseString).collect(Collectors.joining("/")));
     }
 }

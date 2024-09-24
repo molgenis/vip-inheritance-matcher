@@ -35,7 +35,7 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
             String[] vepSplit = vepValue.split("\\|", -1);
             String geneId = vepSplit[vepMetadata.getGeneIndex()];
             String symbolSource = vepSplit[vepMetadata.getGeneSourceIndex()];
-            Set<InheritanceMode> inheritanceModes = vepMetadata.getInheritanceIndex() != -1 ? mapGeneInheritance(vepSplit[vepMetadata.getInheritanceIndex()]): emptySet();
+            Set<InheritanceMode> inheritanceModes = vepMetadata.getInheritanceIndex() != -1 ? mapGeneInheritance(vepSplit[vepMetadata.getInheritanceIndex()]) : emptySet();
             result.add(new GeneInfo(geneId, symbolSource, inheritanceModes));
         }
         return result;
@@ -46,7 +46,7 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
 
         for (int i = 1; i <= variantContext.getAlternateAlleles().size(); i++) {
             Allele allele = variantContext.getAlleles().get(i);
-            if(isAllelePathogenic(variantContext, vepMetadata, i, geneInfo, pathogenicClasses)) {
+            if (isAllelePathogenic(variantContext, vepMetadata, i, geneInfo, pathogenicClasses)) {
                 pathogenicAlleles.add(allele);
             }
         }
@@ -54,7 +54,7 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
     }
 
     public boolean isAllelePathogenic(VariantContext variantContext, VepMetadata vepMetadata, int alleleIndex, GeneInfo geneInfo, Set<String> pathogenicClasses) {
-        if(pathogenicClasses.isEmpty()){
+        if (pathogenicClasses.isEmpty()) {
             return true;
         }
         if ((vepMetadata.getAlleleNumIndex() == -1 || vepMetadata.getClassIndex() == -1)) {
@@ -65,10 +65,8 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
         for (String vepValue : vepValues) {
             String[] vepSplit = vepValue.split("\\|", -1);
             int csqAlleleIndex = Integer.parseInt(vepSplit[vepMetadata.getAlleleNumIndex()]);
-            if (csqAlleleIndex == alleleIndex) {
-                if (geneInfo.geneId().equals(vepSplit[vepMetadata.getGeneIndex()])) {
-                    result = pathogenicClasses.contains(vepSplit[vepMetadata.getClassIndex()]);
-                }
+            if (csqAlleleIndex == alleleIndex && geneInfo.geneId().equals(vepSplit[vepMetadata.getGeneIndex()])) {
+                result = pathogenicClasses.contains(vepSplit[vepMetadata.getClassIndex()]);
             }
         }
         return result;

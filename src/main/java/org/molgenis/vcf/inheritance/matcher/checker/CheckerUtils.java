@@ -5,16 +5,16 @@ import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 public class CheckerUtils {
+
+    private CheckerUtils(){};
+
     public static Map<AffectedStatus, Set<Sample>> getMembersByStatus(Pedigree family) {
-        Map<AffectedStatus, Set<Sample>> membersByStatus = new HashMap<>();
+        Map<AffectedStatus, Set<Sample>> membersByStatus = new EnumMap<>(AffectedStatus.class);
         Set<Sample> affected = new HashSet<>();
         Set<Sample> unAffected = new HashSet<>();
         Set<Sample> missing = new HashSet<>();

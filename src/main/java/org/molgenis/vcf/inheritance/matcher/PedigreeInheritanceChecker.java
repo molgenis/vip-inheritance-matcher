@@ -27,16 +27,16 @@ public class PedigreeInheritanceChecker {
         this.ylChecker = ylChecker;
     }
 
-    MatchEnum check(VariantGeneRecord record, Pedigree pedigree, InheritanceMode mode) {
+    MatchEnum check(VariantGeneRecord variantGeneRecord, Pedigree pedigree, InheritanceMode mode) {
         MatchEnum result;
         switch(mode){
-            case AD -> result = adChecker.check(record, pedigree);
-            case AD_IP -> result = adNonPenetranceChecker.check(record, pedigree);
-            case AR -> result = arChecker.check(record, pedigree);
-            case XLR -> result = xlrChecker.check(record, pedigree);
-            case XLD -> result = xldChecker.check(record, pedigree);
-            case MT -> result = mtChecker.check(record, pedigree);
-            case YL -> result = ylChecker.check(record, pedigree);
+            case AD -> result = adChecker.check(variantGeneRecord, pedigree);
+            case AD_IP -> result = adNonPenetranceChecker.check(variantGeneRecord, pedigree);
+            case AR -> result = arChecker.check(variantGeneRecord, pedigree);
+            case XLR -> result = xlrChecker.check(variantGeneRecord, pedigree);
+            case XLD -> result = xldChecker.check(variantGeneRecord, pedigree);
+            case MT -> result = mtChecker.check(variantGeneRecord, pedigree);
+            case YL -> result = ylChecker.check(variantGeneRecord, pedigree);
             default -> throw new UnexpectedEnumException(mode);
         }
         return result;
