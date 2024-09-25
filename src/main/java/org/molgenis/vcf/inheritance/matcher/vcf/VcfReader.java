@@ -1,4 +1,4 @@
-package org.molgenis.vcf.inheritance.matcher;
+package org.molgenis.vcf.inheritance.matcher.vcf;
 
 import static java.util.Objects.requireNonNull;
 
@@ -26,7 +26,7 @@ public class VcfReader implements AutoCloseable {
         this.pathogenicClasses = pathogenicClasses;
     }
 
-    public Stream<VariantRecord> stream() {
+    public Stream<VcfRecord> stream() {
         return StreamSupport.stream(vcfFileReader.spliterator(), false).map(vc -> vcfRecordFactory.create(vc, pathogenicClasses));
     }
 

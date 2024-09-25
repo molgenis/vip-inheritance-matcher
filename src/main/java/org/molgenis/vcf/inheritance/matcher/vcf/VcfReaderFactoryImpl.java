@@ -1,6 +1,7 @@
-package org.molgenis.vcf.inheritance.matcher;
+package org.molgenis.vcf.inheritance.matcher.vcf;
 
 import htsjdk.variant.vcf.VCFFileReader;
+import org.molgenis.vcf.inheritance.matcher.vcf.meta.VepMetadata;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.util.VepMetadataServiceFactoryImpl;
 import org.springframework.stereotype.Component;

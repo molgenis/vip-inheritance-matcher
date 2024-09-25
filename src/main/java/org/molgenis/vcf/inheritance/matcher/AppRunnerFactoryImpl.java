@@ -2,6 +2,10 @@ package org.molgenis.vcf.inheritance.matcher;
 
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.util.InheritanceServiceFactory;
+import org.molgenis.vcf.inheritance.matcher.vcf.RecordWriter;
+import org.molgenis.vcf.inheritance.matcher.vcf.RecordWriterFactory;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfReader;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfReaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

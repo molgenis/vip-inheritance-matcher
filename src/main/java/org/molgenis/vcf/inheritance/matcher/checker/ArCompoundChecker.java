@@ -1,6 +1,6 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
+import static org.molgenis.vcf.inheritance.matcher.vcf.VariantContextUtils.onAutosome;
 import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.getMembersByStatus;
 import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
@@ -9,8 +9,8 @@ import htsjdk.variant.variantcontext.Allele;
 
 import java.util.*;
 
-import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VariantRecord;
+import org.molgenis.vcf.inheritance.matcher.vcf.Genotype;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.CompoundCheckResult;
 import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
@@ -21,26 +21,26 @@ import org.molgenis.vcf.utils.sample.model.Sample;
 public class ArCompoundChecker {
 
     public Map<GeneInfo, Set<CompoundCheckResult>> check(
-            Map<GeneInfo, Set<VariantRecord>> geneVariantMap,
-            VariantRecord variantRecord, Pedigree family) {
-        if (onAutosome(variantRecord)) {
+            Map<GeneInfo, Set<VcfRecord>> geneVariantMap,
+            VcfRecord vcfRecord, Pedigree family) {
+        if (onAutosome(vcfRecord)) {
             Map<GeneInfo, Set<CompoundCheckResult>> compounds = new HashMap<>();
-            for (GeneInfo geneInfo : variantRecord.geneInfos()) {
-                checkForGene(geneVariantMap, variantRecord, family, compounds, geneInfo);
+            for (GeneInfo geneInfo : vcfRecord.geneInfos()) {
+                checkForGene(geneVariantMap, vcfRecord, family, compounds, geneInfo);
             }
             return compounds;
         }
         return Collections.emptyMap();
     }
 
-    private void checkForGene(Map<GeneInfo, Set<VariantRecord>> geneVariantMap,
-                              VariantRecord variantRecord, Pedigree family, Map<GeneInfo, Set<CompoundCheckResult>> compoundsMap, GeneInfo geneInfo) {
-        Collection<VariantRecord> variantGeneRecords = geneVariantMap.get(geneInfo);
+    private void checkForGene(Map<GeneInfo, Set<VcfRecord>> geneVariantMap,
+                              VcfRecord vcfRecord, Pedigree family, Map<GeneInfo, Set<CompoundCheckResult>> compoundsMap, GeneInfo geneInfo) {
+        Collection<VcfRecord> variantGeneRecords = geneVariantMap.get(geneInfo);
         Set<CompoundCheckResult> compounds = new HashSet<>();
         if (variantGeneRecords != null) {
-            for (VariantRecord otherRecord : variantGeneRecords) {
-                if (!otherRecord.equals(variantRecord)) {
-                    MatchEnum isPossibleCompound = checkFamily(family, variantRecord, otherRecord);
+            for (VcfRecord otherRecord : variantGeneRecords) {
+                if (!otherRecord.equals(vcfRecord)) {
+                    MatchEnum isPossibleCompound = checkFamily(family, vcfRecord, otherRecord);
                     if (isPossibleCompound != FALSE) {
                         CompoundCheckResult result = CompoundCheckResult.builder().possibleCompound(otherRecord).isCertain(isPossibleCompound != POTENTIAL).build();
                         compounds.add(result);
@@ -51,31 +51,31 @@ public class ArCompoundChecker {
         compoundsMap.put(geneInfo, compounds);
     }
 
-    private MatchEnum checkFamily(Pedigree family, VariantRecord variantRecord,
-                                  VariantRecord otherVariantGeneRecord) {
+    private MatchEnum checkFamily(Pedigree family, VcfRecord vcfRecord,
+                                  VcfRecord otherVariantGeneRecord) {
         Map<AffectedStatus, Set<Sample>> membersByStatus = getMembersByStatus(family);
         Set<List<Allele>> affectedGenotypes = new HashSet<>();
         Set<List<Allele>> otherAffectedGenotypes = new HashSet<>();
         Set<MatchEnum> matches = new HashSet<>();
-        matches.add(checkAffected(variantRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
-        matches.add(checkUnaffected(variantRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
+        matches.add(checkAffected(vcfRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
+        matches.add(checkUnaffected(vcfRecord, otherVariantGeneRecord, membersByStatus, affectedGenotypes, otherAffectedGenotypes));
         if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
             matches.add(POTENTIAL);
         }
         return merge(matches);
     }
 
-    private MatchEnum checkUnaffected(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
+    private MatchEnum checkUnaffected(VcfRecord vcfRecord, VcfRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
-            matches.add(checkUnaffectedSample(variantRecord, otherVariantGeneRecord, affectedGenotypes, otherAffectedGenotypes, unAffectedSample));
+            matches.add(checkUnaffectedSample(vcfRecord, otherVariantGeneRecord, affectedGenotypes, otherAffectedGenotypes, unAffectedSample));
         }
         return merge(matches);
     }
 
-    private static MatchEnum checkUnaffectedSample(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample unAffectedSample) {
+    private static MatchEnum checkUnaffectedSample(VcfRecord vcfRecord, VcfRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample unAffectedSample) {
         Set<MatchEnum> matches = new HashSet<>();
-        matches.add(checkSingleUnaffectedSampleVariant(variantRecord, affectedGenotypes, unAffectedSample));
+        matches.add(checkSingleUnaffectedSampleVariant(vcfRecord, affectedGenotypes, unAffectedSample));
         matches.add(checkSingleUnaffectedSampleVariant(otherVariantGeneRecord, otherAffectedGenotypes, unAffectedSample));
         if (matches.contains(TRUE)) {
             return TRUE;
@@ -83,8 +83,8 @@ public class ArCompoundChecker {
             return POTENTIAL;
         }
 
-        EffectiveGenotype sampleGt = variantRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
-        EffectiveGenotype sampleOtherGt = otherVariantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+        Genotype sampleGt = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+        Genotype sampleOtherGt = otherVariantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
 
         if ((sampleGt != null && sampleOtherGt != null) && (sampleGt.isPhased() && sampleOtherGt.isPhased() &&
                 (sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
@@ -94,9 +94,9 @@ public class ArCompoundChecker {
         return FALSE;
     }
 
-    private static MatchEnum checkSingleUnaffectedSampleVariant(VariantRecord variantRecord, Set<List<Allele>> affectedGenotypes, Sample unAffectedSample) {
+    private static MatchEnum checkSingleUnaffectedSampleVariant(VcfRecord vcfRecord, Set<List<Allele>> affectedGenotypes, Sample unAffectedSample) {
         Set<MatchEnum> matches = new HashSet<>();
-        EffectiveGenotype genotype = variantRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+        Genotype genotype = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
         for (List<Allele> affectedGenotype : affectedGenotypes) {
             if (genotype != null && genotype.isHomRef()) {
                 matches.add(TRUE);
@@ -110,17 +110,17 @@ public class ArCompoundChecker {
         return merge(matches);
     }
 
-    private MatchEnum checkAffected(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
+    private MatchEnum checkAffected(VcfRecord vcfRecord, VcfRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
-            checkAffectedSample(variantRecord, otherVariantGeneRecord, affectedGenotypes, otherAffectedGenotypes, affectedSample, matches);
+            checkAffectedSample(vcfRecord, otherVariantGeneRecord, affectedGenotypes, otherAffectedGenotypes, affectedSample, matches);
         }
         return merge(matches);
     }
 
-    private static void checkAffectedSample(VariantRecord variantRecord, VariantRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample affectedSample, Set<MatchEnum> matches) {
-        EffectiveGenotype sampleGt = variantRecord.getGenotype(affectedSample.getPerson().getIndividualId());
-        EffectiveGenotype sampleOtherGt = otherVariantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+    private static void checkAffectedSample(VcfRecord vcfRecord, VcfRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample affectedSample, Set<MatchEnum> matches) {
+        Genotype sampleGt = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+        Genotype sampleOtherGt = otherVariantGeneRecord.getGenotype(affectedSample.getPerson().getIndividualId());
         if (sampleGt != null) {
             affectedGenotypes.add(sampleGt.getAlleles());
         }
@@ -139,7 +139,7 @@ public class ArCompoundChecker {
         }
     }
 
-    private static boolean checkAffectedPhased(EffectiveGenotype sampleGt, EffectiveGenotype sampleOtherGt) {
+    private static boolean checkAffectedPhased(Genotype sampleGt, Genotype sampleOtherGt) {
         return sampleGt.isPhased() && sampleOtherGt.isPhased() &&
                 (sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
                 (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference());

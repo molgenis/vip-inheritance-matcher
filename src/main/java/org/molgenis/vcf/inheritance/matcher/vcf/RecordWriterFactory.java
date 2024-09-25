@@ -1,4 +1,4 @@
-package org.molgenis.vcf.inheritance.matcher;
+package org.molgenis.vcf.inheritance.matcher.vcf;
 
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 

@@ -17,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VariantRecord;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -31,10 +31,10 @@ class AdCheckerTest {
   final AdChecker adChecker = new AdChecker();
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantRecord variantRecord, Pedigree family, String expectedString,
+  void check(VcfRecord vcfRecord, Pedigree family, String expectedString,
              String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, adChecker.check(variantRecord, family));
+    assertEquals(expected, adChecker.check(vcfRecord, family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {

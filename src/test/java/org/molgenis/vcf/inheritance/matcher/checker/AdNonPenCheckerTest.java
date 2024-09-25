@@ -24,7 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VariantRecord;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
@@ -39,10 +39,10 @@ class AdNonPenCheckerTest {
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantRecord variantRecord, Pedigree family, String expectedString,
+  void check(VcfRecord vcfRecord, Pedigree family, String expectedString,
              String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, adNonPenetranceChecker.check(variantRecord, family));
+    assertEquals(expected, adNonPenetranceChecker.check(vcfRecord, family));
   }
 
   @Test
@@ -50,7 +50,7 @@ class AdNonPenCheckerTest {
     VariantContext variantContext = mock(VariantContext.class);
     Pedigree family = mock(Pedigree.class);
 
-    assertEquals(FALSE, adNonPenetranceChecker.check(new VariantRecord(variantContext, Set.of(ALT_A,ALT_G,ALT_N), Set.of(new GeneInfo("GENE1", "SOURCE", emptySet()))), family));
+    assertEquals(FALSE, adNonPenetranceChecker.check(new VcfRecord(variantContext, Set.of(ALT_A,ALT_G,ALT_N), Set.of(new GeneInfo("GENE1", "SOURCE", emptySet()))), family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {

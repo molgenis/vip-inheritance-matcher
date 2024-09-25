@@ -1,7 +1,8 @@
-package org.molgenis.vcf.inheritance.matcher;
+package org.molgenis.vcf.inheritance.matcher.vcf;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
+import org.molgenis.vcf.inheritance.matcher.vcf.meta.VepMetadata;
 import org.molgenis.vcf.inheritance.matcher.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
 
@@ -18,11 +19,11 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
     }
 
     @Override
-    public VariantRecord create(VariantContext variantContext, Set<String> pathogenicClasses) {
+    public VcfRecord create(VariantContext variantContext, Set<String> pathogenicClasses) {
         Set<GeneInfo> geneInfos = getVcfGeneInfos(variantContext);
         Set<Allele> pathogenicAlleles = getPathogenicAlleles(variantContext, vepMetadata, pathogenicClasses);
 
-        return new VariantRecord(variantContext, pathogenicAlleles, geneInfos);
+        return new VcfRecord(variantContext, pathogenicAlleles, geneInfos);
     }
 
     private Set<GeneInfo> getVcfGeneInfos(VariantContext variantContext) {

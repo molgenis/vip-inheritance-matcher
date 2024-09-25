@@ -2,6 +2,7 @@ package org.molgenis.vcf.inheritance.matcher;
 
 import org.molgenis.vcf.inheritance.matcher.checker.*;
 import org.molgenis.vcf.inheritance.matcher.model.*;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.utils.UnexpectedEnumException;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.springframework.stereotype.Component;
@@ -27,16 +28,16 @@ public class PedigreeInheritanceChecker {
         this.ylChecker = ylChecker;
     }
 
-    MatchEnum check(VariantRecord variantRecord, Pedigree pedigree, InheritanceMode mode) {
+    MatchEnum check(VcfRecord vcfRecord, Pedigree pedigree, InheritanceMode mode) {
         MatchEnum result;
         switch(mode){
-            case AD -> result = adChecker.check(variantRecord, pedigree);
-            case AD_IP -> result = adNonPenetranceChecker.check(variantRecord, pedigree);
-            case AR -> result = arChecker.check(variantRecord, pedigree);
-            case XLR -> result = xlrChecker.check(variantRecord, pedigree);
-            case XLD -> result = xldChecker.check(variantRecord, pedigree);
-            case MT -> result = mtChecker.check(variantRecord, pedigree);
-            case YL -> result = ylChecker.check(variantRecord, pedigree);
+            case AD -> result = adChecker.check(vcfRecord, pedigree);
+            case AD_IP -> result = adNonPenetranceChecker.check(vcfRecord, pedigree);
+            case AR -> result = arChecker.check(vcfRecord, pedigree);
+            case XLR -> result = xlrChecker.check(vcfRecord, pedigree);
+            case XLD -> result = xldChecker.check(vcfRecord, pedigree);
+            case MT -> result = mtChecker.check(vcfRecord, pedigree);
+            case YL -> result = ylChecker.check(vcfRecord, pedigree);
             default -> throw new UnexpectedEnumException(mode);
         }
         return result;

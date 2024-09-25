@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.molgenis.vcf.inheritance.matcher.VariantRecord;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -28,11 +28,11 @@ class DeNovoCheckerTest {
 
     @ParameterizedTest(name = "{index} {3}")
     @MethodSource("provideTestCases")
-    void check(VariantRecord variantRecord, Pedigree family, String expectedString,
+    void check(VcfRecord vcfRecord, Pedigree family, String expectedString,
                String displayName) {
         MatchEnum expected = mapExpectedString(expectedString);
         Sample individual = family.getMembers().get("Patient");
-        assertEquals(expected, deNovoChecker.checkDeNovo(variantRecord, individual));
+        assertEquals(expected, deNovoChecker.checkDeNovo(vcfRecord, individual));
     }
 
     private static Stream<Arguments> provideTestCases() throws IOException {
@@ -52,12 +52,12 @@ class DeNovoCheckerTest {
             Pedigree family = PedigreeTestUtil
                     .createFamily(probandSex, AffectedStatus.MISSING, AffectedStatus.MISSING,
                             AffectedStatus.MISSING, "FAM001");
-            VariantRecord variantRecord = VariantContextTestUtil
+            VcfRecord vcfRecord = VariantContextTestUtil
                     .createVariantContext(Arrays.asList(createGenotype("Patient", probandGt),
                             createGenotype("Father", fatherGt),
                             createGenotype("Mother", motherGt)), "", chrom);
 
-            return Arguments.of(variantRecord, family, expected, testName);
+            return Arguments.of(vcfRecord, family, expected, testName);
         });
     }
 }

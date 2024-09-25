@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.molgenis.vcf.inheritance.matcher.model.*;
+import org.molgenis.vcf.inheritance.matcher.vcf.Genotype;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.utils.UnexpectedEnumException;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
@@ -51,31 +53,31 @@ public class Annotator {
         return vcfHeader;
     }
 
-    VariantContext annotateInheritance(VariantRecord variantRecord, Collection<Pedigree> pedigrees, Map<Pedigree, InheritanceResult> inheritanceResultMap, List<String> probands) {
-        GenotypesContext genotypesContext = GenotypesContext.copy(variantRecord.variantContext().getGenotypes());
-        VariantContextBuilder variantContextBuilder = new VariantContextBuilder(variantRecord.variantContext());
+    VariantContext annotateInheritance(VcfRecord vcfRecord, Collection<Pedigree> pedigrees, Map<Pedigree, InheritanceResult> inheritanceResultMap, List<String> probands) {
+        GenotypesContext genotypesContext = GenotypesContext.copy(vcfRecord.variantContext().getGenotypes());
+        VariantContextBuilder variantContextBuilder = new VariantContextBuilder(vcfRecord.variantContext());
         for (Pedigree pedigree : pedigrees) {
             pedigree.getMembers().values().stream().filter(sample -> probands.isEmpty() || probands.contains(sample.getPerson().getIndividualId())).forEach(sample -> {
-                EffectiveGenotype effectiveGenotype = variantRecord.getGenotype(sample.getPerson().getIndividualId());
-                Genotype genotype = effectiveGenotype != null ? effectiveGenotype.unwrap() : null;
+                Genotype effectiveGenotype = vcfRecord.getGenotype(sample.getPerson().getIndividualId());
+                htsjdk.variant.variantcontext.Genotype genotype = effectiveGenotype != null ? effectiveGenotype.unwrap() : null;
                 if (inheritanceResultMap.containsKey(pedigree) && genotype != null) {
-                    genotypesContext.replace(annotateGenotype(inheritanceResultMap.get(pedigree), genotype, sample, variantRecord));
+                    genotypesContext.replace(annotateGenotype(inheritanceResultMap.get(pedigree), genotype, sample, vcfRecord));
                 }
             });
         }
         return variantContextBuilder.genotypes(genotypesContext).make();
     }
 
-    private Genotype annotateGenotype(InheritanceResult inheritanceResult, Genotype genotype, Sample sample, VariantRecord variantRecord) {
+    private htsjdk.variant.variantcontext.Genotype annotateGenotype(InheritanceResult inheritanceResult, htsjdk.variant.variantcontext.Genotype genotype, Sample sample, VcfRecord vcfRecord) {
         GenotypeBuilder genotypeBuilder = new GenotypeBuilder(genotype);
         Set<String> vig = new HashSet<>();
         Set<String> compounds = getCompoundStrings(inheritanceResult.getCompounds());
         String vic = inheritanceResult.getCompounds().isEmpty() ? "" : String.join(",", compounds);
-        MatchEnum match = getMatch(inheritanceResult, variantRecord);
+        MatchEnum match = getMatch(inheritanceResult, vcfRecord);
         Set<String> vi = mapInheritanceModes(inheritanceResult);
         String vim = mapInheritanceMatch(match);
         if ((match == TRUE || match == POTENTIAL)) {
-            vig = getMatchingGenes(inheritanceResult.getPedigreeInheritanceMatches(), variantRecord.geneInfos(), inheritanceResult.getCompounds());
+            vig = getMatchingGenes(inheritanceResult.getPedigreeInheritanceMatches(), vcfRecord.geneInfos(), inheritanceResult.getCompounds());
         }
 
         genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", vi));
@@ -134,8 +136,8 @@ public class Annotator {
     }
 
     private String createKey(CompoundCheckResult result) {
-        VariantRecord variantRecord = result.getPossibleCompound();
-        return String.format("%s_%s_%s_%s", variantRecord.getContig(), variantRecord.getStart(), variantRecord.getReference().getBaseString(), variantRecord.getAlternateAlleles().stream().map(Allele::getBaseString).collect(Collectors.joining("/")));
+        VcfRecord vcfRecord = result.getPossibleCompound();
+        return String.format("%s_%s_%s_%s", vcfRecord.getContig(), vcfRecord.getStart(), vcfRecord.getReference().getBaseString(), vcfRecord.getAlternateAlleles().stream().map(Allele::getBaseString).collect(Collectors.joining("/")));
     }
 
     /**
@@ -145,16 +147,16 @@ public class Annotator {
      * - inheritance match is unknown ifa gene has unknown inheritance pattern.
      * - inheritance match is false if a gene has known (but mismatching) inheritance pattern.
      */
-    public MatchEnum getMatch(InheritanceResult inheritanceResult, VariantRecord variantRecord) {
+    public MatchEnum getMatch(InheritanceResult inheritanceResult, VcfRecord vcfRecord) {
         //If no inheritance pattern is suitable for the sample, regardless of the gene: inheritance match is false.
         Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = inheritanceResult.getPedigreeInheritanceMatches();
         if (pedigreeInheritanceMatches.isEmpty()) {
             return FALSE;
         }
-        boolean containsUnknownGene = variantRecord.geneInfos().isEmpty() || variantRecord.geneInfos().stream().anyMatch(geneInfo -> geneInfo.inheritanceModes().isEmpty());
+        boolean containsUnknownGene = vcfRecord.geneInfos().isEmpty() || vcfRecord.geneInfos().stream().anyMatch(geneInfo -> geneInfo.inheritanceModes().isEmpty());
 
         Set<MatchEnum> result = new HashSet<>();
-        for (GeneInfo geneInfo : variantRecord.geneInfos()) {
+        for (GeneInfo geneInfo : vcfRecord.geneInfos()) {
             if (geneInfo.inheritanceModes().stream()
                     .anyMatch(geneInheritanceMode -> isMatch(pedigreeInheritanceMatches, geneInheritanceMode))) {
                 if (pedigreeInheritanceMatches.stream().anyMatch(pedigreeInheritanceMatch -> !pedigreeInheritanceMatch.isUncertain())) {

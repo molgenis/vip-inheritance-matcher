@@ -6,8 +6,8 @@ import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.*;
 
 import htsjdk.variant.variantcontext.Allele;
 import org.molgenis.vcf.inheritance.matcher.ContigUtils;
-import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VariantRecord;
+import org.molgenis.vcf.inheritance.matcher.vcf.Genotype;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.molgenis.vcf.utils.sample.model.Sex;
@@ -21,16 +21,16 @@ import java.util.Set;
 public class DeNovoChecker {
 
     //use original GT instead of inheritance matcher specific one since we are looking for "new alleles" not specifically pathogenic ones
-    public MatchEnum checkDeNovo(VariantRecord variantRecord, Sample proband) {
-        EffectiveGenotype probandGt = variantRecord.getGenotype(proband.getPerson().getIndividualId());
-        EffectiveGenotype fatherGt = variantRecord.getGenotype(proband.getPerson().getPaternalId());
-        EffectiveGenotype motherGt = variantRecord.getGenotype(proband.getPerson().getMaternalId());
+    public MatchEnum checkDeNovo(VcfRecord vcfRecord, Sample proband) {
+        Genotype probandGt = vcfRecord.getGenotype(proband.getPerson().getIndividualId());
+        Genotype fatherGt = vcfRecord.getGenotype(proband.getPerson().getPaternalId());
+        Genotype motherGt = vcfRecord.getGenotype(proband.getPerson().getMaternalId());
 
         if (!hasParents(proband)) {
             return POTENTIAL;
         }
 
-        String contigId = variantRecord.getContig();
+        String contigId = vcfRecord.getContig();
         if ((contigId != null && ContigUtils.isChromosomeX(contigId)) && proband.getPerson().getSex() == Sex.MALE) {
             return checkMaleXVariant(probandGt, motherGt);
         } else if ((contigId != null && ContigUtils.isChromosomeY(contigId))) {
@@ -42,7 +42,7 @@ public class DeNovoChecker {
         }
     }
 
-    private static MatchEnum checkMaleXVariant(EffectiveGenotype probandGt, EffectiveGenotype motherGt) {
+    private static MatchEnum checkMaleXVariant(Genotype probandGt, Genotype motherGt) {
         if (probandGt == null || probandGt.isNoCall()) {
             return POTENTIAL;
         } else if (probandGt.hasAltAllele()) {
@@ -57,7 +57,7 @@ public class DeNovoChecker {
         return probandGt.isNoCall() ? POTENTIAL : FALSE;
     }
 
-    private static MatchEnum checkYLinkedVariant(Sample proband, EffectiveGenotype probandGt, EffectiveGenotype fatherGt) {
+    private static MatchEnum checkYLinkedVariant(Sample proband, Genotype probandGt, Genotype fatherGt) {
         return switch (proband.getPerson().getSex()) {
             case MALE -> checkYLinkedVariantMale(probandGt, fatherGt);
             case FEMALE -> FALSE;
@@ -65,7 +65,7 @@ public class DeNovoChecker {
         };
     }
 
-    private static MatchEnum checkYLinkedVariantMale(EffectiveGenotype probandGt, EffectiveGenotype fatherGt) {
+    private static MatchEnum checkYLinkedVariantMale(Genotype probandGt, Genotype fatherGt) {
         if (probandGt.hasAltAllele()) {
             if (hasSameAltAlleles(probandGt, fatherGt)) {
                 return FALSE;
@@ -78,12 +78,12 @@ public class DeNovoChecker {
         return FALSE;
     }
 
-    private static boolean hasSameAltAlleles(EffectiveGenotype probandGt, EffectiveGenotype fatherGt) {
+    private static boolean hasSameAltAlleles(Genotype probandGt, Genotype fatherGt) {
         return probandGt.getAlleles().stream().filter(allele -> allele.isCalled() &&
                 allele.isNonReference()).allMatch(allele -> fatherGt.getAlleles().contains(allele));
     }
 
-    private static MatchEnum checkMtVariant(EffectiveGenotype probandGt, EffectiveGenotype motherGt) {
+    private static MatchEnum checkMtVariant(Genotype probandGt, Genotype motherGt) {
         if (probandGt == null || probandGt.isNoCall()) {
             return POTENTIAL;
         } else if (probandGt.hasAltAllele()) {
@@ -104,7 +104,7 @@ public class DeNovoChecker {
         return FALSE;
     }
 
-    private MatchEnum checkRegular(EffectiveGenotype probandGt, EffectiveGenotype fatherGt, EffectiveGenotype motherGt) {
+    private MatchEnum checkRegular(Genotype probandGt, Genotype fatherGt, Genotype motherGt) {
         Set<MatchEnum> result = new HashSet<>();
         if (probandGt == null || probandGt.isNoCall()) {
             return POTENTIAL;
@@ -120,7 +120,7 @@ public class DeNovoChecker {
         return merge(result);
     }
 
-    private static MatchEnum checkAlleles(EffectiveGenotype fatherGt, EffectiveGenotype motherGt, Allele allele1, Allele allele2) {
+    private static MatchEnum checkAlleles(Genotype fatherGt, Genotype motherGt, Allele allele1, Allele allele2) {
         if(allele1.isNoCall() || allele2.isNoCall()) {
             return checkPartialCalls(fatherGt, motherGt, allele1, allele2);
         }
@@ -134,7 +134,7 @@ public class DeNovoChecker {
         return TRUE;
     }
 
-    private static MatchEnum checkPartialCalls(EffectiveGenotype fatherGt, EffectiveGenotype motherGt, Allele allele1, Allele allele2) {
+    private static MatchEnum checkPartialCalls(Genotype fatherGt, Genotype motherGt, Allele allele1, Allele allele2) {
         if (allele1.isNoCall() && allele2.isCalled()) {
             if (containsAlleleOrNoCall(motherGt, allele2) || containsAlleleOrNoCall(fatherGt, allele2)) {
                 return POTENTIAL;
@@ -151,11 +151,11 @@ public class DeNovoChecker {
         return FALSE;
     }
 
-    private static boolean containsAlleleOrRef(EffectiveGenotype genotype, Allele allele) {
+    private static boolean containsAlleleOrRef(Genotype genotype, Allele allele) {
         return allele.isReference() || genotype.getAlleles().contains(allele);
     }
 
-    private static boolean containsAlleleOrNoCall(EffectiveGenotype genotype, Allele allele1) {
+    private static boolean containsAlleleOrNoCall(Genotype genotype, Allele allele1) {
         return containsAlleleOrRef(genotype, allele1) || containsAlleleOrRef(genotype, Allele.NO_CALL);
     }
 }

@@ -1,5 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import org.molgenis.vcf.inheritance.matcher.vcf.RecordWriter;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

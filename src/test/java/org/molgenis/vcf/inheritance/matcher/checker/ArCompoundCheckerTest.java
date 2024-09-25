@@ -23,7 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.VariantRecord;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.*;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -36,12 +36,12 @@ class ArCompoundCheckerTest {
 
     @ParameterizedTest(name = "{index} {4}")
     @MethodSource("provideTestCases")
-    void check(VariantRecord variantRecord, Map<GeneInfo, Set<VariantRecord>> geneVariantMap,
+    void check(VcfRecord vcfRecord, Map<GeneInfo, Set<VcfRecord>> geneVariantMap,
                Pedigree family, String expectedString,
                String displayName) {
         MatchEnum expected = mapExpectedString(expectedString);
         ArCompoundChecker arCompoundChecker = new ArCompoundChecker();
-        Map<GeneInfo, Set<CompoundCheckResult>> compounds = arCompoundChecker.check(geneVariantMap, variantRecord, family);
+        Map<GeneInfo, Set<CompoundCheckResult>> compounds = arCompoundChecker.check(geneVariantMap, vcfRecord, family);
         if (expected == FALSE) {
             assertTrue(isEmpty(compounds));
         } else if (expected == TRUE) {

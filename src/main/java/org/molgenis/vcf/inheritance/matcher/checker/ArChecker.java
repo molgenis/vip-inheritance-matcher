@@ -4,9 +4,9 @@ import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 import htsjdk.variant.variantcontext.Allele;
-import org.molgenis.vcf.inheritance.matcher.EffectiveGenotype;
-import org.molgenis.vcf.inheritance.matcher.VariantContextUtils;
-import org.molgenis.vcf.inheritance.matcher.VariantRecord;
+import org.molgenis.vcf.inheritance.matcher.vcf.Genotype;
+import org.molgenis.vcf.inheritance.matcher.vcf.VariantContextUtils;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
@@ -19,18 +19,18 @@ import java.util.*;
 public class ArChecker extends InheritanceChecker {
 
     public MatchEnum check(
-            VariantRecord variantRecord, Pedigree family) {
-        if (!VariantContextUtils.onAutosome(variantRecord)) {
+            VcfRecord vcfRecord, Pedigree family) {
+        if (!VariantContextUtils.onAutosome(vcfRecord)) {
             return FALSE;
         }
 
-        return checkFamily(variantRecord, family);
+        return checkFamily(vcfRecord, family);
     }
 
-    protected MatchEnum checkUnaffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
+    protected MatchEnum checkUnaffected(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
-            EffectiveGenotype genotype = variantRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+            Genotype genotype = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
             if(genotype == null){
                 matches.add(POTENTIAL);
             } else if (genotype.hasReference()) {
@@ -45,10 +45,10 @@ public class ArChecker extends InheritanceChecker {
         return merge(matches);
     }
 
-    protected MatchEnum checkAffected(VariantRecord variantRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<EffectiveGenotype> affectedGenotypes) {
+    protected MatchEnum checkAffected(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Genotype> affectedGenotypes) {
         Set<MatchEnum> matches = new HashSet<>();
         for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
-            EffectiveGenotype genotype = variantRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            Genotype genotype = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
             affectedGenotypes.add(genotype);
             if (genotype!= null && genotype.hasReference()) {
                 return FALSE;
