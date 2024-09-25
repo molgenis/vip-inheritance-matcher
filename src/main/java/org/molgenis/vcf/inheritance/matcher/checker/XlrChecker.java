@@ -32,7 +32,7 @@ public class XlrChecker extends InheritanceChecker {
             if (genotype != null && genotype.hasReference()) {
                 matches.add(TRUE);
             } else if (genotype != null && genotype.getAlleles().stream().allMatch(
-                    allele -> allele.isCalled() && affectedAlleles.contains(allele))) {
+                    allele -> allele.isCalled() && allele.isNonReference() && affectedAlleles.contains(allele))) {
                 matches.add(FALSE);
             } else {
                 matches.add(POTENTIAL);
