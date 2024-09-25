@@ -43,7 +43,7 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
 
         for (int i = 1; i <= variantContext.getAlternateAlleles().size(); i++) {
             Allele allele = variantContext.getAlleles().get(i);
-            if (isAllelePathogenic(variantContext, vepMetadata, i, pathogenicClasses)) {
+            if (pathogenicClasses.isEmpty() || isAllelePathogenic(variantContext, vepMetadata, i, pathogenicClasses)) {
                 pathogenicAlleles.add(allele);
             }
         }

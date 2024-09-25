@@ -115,7 +115,6 @@ class AppCommandLineRunner implements CommandLineRunner {
         .build();
   }
 
-  //TODO: validate
   private Set<String> mapPathogenicityClasses(String optionValue) {
     return Set.of(optionValue.split(","));
   }

@@ -90,14 +90,15 @@ public class InheritanceService {
                         inheritanceResult.addInheritanceMode(new PedigreeInheritanceMatch(AD_IP, isAdIpMatch == POTENTIAL));
                     }
                 }
-            }
-            matchCompounds(variantRecord, vcfRecordGeneInfoMap, pedigree, inheritanceResult);
 
-            Map<Sample, MatchEnum> denovoResult = new HashMap<>();
-            pedigree.getMembers().values().stream().filter(sample -> probands.isEmpty() || probands.contains(sample.getPerson().getIndividualId())).forEach(proband ->
-                    denovoResult.put(proband, deNovoChecker.checkDeNovo(variantRecord, proband)));
-            inheritanceResult.setDenovo(denovoResult);
-            inheritanceResultMap.put(pedigree, inheritanceResult);
+                matchCompounds(variantRecord, vcfRecordGeneInfoMap, pedigree, inheritanceResult);
+
+                Map<Sample, MatchEnum> denovoResult = new HashMap<>();
+                pedigree.getMembers().values().stream().filter(sample -> probands.isEmpty() || probands.contains(sample.getPerson().getIndividualId())).forEach(proband ->
+                        denovoResult.put(proband, deNovoChecker.checkDeNovo(variantRecord, proband)));
+                inheritanceResult.setDenovo(denovoResult);
+                inheritanceResultMap.put(pedigree, inheritanceResult);
+            }
         }
     }
 

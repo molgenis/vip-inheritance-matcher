@@ -14,9 +14,6 @@ public record VariantRecord(VariantContext variantContext, Set<Allele> pathogeni
         if (gt == null) {
             return null;
         }
-        if(pathogenicAlleles.isEmpty()){
-            pathogenicAlleles.addAll(variantContext.getAlternateAlleles());
-        }
         return new EffectiveGenotype(gt);
     }
 
