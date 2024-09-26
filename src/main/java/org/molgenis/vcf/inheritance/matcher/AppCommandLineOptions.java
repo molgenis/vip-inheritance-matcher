@@ -24,8 +24,8 @@ class AppCommandLineOptions {
   static final String OPT_DEBUG_LONG = "debug";
   static final String OPT_VERSION = "v";
   static final String OPT_VERSION_LONG = "version";
-  static final String OPT_CLASSES = "pc";
-  static final String OPT_CLASSES_LONG = "pathogenicClasses";
+  static final String OPT_CLASSES = "c";
+  static final String OPT_CLASSES_LONG = "classes";
   private static final Options APP_OPTIONS;
   private static final Options APP_VERSION_OPTIONS;
 
