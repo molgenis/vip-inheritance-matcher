@@ -71,6 +71,8 @@ usage: java -jar vcf-inheritance-matcher.jar -i <arg> [-o <arg>] [-pd
                              (.ped).
  -pb,--probands <arg>        Comma-separated list of proband individual
                              identifiers.
+ -c,--classes     			 Values in the VIPC subfield of VEP for which
+ 							 inheritance should be calculated.
  -f,--force                  Override the output file if it already
                              exists.
  -d,--debug                  Enable debug mode (additional logging).
@@ -80,32 +82,31 @@ usage: java -jar vcf-inheritance-matcher.jar -i <arg> [-o <arg>] [-pd
 - XLR: X-linked recessive
 - XLD: X-linked dominant
 - AR_C: Autosomal recessive compound hetrozygote
-- AD_IP: Autosomal dominant incomplete penetrance. 
+- AD_IP: Autosomal dominant incomplete penetrance
 
 ### Inheritance mode rules
 Possible inheritance modes are calculated on the following rules:
 #### AR:
-- Affected samples have to be homozygote ALT.
-- Unaffected samples cannot be homozygous ALT.
+- Affected individuals cannot have the REF allele.
+- Unaffected individuals cannot have 2 alleles that were seen in affected individuals.
 #### AR compound hetrozygote:
 ##### For unphased data:
-- Affected samples need to have both variants.
-- Unaffected samples cannot have both variants.
+- Affected individuals need to have both variants.
+- Unaffected individuals cannot have both variants.
 ##### For phased data:
-- Affected samples need to have both variants on different alleles.
-- Unaffected samples cannot have both variants on different alleles, however they can have both variants on the same alleles.
+- Affected individuals need to have both variants on different alleles.
+- Unaffected individuals cannot have both variants on different alleles, however they can have both variants on the same alleles.
 #### AD:
-- Affected samples have to carry the ALT allele.
-Unaffected samples have to be homozygous REF.
+- Affected individuals have to carry an ALT allele.
+- Unaffected individuals cannot carry the same ALT allele as an unaffected individual.
 #### AD imcomplete penetrance:
-- Affected samples have to carry the ALT allele.
-- Unaffected samples have to be homozygous REF, unless the gene on which the variant lies is also on the provided non-penetrance list.
+- Affected individuals have to carry an ALT allele.
 #### XLD:
-- Affected samples have to have at least one ALT allele.
-- Male unaffected patients cannot have the ALT allele, female unaffected samples can have a single ALT allele due to X inactivation.
+- Affected individuals have to have at least one ALT allele.
+- Male unaffected individuals cannot have the same ALT allele as seen in affected individuals, female unaffected samples can have a single ALT allele that has also been seen in affected individuals, due to X inactivation.
 #### XLR:
-- Female affected samples have to be homozygous ALT, male affected patients have to be homozygous ALT or have only the ALT allele.
-- Female unaffected samples cannot be homozygous ALT, males cannot be homozygous ALT and connot have only the REF allele.
+- Female affected individuals have to carry two ALT alleles, male affected individuals have to carry two ALT alleles or have only an ALT allele.
+- Female unaffected individuals cannot have 2 alleles that were seen in affected individuals, males cannot have 2 alleles that were seen in affected samples and cannot have only an ALT allele that was seen in affected individuals.
 #### XL:
 - If the variant is XLD or XLR it is also considered XL.
 #### Denovo:
