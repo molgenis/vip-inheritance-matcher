@@ -35,11 +35,10 @@ public class Annotator {
 
     VCFHeader annotateHeader(VCFHeader vcfHeader) {
         vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MODES, VCFHeaderLineCount.UNBOUNDED, VCFHeaderLineType.String, "An enumeration of possible inheritance modes based on the pedigree of the sample. Potential values: AD, AD_IP, AR, AR_C, XLR, XLD"));
-        vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(POSSIBLE_COMPOUND, VCFHeaderLineCount.UNBOUNDED, VCFHeaderLineType.String, "Possible Compound hetrozygote variants."));
-        vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(DENOVO, VCFHeaderLineCount.UNBOUNDED, VCFHeaderLineType.Integer, "De novo variant."));
-        vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, VCFHeaderLineCount.UNBOUNDED, VCFHeaderLineType.Integer, "Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match."));
+        vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(POSSIBLE_COMPOUND, 1, VCFHeaderLineType.String, "Possible Compound hetrozygote variants."));
+        vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(DENOVO, 1, VCFHeaderLineType.Integer, "De novo variant."));
+        vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(INHERITANCE_MATCH, 1, VCFHeaderLineType.Integer, "Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match."));
         vcfHeader.addMetaDataLine(new VCFFormatHeaderLine(MATCHING_GENES, VCFHeaderLineCount.UNBOUNDED, VCFHeaderLineType.String, "Genes with a (potential) inheritance match."));
-
         Set<VCFHeaderLine> headerLines = new LinkedHashSet<>();
         //workaround for "Escaped doublequotes in INFO descriptions result in invalid VCF file"
         // https://github.com/samtools/htsjdk/issues/1661

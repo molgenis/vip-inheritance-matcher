@@ -3,10 +3,10 @@
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=VI,Number=.,Type=String,Description="An enumeration of possible inheritance modes based on the pedigree of the sample. Potential values: AD, AD_IP, AR, AR_C, XLR, XLD">
-##FORMAT=<ID=VIC,Number=.,Type=String,Description="Possible Compound hetrozygote variants.">
-##FORMAT=<ID=VID,Number=.,Type=Integer,Description="De novo variant.">
+##FORMAT=<ID=VIC,Number=1,Type=String,Description="Possible Compound hetrozygote variants.">
+##FORMAT=<ID=VID,Number=1,Type=Integer,Description="De novo variant.">
 ##FORMAT=<ID=VIG,Number=.,Type=String,Description="Genes with a (potential) inheritance match.">
-##FORMAT=<ID=VIM,Number=.,Type=Integer,Description="Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match.">
+##FORMAT=<ID=VIM,Number=1,Type=Integer,Description="Inheritance Match: Genotypes, affected statuses and known gene inheritance patterns match.">
 ##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|SYMBOL|SYMBOL_SOURCE|Gene|IncompletePenetrance">
 ##INFO=<ID=Compounds,Number=.,Type=String,Description="List of compound pairs for this variant.The list is splitted on ',' family id is separated with compoundswith ':'. Compounds are separated with '|'.">
 ##INFO=<ID=GeneticModels,Number=.,Type=String,Description="':'-separated list of genetic models for this variant.">
