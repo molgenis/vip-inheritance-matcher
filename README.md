@@ -71,8 +71,9 @@ usage: java -jar vcf-inheritance-matcher.jar -i <arg> [-o <arg>] [-pd
                              (.ped).
  -pb,--probands <arg>        Comma-separated list of proband individual
                              identifiers.
- -c,--classes     			 Values in the VIPC subfield of VEP for which
- 							 inheritance should be calculated.
+ -c,--classes <arg>   	     Comma-separated list of values in the INFO/CSQ VIPC subfield 
+                             to be used in inheritance calculation. 
+                             By default inheritance is calculated for all records.
  -f,--force                  Override the output file if it already
                              exists.
  -d,--debug                  Enable debug mode (additional logging).
@@ -95,7 +96,8 @@ This also means that all members in one family are assumed to be blood relatives
 If a pedigree contains one or more members with an unknown affected status, then:
 - Inheritance match becomes potential if it would be a match based on members with a known affected status
 - The match stays false if it is false based on members with a known affected status
-  For all patters applies that a homozygote reference call for an affected family member means the pattern does not match.
+  For all patterns applies that a homozygote reference call for an affected family member means the pattern does not match.
+The list of supported contigs to determine if a variant is on X,Y,MT or an autosome can be found [here](https://github.com/molgenis/vip-inheritance-matcher/blob/main/src/main/java/org/molgenis/vcf/inheritance/matcher/ContigUtils.java)
 
 #### Autosomal Dominant
 1) The variant is not on chromosome X,Y or MT.

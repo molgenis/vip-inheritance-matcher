@@ -116,7 +116,7 @@ class AppCommandLineRunner implements CommandLineRunner {
   }
 
   private Set<String> mapPathogenicityClasses(String optionValue) {
-    return Set.of(optionValue.split(","));
+    return Set.of(optionValue.split(",", -1));
   }
 
   private CommandLine getCommandLine(String[] args) {

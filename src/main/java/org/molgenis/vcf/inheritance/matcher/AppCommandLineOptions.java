@@ -60,7 +60,7 @@ class AppCommandLineOptions {
             Option.builder(OPT_CLASSES)
                     .hasArg(true)
                     .longOpt(OPT_CLASSES_LONG)
-                    .desc("Mapping of VIP class to pathogenicity, format: P:LP,P;V:VUS;B:LB,b")
+                    .desc("Comma-separated list of values in the INFO/CSQ VIPC subfield to be used in inheritance calculation.")
                     .build());
     appOptions.addOption(
         Option.builder(OPT_FORCE)

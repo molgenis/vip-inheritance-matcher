@@ -28,7 +28,7 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
 
     private Set<GeneInfo> getVcfGeneInfos(VariantContext variantContext) {
         List<String> vepValues = getAttributeAsStringList(variantContext, vepMetadata.getVepFieldId());
-        Set<GeneInfo> result = new HashSet<>();
+        Set<GeneInfo> result = new LinkedHashSet<>();
         for (String vepValue : vepValues) {
             String[] vepSplit = vepValue.split("\\|", -1);
             String geneId = vepSplit[vepMetadata.getGeneIndex()];
