@@ -1,4 +1,4 @@
-package org.molgenis.vcf.inheritance.matcher;
+package org.molgenis.vcf.inheritance.matcher.vcf.meta;
 
 import java.io.Serial;
 

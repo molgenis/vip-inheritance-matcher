@@ -1,18 +1,11 @@
 package org.molgenis.vcf.inheritance.matcher;
 
-import htsjdk.variant.variantcontext.Allele;
-import htsjdk.variant.variantcontext.VariantContext;
 import org.molgenis.vcf.inheritance.matcher.checker.*;
 import org.molgenis.vcf.inheritance.matcher.model.*;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
+import org.molgenis.vcf.utils.UnexpectedEnumException;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
-import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
 
 @Component
 public class PedigreeInheritanceChecker {
@@ -24,9 +17,8 @@ public class PedigreeInheritanceChecker {
     private final ArChecker arChecker;
     private final MtChecker mtChecker;
     private final YlChecker ylChecker;
-    private final DeNovoChecker deNovoChecker;
 
-    public PedigreeInheritanceChecker(XldChecker xldChecker, XlrChecker xlrChecker, AdChecker adChecker, AdNonPenetranceChecker adNonPenetranceChecker, ArChecker arChecker, YlChecker ylChecker, MtChecker mtChecker, DeNovoChecker deNovoChecker) {
+    public PedigreeInheritanceChecker(XldChecker xldChecker, XlrChecker xlrChecker, AdChecker adChecker, AdNonPenetranceChecker adNonPenetranceChecker, ArChecker arChecker, YlChecker ylChecker, MtChecker mtChecker) {
         this.xldChecker = xldChecker;
         this.xlrChecker = xlrChecker;
         this.adChecker = adChecker;
@@ -34,83 +26,20 @@ public class PedigreeInheritanceChecker {
         this.arChecker = arChecker;
         this.mtChecker = mtChecker;
         this.ylChecker = ylChecker;
-        this.deNovoChecker = deNovoChecker;
     }
 
-    Inheritance calculatePedigreeInheritance(
-            Map<String, List<VariantContext>> geneVariantMap, VariantContext variantContext, Sample sample, Pedigree filteredFamily, ArCompoundChecker arCompoundChecker) {
-        Inheritance inheritance = Inheritance.builder().build();
-        checkAr(geneVariantMap, variantContext, filteredFamily, inheritance, arCompoundChecker);
-        checkAd(variantContext, filteredFamily, inheritance);
-        checkXl(variantContext, filteredFamily, inheritance);
-        checkMt(variantContext, filteredFamily, inheritance);
-        checkYl(variantContext, filteredFamily, inheritance);
-        inheritance.setDenovo(deNovoChecker.checkDeNovo(variantContext, sample));
-        return inheritance;
-    }
-
-    private void checkMt(VariantContext variantContext, Pedigree family,
-                         Inheritance inheritance) {
-        MatchEnum isMt = mtChecker.check(variantContext, family);
-        if (isMt != FALSE) {
-            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.MT, isMt == POTENTIAL));
+    MatchEnum check(VcfRecord vcfRecord, Pedigree pedigree, InheritanceMode mode) {
+        MatchEnum result;
+        switch(mode){
+            case AD -> result = adChecker.check(vcfRecord, pedigree);
+            case AD_IP -> result = adNonPenetranceChecker.check(vcfRecord, pedigree);
+            case AR -> result = arChecker.check(vcfRecord, pedigree);
+            case XLR -> result = xlrChecker.check(vcfRecord, pedigree);
+            case XLD -> result = xldChecker.check(vcfRecord, pedigree);
+            case MT -> result = mtChecker.check(vcfRecord, pedigree);
+            case YL -> result = ylChecker.check(vcfRecord, pedigree);
+            default -> throw new UnexpectedEnumException(mode);
         }
-    }
-
-    private void checkYl(VariantContext variantContext, Pedigree family,
-                         Inheritance inheritance) {
-        MatchEnum isYl = ylChecker.check(variantContext, family);
-        if (isYl != FALSE) {
-            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.YL, isYl == POTENTIAL));
-        }
-    }
-
-    private void checkXl(VariantContext variantContext, Pedigree family,
-                         Inheritance inheritance) {
-        MatchEnum isXld = xldChecker.check(variantContext, family);
-        if (isXld != FALSE) {
-            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLD, isXld == POTENTIAL));
-        }
-        MatchEnum isXlr = xlrChecker.check(variantContext, family);
-        if (isXlr != FALSE) {
-            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.XLR, isXlr == POTENTIAL));
-        }
-    }
-
-    private void checkAd(VariantContext variantContext, Pedigree family,
-                         Inheritance inheritance) {
-        MatchEnum isAd = adChecker.check(variantContext, family);
-        if (isAd != FALSE) {
-            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD, isAd == POTENTIAL));
-        } else {
-            MatchEnum isAdNonPenetrance = adNonPenetranceChecker.check(variantContext, family, isAd);
-            if (isAdNonPenetrance != FALSE) {
-                inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AD_IP, isAdNonPenetrance == POTENTIAL));
-            }
-        }
-    }
-
-    private void checkAr(Map<String, List<VariantContext>> geneVariantMap,
-                         VariantContext variantContext, Pedigree family,
-                         Inheritance inheritance, ArCompoundChecker arCompoundChecker) {
-        MatchEnum isAr = arChecker.check(variantContext, family);
-        if (isAr != FALSE) {
-            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR, isAr == POTENTIAL));
-        }
-        List<CompoundCheckResult> compounds = arCompoundChecker
-                .check(geneVariantMap, variantContext, family, isAr);
-        if (!compounds.isEmpty()) {
-            boolean isCertain = compounds.stream().anyMatch(CompoundCheckResult::isCertain);
-            inheritance.addInheritanceMode(new PedigreeInheritanceMatch(InheritanceMode.AR_C, !isCertain));
-            inheritance.setCompounds(compounds.stream().map(compoundCheckResult -> createKey(compoundCheckResult.getPossibleCompound())).collect(
-                    Collectors.toSet()));
-        }
-    }
-
-    private String createKey(VariantContext compound) {
-        return String.format("%s_%s_%s_%s", compound.getContig(), compound.getStart(),
-                compound.getReference().getBaseString(),
-                compound.getAlternateAlleles().stream().map(Allele::getBaseString)
-                        .collect(Collectors.joining("/")));
+        return result;
     }
 }

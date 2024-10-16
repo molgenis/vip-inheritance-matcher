@@ -1,164 +1,155 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.variantcontext.writer.VariantContextWriter;
-import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
-import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 import org.molgenis.vcf.inheritance.matcher.checker.ArCompoundChecker;
+import org.molgenis.vcf.inheritance.matcher.checker.DeNovoChecker;
 import org.molgenis.vcf.inheritance.matcher.model.*;
-import org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils;
-import org.molgenis.vcf.utils.metadata.FieldMetadataService;
+import org.molgenis.vcf.inheritance.matcher.vcf.RecordWriter;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfReader;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.utils.sample.model.*;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
-import static org.molgenis.vcf.inheritance.matcher.InheritanceMatcher.matchInheritance;
+import static java.util.Objects.requireNonNull;
+import static org.molgenis.vcf.inheritance.matcher.vcf.VariantContextUtils.getAltAlleles;
+import static org.molgenis.vcf.inheritance.matcher.model.InheritanceMode.*;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.FALSE;
+import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.POTENTIAL;
 import static org.molgenis.vcf.utils.sample.mapper.PedToSamplesMapper.mapPedFileToPedigrees;
 
 public class InheritanceService {
+    private final Annotator annotator;
+    private final PedigreeInheritanceChecker pedigreeInheritanceChecker;
+    private final List<Path> pedigreePaths;
+    private final List<String> probands;
+    private final DeNovoChecker deNovoChecker = new DeNovoChecker();
+    private final ArCompoundChecker arCompoundChecker = new ArCompoundChecker();
 
-  private final FieldMetadataService fieldMetadataService;
-  private final Annotator annotator;
-  private ArCompoundChecker arCompoundChecker;
-  private final PedigreeInheritanceChecker pedigreeInheritanceChecker;
-
-  public InheritanceService(
-          Annotator annotator, FieldMetadataService fieldMetadataService, PedigreeInheritanceChecker pedigreeInheritanceChecker) {
-    this.annotator = annotator;
-    this.fieldMetadataService = fieldMetadataService;
-    this.pedigreeInheritanceChecker = pedigreeInheritanceChecker;
-  }
-
-  public void run(Settings settings) {
-    Path inputVcf = settings.getInputVcfPath();
-    List<Path> pedigreePaths = settings.getInputPedPaths();
-    List<String> probands = settings.getProbands();
-    VCFFileReader vcfFileReader = createReader(inputVcf);
-
-    VepMapper vepMapper = new VepMapper(vcfFileReader, fieldMetadataService);
-    this.arCompoundChecker = new ArCompoundChecker(vepMapper);
-
-    Map<String, Gene> knownGenes = new HashMap<>();
-    Map<String, Pedigree> familyList;
-    if (!pedigreePaths.isEmpty()) {
-      familyList = mapPedFileToPedigrees(pedigreePaths);
-    } else {
-      familyList = createFamilyFromVcf(vcfFileReader.getFileHeader());
+    public InheritanceService(
+            Annotator annotator, PedigreeInheritanceChecker pedigreeInheritanceChecker, List<Path> pedigreePaths, List<String> probands) {
+        this.annotator = requireNonNull(annotator);
+        this.pedigreeInheritanceChecker = requireNonNull(pedigreeInheritanceChecker);
+        this.pedigreePaths = pedigreePaths;
+        this.probands = probands;
     }
-    VCFHeader newHeader = annotator.annotateHeader(vcfFileReader.getFileHeader());
-    try (VariantContextWriter writer = createVcfWriter(settings.getOutputPath(),
-        settings.isOverwrite())) {
-      writer.writeHeader(newHeader);
 
-      List<VariantContext> variantContextList = new ArrayList<>();
-      vcfFileReader.forEach(variantContextList::add);
-      Map<String, List<VariantContext>> geneVariantMap = createGeneVariantMap(vepMapper, knownGenes,
-          variantContextList);
-      variantContextList.stream().filter(vc -> vc.getAlternateAlleles().size() == 1).map(
-          vc -> processSingleVariantcontext(probands, vepMapper, familyList,
-              geneVariantMap, vc)).forEach(writer::add);
-    } catch (IOException ioException) {
-      throw new UncheckedIOException(ioException);
-    }
-  }
+    public void run(VcfReader vcfReader, RecordWriter recordWriter) {
 
-  private VariantContext processSingleVariantcontext(List<String> probands, VepMapper vepMapper,
-      Map<String, Pedigree> pedigreeList,
-      Map<String, List<VariantContext>> geneVariantMap, VariantContext vc) {
-    Map<String, Inheritance> inheritanceMap = matchInheritanceForVariant(geneVariantMap,
-        vc, pedigreeList, probands);
-    Map<String, Annotation> annotationMap = matchInheritance(inheritanceMap,
-        vepMapper.getGenes(vc));
-    return annotator.annotateInheritance(vc, pedigreeList, annotationMap);
-  }
-
-  private Map<String, List<VariantContext>> createGeneVariantMap(VepMapper vepMapper,
-      Map<String, Gene> knownGenes,
-      List<VariantContext> variantContextList) {
-    Map<String, List<VariantContext>> geneVariantMap = new HashMap<>();
-    for (VariantContext vc : variantContextList) {
-      VariantContextGenes variantContextGenes = vepMapper.getGenes(vc, knownGenes);
-      knownGenes.putAll(variantContextGenes.getGenes());
-      for (Gene gene : variantContextGenes.getGenes().values()) {
-        List<VariantContext> geneVariantList;
-        if (geneVariantMap.containsKey(gene.getId())) {
-          geneVariantList = geneVariantMap.get(gene.getId());
+        Collection<Pedigree> pedigrees;
+        if (!pedigreePaths.isEmpty()) {
+            pedigrees = mapPedFileToPedigrees(pedigreePaths).values();
         } else {
-          geneVariantList = new ArrayList<>();
+            pedigrees = createFamilyFromVcf(vcfReader.getFileHeader());
         }
-        geneVariantList.add(vc);
-        geneVariantMap.put(gene.getId(), geneVariantList);
-      }
-    }
-    return geneVariantMap;
-  }
 
-  private Map<String, Pedigree> createFamilyFromVcf(VCFHeader fileHeader) {
-    Map<String, Pedigree> familyList = new HashMap<>();
-    ArrayList<String> sampleNames = fileHeader.getSampleNamesInOrder();
-    for (String sampleName : sampleNames) {
-      //no ped: unknown Sex, assume affected, no relatives, therefor the sampleId can be used as familyId
-      Person person = Person.builder().familyId(sampleName).individualId(sampleName)
-          .paternalId("")
-          .maternalId("").sex(Sex.UNKNOWN)
-          .affectedStatus(AffectedStatus.AFFECTED).build();
-      Sample sample = Sample.builder().person(person).proband(true).build();
-      familyList.put(sampleName, Pedigree.builder()
-          .id(sampleName).members(singletonMap(sampleName, sample)).build());
-    }
-    return familyList;
-  }
+        VCFHeader newHeader = annotator.annotateHeader(vcfReader.getFileHeader());
+        recordWriter.writeHeader(newHeader);
 
-  private Map<String, Inheritance> matchInheritanceForVariant(
-      Map<String, List<VariantContext>> geneVariantMap,
-      VariantContext variantContext, Map<String, Pedigree> familyList,
-      List<String> probands) {
-    Map<String, Inheritance> result = new HashMap<>();
-    for (Pedigree family : familyList.values()) {
-      for (Sample sample : family.getMembers().values()) {
-        if (probands.contains(sample.getPerson().getIndividualId()) || (probands.isEmpty()
-                && sample.getPerson().getAffectedStatus() == AffectedStatus.AFFECTED)) {
-          result.put(sample.getPerson().getIndividualId(),
-                  calculateInheritanceForFamily(geneVariantMap, variantContext, family,
-                          sample));
+        Map<GeneInfo, Set<VcfRecord>> vcfRecordGeneInfoMap = new HashMap<>();
+        List<VcfRecord> vcfRecords = vcfReader.stream().toList();
+
+        for (VcfRecord vcfRecord : vcfRecords) {
+            //Only perform matching if a pathogenic or vus allele is present
+            if (!vcfRecord.pathogenicAlleles().isEmpty()) {
+                addToVcfRecordMap(vcfRecord, vcfRecordGeneInfoMap);
+            }
         }
-      }
+
+        for (VcfRecord vcfRecord : vcfRecords) {
+            matchVcfRecord(recordWriter, vcfRecord, pedigrees, vcfRecordGeneInfoMap);
+        }
     }
-    return result;
-  }
 
-  private Inheritance calculateInheritanceForFamily(
-    Map<String, List<VariantContext>> geneVariantMap,
-    VariantContext variantContext, Pedigree family,
-    Sample sample) {
-    return pedigreeInheritanceChecker.calculatePedigreeInheritance(geneVariantMap, variantContext, sample, family, arCompoundChecker);
-  }
+    private void matchVcfRecord(RecordWriter recordWriter, VcfRecord vcfRecord, Collection<Pedigree> pedigrees, Map<GeneInfo, Set<VcfRecord>> vcfRecordGeneInfoMap) {
+        Map<Pedigree, InheritanceResult> inheritanceResultMap = new HashMap<>();
+        matchPedigree(vcfRecord, pedigrees, vcfRecordGeneInfoMap, inheritanceResultMap);
 
-  private static VCFFileReader createReader(Path vcfPath) {
-    return new VCFFileReader(vcfPath, false);
-  }
-
-  private static VariantContextWriter createVcfWriter(Path outputVcfPath, boolean overwrite)
-      throws IOException {
-    if (overwrite) {
-      Files.deleteIfExists(outputVcfPath);
-    } else if (Files.exists(outputVcfPath)) {
-      throw new IllegalArgumentException(
-          format("cannot create '%s' because it already exists.", outputVcfPath));
+        VariantContext annotatedVc = annotator.annotateInheritance(vcfRecord, pedigrees, inheritanceResultMap, probands);
+        recordWriter.add(annotatedVc);
     }
-    return new VariantContextWriterBuilder()
-        .clearOptions()
-        .setOutputFile(outputVcfPath.toFile())
-        .build();
-  }
+
+    private void matchPedigree(VcfRecord vcfRecord, Collection<Pedigree> pedigrees, Map<GeneInfo, Set<VcfRecord>> vcfRecordGeneInfoMap, Map<Pedigree, InheritanceResult> inheritanceResultMap) {
+        for (Pedigree pedigree : pedigrees) {
+            InheritanceResult inheritanceResult = InheritanceResult.builder().build();
+            Set<Allele> altAllelesForPedigree = getAltAlleles(vcfRecord, pedigree);
+            //Only perform matching if a family member with a pathogenic allele is present
+            if (altAllelesForPedigree.stream().anyMatch(allele -> vcfRecord.pathogenicAlleles().contains(allele))) {
+                addToVcfRecordMap(vcfRecord, vcfRecordGeneInfoMap);
+                Set<InheritanceMode> modes = Set.of(AD, AR, XLD, XLR, MT, YL);
+                modes.forEach(mode -> {
+                    MatchEnum isMatch = pedigreeInheritanceChecker.check(vcfRecord, pedigree, mode);
+                    if (isMatch != FALSE) {
+                        inheritanceResult.addInheritanceMode(new PedigreeInheritanceMatch(mode, isMatch == POTENTIAL));
+                    }
+                });
+                if (inheritanceResult.getPedigreeInheritanceMatches().stream().noneMatch(match -> match.inheritanceMode() == AD)) {
+                    MatchEnum isAdIpMatch = pedigreeInheritanceChecker.check(vcfRecord, pedigree, AD_IP);
+                    if (isAdIpMatch != FALSE) {
+                        inheritanceResult.addInheritanceMode(new PedigreeInheritanceMatch(AD_IP, isAdIpMatch == POTENTIAL));
+                    }
+                }
+
+                matchCompounds(vcfRecord, vcfRecordGeneInfoMap, pedigree, inheritanceResult);
+
+                Map<Sample, MatchEnum> denovoResult = new HashMap<>();
+                pedigree.getMembers().values().stream().filter(sample -> probands.isEmpty() || probands.contains(sample.getPerson().getIndividualId())).forEach(proband ->
+                        denovoResult.put(proband, deNovoChecker.checkDeNovo(vcfRecord, proband)));
+                inheritanceResult.setDenovo(denovoResult);
+                inheritanceResultMap.put(pedigree, inheritanceResult);
+            }
+        }
+    }
+
+    private void matchCompounds(VcfRecord vcfRecord, Map<GeneInfo, Set<VcfRecord>> vcfRecordGeneInfoMap, Pedigree pedigree, InheritanceResult inheritanceResult) {
+        Map<GeneInfo, Set<CompoundCheckResult>> compoundsMap = arCompoundChecker.check(vcfRecordGeneInfoMap, vcfRecord, pedigree);
+        if (!isEmpty(compoundsMap)) {
+            inheritanceResult.setCompounds(compoundsMap);
+            boolean isCertain = false;
+            for (Set<CompoundCheckResult> compoundCheckResult : compoundsMap.values()) {
+                isCertain = compoundCheckResult.stream().anyMatch(CompoundCheckResult::isCertain);
+            }
+            Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = inheritanceResult.getPedigreeInheritanceMatches();
+            pedigreeInheritanceMatches.add(new PedigreeInheritanceMatch(AR_C, !isCertain));
+            inheritanceResult.setPedigreeInheritanceMatches(pedigreeInheritanceMatches);
+            inheritanceResult.setCompounds(compoundsMap);
+        }
+    }
+
+    private boolean isEmpty(Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
+        for(Set<CompoundCheckResult> compoundCheckResults : compounds.values()) {
+            if(!compoundCheckResults.isEmpty()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void addToVcfRecordMap(VcfRecord vcfRecord, Map<GeneInfo, Set<VcfRecord>> vcfRecordGeneInfoMap) {
+        for (GeneInfo geneInfo : vcfRecord.geneInfos()) {
+            Set<VcfRecord> records = vcfRecordGeneInfoMap.containsKey(geneInfo) ? vcfRecordGeneInfoMap.get(geneInfo) : new HashSet<>();
+            records.add(vcfRecord);
+            vcfRecordGeneInfoMap.put(geneInfo, records);
+        }
+    }
+
+    private Set<Pedigree> createFamilyFromVcf(VCFHeader fileHeader) {
+        Set<Pedigree> familyList = new HashSet<>();
+        ArrayList<String> sampleNames = fileHeader.getSampleNamesInOrder();
+        for (String sampleName : sampleNames) {
+            //no ped: unknown Sex, assume affected, no relatives, therefor the sampleId can be used as familyId
+            Person person = Person.builder().familyId(sampleName).individualId(sampleName)
+                    .paternalId("")
+                    .maternalId("").sex(Sex.UNKNOWN)
+                    .affectedStatus(AffectedStatus.AFFECTED).build();
+            Sample sample = Sample.builder().person(person).proband(true).build();
+            familyList.add(Pedigree.builder()
+                    .id(sampleName).members(singletonMap(sampleName, sample)).build());
+        }
+        return familyList;
+    }
 }

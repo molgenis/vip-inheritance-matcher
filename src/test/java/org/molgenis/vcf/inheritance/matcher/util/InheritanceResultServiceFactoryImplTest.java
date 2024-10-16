@@ -5,27 +5,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.molgenis.vcf.inheritance.matcher.Annotator;
-import org.molgenis.vcf.inheritance.matcher.PedigreeInheritanceChecker;
+import org.molgenis.vcf.inheritance.matcher.*;
+import org.molgenis.vcf.inheritance.matcher.model.Settings;
 
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
-class InheritanceServiceFactoryImplTest {
+class InheritanceResultServiceFactoryImplTest {
     @Mock
     private Annotator annotator;
     @Mock
-    private VepMetadataServiceFactory vepMetadataServiceFactory;
-    @Mock
     private PedigreeInheritanceChecker pedigreeInheritanceChecker;
+
     private InheritanceServiceFactoryImpl inheritanceServiceFactoryImpl;
     @BeforeEach
     void setUp() {
-        inheritanceServiceFactoryImpl = new InheritanceServiceFactoryImpl(annotator, vepMetadataServiceFactory, pedigreeInheritanceChecker);
+        inheritanceServiceFactoryImpl = new InheritanceServiceFactoryImpl(annotator, pedigreeInheritanceChecker);
     }
     @Test
     void create() {
-        inheritanceServiceFactoryImpl.create();
-        verify(vepMetadataServiceFactory).create();
+        InheritanceService inheritanceServiceFactory = inheritanceServiceFactoryImpl.create(Settings.builder().build());
+        assertNotNull(inheritanceServiceFactory);
     }
 }

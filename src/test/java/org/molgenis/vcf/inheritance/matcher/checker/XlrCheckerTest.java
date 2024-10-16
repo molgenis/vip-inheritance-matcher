@@ -5,17 +5,17 @@ import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.c
 import static org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil.mapExpectedString;
 
 import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
 import org.molgenis.vcf.inheritance.matcher.util.VariantContextTestUtil;
 import org.molgenis.vcf.utils.sample.model.AffectedStatus;
@@ -29,16 +29,16 @@ class XlrCheckerTest {
 
   @ParameterizedTest(name = "{index} {3}")
   @MethodSource("provideTestCases")
-  void check(VariantContext variantContext, Pedigree family, String expectedString,
-      String displayName) {
+  void check(VcfRecord vcfRecord, Pedigree family, String expectedString,
+             String displayName) {
     MatchEnum expected = mapExpectedString(expectedString);
-    assertEquals(expected, xlrChecker.check(variantContext, family));
+    assertEquals(expected, xlrChecker.check(vcfRecord, family));
   }
 
   private static Stream<Arguments> provideTestCases() throws IOException {
     File testFile = ResourceUtils.getFile("classpath:XlrTests.tsv");
     List<String[]> lines = Files.lines(testFile.toPath())
-        .map(line -> line.split("\t")).collect(Collectors.toList());
+        .map(line -> line.split("\t")).toList();
 
     return lines.stream().skip(1).map(line -> {
       String testName = line[0];
@@ -69,8 +69,7 @@ class XlrCheckerTest {
         genotypes.add(createGenotype("Brother", brotherGt));
       }
       return Arguments.of(VariantContextTestUtil
-          .createVariantContext(genotypes,
-              "", "X"), family, expected, testName);
+          .createVariantContext(genotypes, "","X"), family, expected, testName);
 
     });
   }

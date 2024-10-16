@@ -1,75 +1,63 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onAutosome;
+import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
-import static org.molgenis.vcf.inheritance.matcher.util.InheritanceUtils.hasVariant;
 
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.Allele;
+import org.molgenis.vcf.inheritance.matcher.vcf.Genotype;
+import org.molgenis.vcf.inheritance.matcher.vcf.VariantContextUtils;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 import org.springframework.stereotype.Component;
 
+import java.util.*;
+
 @Component
-public class ArChecker extends InheritanceChecker{
+public class ArChecker extends InheritanceChecker {
 
-  public MatchEnum check(
-          VariantContext variantContext, Pedigree family) {
-    if (!onAutosome(variantContext)) {
-      return FALSE;
-    }
-
-    return checkFamily(variantContext, family);
-  }
-
-  @Override
-  MatchEnum checkSample(Sample sample, VariantContext variantContext) {
-    Genotype sampleGt = variantContext.getGenotype(sample.getPerson().getIndividualId());
-    if (sampleGt == null || sampleGt.isNoCall()) {
-      return POTENTIAL;
-    } else {
-      if (sampleGt.isMixed()) {
-        return checkMixed(sample, sampleGt);
-      } else {
-        if (hasVariant(sampleGt)) {
-          return checkSampleWithVariant(sample, sampleGt);
-        } else {
-          return checkSampleWithoutVariant(sample);
+    public MatchEnum check(
+            VcfRecord vcfRecord, Pedigree family) {
+        if (!VariantContextUtils.onAutosome(vcfRecord)) {
+            return FALSE;
         }
-      }
+
+        return checkFamily(vcfRecord, family);
     }
-  }
 
-  private static MatchEnum checkSampleWithoutVariant(Sample sample) {
-    return switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED -> FALSE;
-      case UNAFFECTED -> TRUE;
-      case MISSING -> POTENTIAL;
-    };
-  }
-
-  private static MatchEnum checkSampleWithVariant(Sample sample, Genotype sampleGt) {
-    return switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED -> sampleGt.isHom() ? TRUE : FALSE;
-      case UNAFFECTED -> sampleGt.isHet() ? TRUE : FALSE;
-      case MISSING -> POTENTIAL;
-    };
-  }
-
-  private static MatchEnum checkMixed(Sample sample, Genotype sampleGt) {
-    switch (sample.getPerson().getAffectedStatus()) {
-      case AFFECTED -> {
-        if (!hasVariant(sampleGt)) {
-          return FALSE;
-        } else {
-          return POTENTIAL;
+    protected MatchEnum checkUnaffected(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
+            Genotype genotype = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+            if(genotype == null){
+                matches.add(POTENTIAL);
+            } else if (genotype.hasReference()) {
+                matches.add(TRUE);
+            } else if (genotype.getAlleles().stream().allMatch(
+                    allele -> allele.isCalled() && affectedAlleles.contains(allele))) {
+                matches.add(FALSE);
+            } else {
+                matches.add(POTENTIAL);
+            }
         }
-      }
-      case UNAFFECTED, MISSING -> {
-        return POTENTIAL;
-      }
-      default -> throw new IllegalArgumentException();
+        return merge(matches);
     }
-  }
+
+    protected MatchEnum checkAffected(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Genotype> affectedGenotypes) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
+            Genotype genotype = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            affectedGenotypes.add(genotype);
+            if (genotype!= null && genotype.hasReference()) {
+                return FALSE;
+            } else if (genotype == null || genotype.isMixed() || genotype.isNoCall()) {
+                matches.add(POTENTIAL);
+            } else {
+                matches.add(TRUE);
+            }
+        }
+        return merge(matches);
+    }
 }

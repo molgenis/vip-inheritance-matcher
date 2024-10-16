@@ -1,43 +1,73 @@
 package org.molgenis.vcf.inheritance.matcher.checker;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.Allele;
+import org.molgenis.vcf.inheritance.matcher.vcf.Genotype;
+import org.molgenis.vcf.inheritance.matcher.vcf.VariantContextUtils;
+import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 import org.molgenis.vcf.inheritance.matcher.model.MatchEnum;
+import org.molgenis.vcf.utils.sample.model.AffectedStatus;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
-import org.molgenis.vcf.utils.sample.model.Sex;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import static org.molgenis.vcf.inheritance.matcher.VariantContextUtils.onChromosomeY;
+import static org.molgenis.vcf.inheritance.matcher.checker.CheckerUtils.merge;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
+import static org.molgenis.vcf.utils.sample.model.Sex.FEMALE;
+import static org.molgenis.vcf.utils.sample.model.Sex.MALE;
 
 @Component
-public class YlChecker extends HaploidChecker{
-    public MatchEnum check(VariantContext variantContext, Pedigree family) {
-        if (!onChromosomeY(variantContext)) {
+public class YlChecker extends InheritanceChecker {
+    public MatchEnum check(
+            VcfRecord vcfRecord, Pedigree family) {
+        if (!VariantContextUtils.onChromosomeY(vcfRecord)) {
             return FALSE;
         }
-        return checkFamily(variantContext, family);
+
+        return checkFamily(vcfRecord, family);
     }
 
-    @Override
-    public MatchEnum checkFamily(VariantContext variantContext, Pedigree family) {
-        Set<MatchEnum> results = new HashSet<>();
-        for (Sample sample : family.getMembers().values()) {
-            if (sample.getPerson().getSex() == Sex.FEMALE) {
-                //female familty members do not play a role in Y-linked inheritance
-                results.add(TRUE);
+    protected MatchEnum checkUnaffected(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Allele> affectedAlleles) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample unAffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
+            Genotype genotype = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+            if (unAffectedSample.getPerson().getSex() != MALE) {
+                matches.add(TRUE);
+            } else if (genotype == null) {
+                matches.add(POTENTIAL);
+            } else if (genotype.isHomRef() || (genotype.getPloidy() == 1 && genotype.hasReference())) {
+                matches.add(TRUE);
             } else {
-                results.add(checkSample(sample, variantContext));
+                if (genotype.getAlleles().stream().allMatch(
+                        allele -> allele.isCalled() && affectedAlleles.contains(allele))) {
+                    matches.add(FALSE);
+                } else {
+                    matches.add(POTENTIAL);
+                }
             }
         }
-        if (results.contains(FALSE)) {
-            return FALSE;
-        } else if (results.contains(POTENTIAL)) {
-            return POTENTIAL;
+        return merge(matches);
+    }
+
+    protected MatchEnum checkAffected(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus, Set<Genotype> affectedGenotypes) {
+        Set<MatchEnum> matches = new HashSet<>();
+        for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
+            Genotype genotype = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            if (affectedSample.getPerson().getSex() == FEMALE) {
+                return FALSE;
+            }
+            affectedGenotypes.add(genotype);
+            if (genotype != null && !genotype.hasAltAllele() && genotype.isCalled()) {
+                return FALSE;
+            } else if (genotype == null || genotype.isNoCall() || genotype.isMixed() || genotype.isHet()) {
+                matches.add(POTENTIAL);
+            } else {
+                matches.add(TRUE);
+            }
         }
-        return TRUE;
+        return merge(matches);
     }
 }

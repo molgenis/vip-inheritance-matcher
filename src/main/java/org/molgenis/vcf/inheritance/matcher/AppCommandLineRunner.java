@@ -3,7 +3,6 @@ package org.molgenis.vcf.inheritance.matcher;
 import ch.qos.logback.classic.Level;
 import org.apache.commons.cli.*;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
-import org.molgenis.vcf.inheritance.matcher.util.InheritanceServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.*;
@@ -30,15 +27,14 @@ class AppCommandLineRunner implements CommandLineRunner {
   private final String appName;
   private final String appVersion;
   private final CommandLineParser commandLineParser;
-  private final InheritanceServiceFactory inheritanceServiceFactory;
+  private final AppRunnerFactoryImpl appRunnerFactoryImpl;
 
   AppCommandLineRunner(
-      @Value("${app.name}") String appName,
-      @Value("${app.version}") String appVersion,
-      InheritanceServiceFactory inheritanceServiceFactory) {
+          @Value("${app.name}") String appName,
+          @Value("${app.version}") String appVersion, AppRunnerFactoryImpl appRunnerFactoryImpl) {
     this.appName = requireNonNull(appName);
     this.appVersion = requireNonNull(appVersion);
-    this.inheritanceServiceFactory = requireNonNull(inheritanceServiceFactory);
+    this.appRunnerFactoryImpl = requireNonNull(appRunnerFactoryImpl);
     this.commandLineParser = new DefaultParser();
   }
 
@@ -69,9 +65,8 @@ class AppCommandLineRunner implements CommandLineRunner {
     CommandLine commandLine = getCommandLine(args);
     org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.validateCommandLine(commandLine);
     Settings settings = mapSettings(commandLine);
-    InheritanceService inheritanceService = inheritanceServiceFactory.create();
-    try {
-      inheritanceService.run(settings);
+    try(AppRunner appRunner = appRunnerFactoryImpl.create(settings)){
+      appRunner.run();
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       System.exit(STATUS_MISC_ERROR);
@@ -96,6 +91,13 @@ class AppCommandLineRunner implements CommandLineRunner {
       probandNames = List.of();
     }
 
+    Set<String> pathogenicClasses;
+    if (commandLine.hasOption(OPT_CLASSES)) {
+      pathogenicClasses = mapPathogenicityClasses(commandLine.getOptionValue(OPT_CLASSES));
+    } else {
+      pathogenicClasses = Set.of();
+    }
+
     List<Path> pedPaths;
     if (commandLine.hasOption(OPT_PED)) {
       pedPaths = parsePaths(commandLine.getOptionValue(OPT_PED));
@@ -108,8 +110,13 @@ class AppCommandLineRunner implements CommandLineRunner {
     boolean debugMode = commandLine.hasOption(OPT_DEBUG);
 
     return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
-        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).debug(debugMode)
+        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).
+            pathogenicClasses(pathogenicClasses).debug(debugMode)
         .build();
+  }
+
+  private Set<String> mapPathogenicityClasses(String optionValue) {
+    return Set.of(optionValue.split(",", -1));
   }
 
   private CommandLine getCommandLine(String[] args) {
