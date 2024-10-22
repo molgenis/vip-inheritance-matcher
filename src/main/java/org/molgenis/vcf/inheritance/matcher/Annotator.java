@@ -187,39 +187,25 @@ public class Annotator {
     private static boolean isMatch(InheritanceMode geneInheritanceMode, InheritanceMode pedigreeInheritanceMode) {
         switch (pedigreeInheritanceMode) {
             case AD, AD_IP -> {
-                if (geneInheritanceMode == AD) {
-                    return true;
-                }
+                return geneInheritanceMode == AD;
             }
             case AR, AR_C -> {
-                if (geneInheritanceMode == AR) {
-                    return true;
-                }
+                return geneInheritanceMode == AR;
             }
             //mapping from XL to XLD and XLR occurs in VcfRecordFactory
             case XLR -> {
-                if (geneInheritanceMode == XLR) {
-                    return true;
-                }
+                return geneInheritanceMode == XLR;
             }
             case XLD -> {
-                if (geneInheritanceMode == XLD) {
-                    return true;
-                }
+                return geneInheritanceMode == XLD;
             }
             case YL -> {
-                if (geneInheritanceMode == YL) {
-                    return true;
-                }
+                return geneInheritanceMode == YL;
             }
             case MT -> {
-                if (geneInheritanceMode == MT) {
-                    return true;
-                }
+                return geneInheritanceMode == MT;
             }
             default -> throw new UnexpectedEnumException(pedigreeInheritanceMode);
         }
-        return false;
     }
-
 }
