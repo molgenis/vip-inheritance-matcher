@@ -75,6 +75,11 @@ public class ArCompoundChecker {
 
     private static MatchEnum checkUnaffectedSample(VcfRecord vcfRecord, VcfRecord otherVariantGeneRecord, Set<List<Allele>> affectedGenotypes, Set<List<Allele>> otherAffectedGenotypes, Sample unAffectedSample) {
         Set<MatchEnum> matches = new HashSet<>();
+        //None of the variants can be present hom_alt for an unaffected sample
+        if(isHomAlt(vcfRecord, affectedGenotypes, unAffectedSample)|| isHomAlt(otherVariantGeneRecord , affectedGenotypes,unAffectedSample)){
+            return FALSE;
+        }
+        //One of the variants should be a "match", meaning: the unaffected sample does not have it
         matches.add(checkSingleUnaffectedSampleVariant(vcfRecord, affectedGenotypes, unAffectedSample));
         matches.add(checkSingleUnaffectedSampleVariant(otherVariantGeneRecord, otherAffectedGenotypes, unAffectedSample));
         if (matches.contains(TRUE)) {
@@ -83,6 +88,7 @@ public class ArCompoundChecker {
             return POTENTIAL;
         }
 
+        //if the both variants are hetrozygous present in an unaffected sample in phased data, check if both are on the same allele.
         Genotype sampleGt = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
         Genotype sampleOtherGt = otherVariantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
 
@@ -92,6 +98,19 @@ public class ArCompoundChecker {
             return TRUE;
         }
         return FALSE;
+    }
+
+    private static boolean isHomAlt(VcfRecord vcfRecord, Set<List<Allele>> affectedGenotypes, Sample unAffectedSample) {
+        Genotype genotype = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
+        if (genotype != null && !genotype.isHomRef() && !genotype.hasMissingAllele()) {
+            Set<Allele> affectedAlts = new HashSet<>();
+            for (List<Allele> affectedGenotype : affectedGenotypes) {
+                affectedGenotype.stream().filter(Allele::isNonReference).forEach(affectedAlts::add);
+            }
+            //both alleles are an alternative allele that was seen in affected samples, we consider this "homAlt"
+            return affectedAlts.containsAll(genotype.getAlleles());
+        }
+        return false;
     }
 
     private static MatchEnum checkSingleUnaffectedSampleVariant(VcfRecord vcfRecord, Set<List<Allele>> affectedGenotypes, Sample unAffectedSample) {
