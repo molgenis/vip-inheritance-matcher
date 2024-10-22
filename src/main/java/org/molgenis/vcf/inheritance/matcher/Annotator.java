@@ -196,8 +196,14 @@ public class Annotator {
                     return true;
                 }
             }
-            case XLR, XLD -> {
-                if (geneInheritanceMode == XL) {
+            //mapping from XL to XLD and XLR occurs in VcfRecordFactory
+            case XLR -> {
+                if (geneInheritanceMode == XLR) {
+                    return true;
+                }
+            }
+            case XLD -> {
+                if (geneInheritanceMode == XLD) {
                     return true;
                 }
             }
