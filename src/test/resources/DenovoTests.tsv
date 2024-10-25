@@ -73,3 +73,5 @@ MultiAllelicY1	1/2	MALE	1/1	0/0	Y	true
 MultiAllelicY2	2	MALE	1	0/0	Y	true
 MultiAllelicY3	1/2	MALE	1/.	0/0	Y	possible
 MultiAllelicY4	1/2	MALE	1/3	0/0	Y	true
+HomozygoteOneFromParent	1/1	MALE	1/0	0/0	22	true
+HomozygotebothFromParent	1/1	MALE	1/0	1/0	22	false
