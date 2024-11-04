@@ -110,6 +110,17 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 	- If affected members have one missing allele and one reference allele, or both alleles are missing values, the inheritance match will be "potential".
 	- If unaffected members have one missing allele and one alternative allele, the inheritance match will be false if so based on rule 3, and potential if rule 3 would lead to a match.
 	- If unaffected members have one missing allele and one reference allele, or both alleles are missing values, the inheritance match will be "potential".
+##### Examples
+| Patient | Father | Mother | Result    | Explanation                                                                                                                                                                |
+|---------|--------|--------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0/1     | 0/0    | 0/0    | true      | De novo alternative allele for the patient, both parents have homozygotic reference genotypes.                                                                             |
+| 0/1     | 0/1    | 0/0    | false     | Unaffected father has the same genotype.                                                                                                                                   |
+| 0/1     | 0/2    | 0/0    | potential | Father has a different alternative allele, this causes a potential match since we do not know if this has the same pathogenicity as the alternative allele of the patient. |
+| 0/1     | 0/2    | 0/1    | false     | Unaffected mother has the same genotype.                                                                                                                                   |
+| 0/.     | 0/0    | 0/1    | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                                                |
+| 0/.     | 0/2    | 0/1    | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                                                |
+| 0/1     | 0/.    | 0/0    | potential | Father missing allele can be anything; same as the patient alternative, reference, other alternative allele, therefor the match is "potential".                            |
+
 #### Autosomal Dominant incomplete penetrance
 1) The variant is not on chromosome X,Y or MT.
 2) Affected members need to have at least one alternative allele.
@@ -119,6 +130,14 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 5) If based on other members the pattern does match:
 	- If affected members have one missing allele and one alternative allele, the inheritance match will still be true.
 	- If affected members have one missing allele and one reference allele, or both alleles are missing values, the inheritance match will be "potential".
+##### Examples
+| Patient | Father | Mother | Result | Explanation                                                                                                        |
+|---------|--------|--------|--------|--------------------------------------------------------------------------------------------------------------------|
+| 0/1     | 0/0    | 0/0    | true   | De novo alternative allele for the patient, both parents have homozygotic reference genotypes.                     |
+| 0/1     | 0/1    | 0/0    | true   | Due to incomplete penetrance the unaffected parent can also have pathogenic alternative alleles in their genotype. |
+| 0/1     | 0/2    | 0/0    | true   | Due to incomplete penetrance the unaffected parent can also have pathogenic alternative alleles in their genotype. |
+| 0/1     | 0/2    | 0/1    | true   | Due to incomplete penetrance the unaffected parent can also have pathogenic alternative alleles in their genotype. |
+
 #### Autosomal Recessive
 1) The variant is not on chromosome X,Y or MT.
 2) Affected members need to have at least two alternative alleles.
@@ -130,6 +149,18 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 	- If affected members have one missing allele and one reference allele, the inheritance match will be false.
 	- If unaffected members have one missing allele and one alternative allele, or both alleles are missing values, the inheritance match will be potential.
 	- If unaffected members have one missing allele and one reference allele, the inheritance match will be true.
+##### Examples
+| Patient | Father | Mother | Result    | Explanation                                                                                                                                                                                                                                                                                       |
+|---------|--------|--------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0/1     | 0/0    | 0/0    | false     | Patient genotype is not homozygote alternative.                                                                                                                                                                                                                                                   |
+| 1/1     | 0/1    | 1/0    | true      | Patient genotype is homozygote altenative, parents are both hetrozygotes.                                                                                                                                                                                                                         |
+| 1/2     | 2/2    | 1/1    | false     | Both father and mother genotypes are homozygote alternative, although the genotype does not match that of the patient there is still no scenario in which AR would be a suitable pattern, if either one of the alternative alleles is benign the patient ends up with only one pathogenic allele. |
+| 2/2     | 1/1    | 1/0    | potential | Father genotype also is homozygote alternative, but for another allele than the patient, this leads to a potential match since we do not know if those alleles match in pathogenicity.                                                                                                            |
+| 1/.     | 0/0    | 0/1    | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                                                                                                                                                                       |
+| 1/.     | 1/2    | 0/1    | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                                                                                                                                                                       |
+| 1/.     | 1/1    | 0/1    | potential | Patient missing allele can be anything, but since father is homozygotic for the known alternative allele of the patient, there can be no case that the autosomal recessive pattern matches.                                                                                                       |
+| 1/1     | 1/.    | 0/0    | potential | Father missing allele can be anything; same as the patient alternative, reference, other alternative allele, therefor the match is "potential".                                                                                                                                                   |
+
 #### Compound Autosomal Recessive
 1) Two variant are present in the same gene for all affected members.
 2) Both those variants are not matching the AR inheritance pattern.
@@ -142,6 +173,20 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 	- If affected members have one missing allele or both alleles missing for one or both of the variants the pattern is a potential match.
 	- If unaffected members have missing alleles in combination with an alternative allele, that has also been seen as a single alternative allele in genotypes of affected members, for both variants that this pattern does not match.
 	- Other combinations of genotypes with missing alleles will lead to a "potential" match.
+##### Examples
+| Patient* | Father*  | Mother*  | Result    | Explanation                                                                                                                                                                                                   |
+|----------|----------|----------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0/1  0/1 | 0/1  0/0 | 0/0  0/1 | true      | Patient is the only one with 2 affected alleles in its genotype.                                                                                                                                              |
+| 0/1  0/1 | 0/1  0/1 | 0/0  0/1 | false     | Father also has 2 affected alleles in his genotype.                                                                                                                                                           |
+| 0/1  0/1 | 0/1  0/2 | 0/0  0/1 | potential | Father has 2 genotypes with an alternative allele, but one of those differs from the patients alternative allele, we do not know if those match in pathogenicity.                                             |
+| 0/1  0/1 | 1/1  0/0 | 0/0  0/1 | false     | Father has 2 affected alleles for one of the variants but since he is unaffected it cannot be pathogenic, therefor the hetrozygotic variant in the patient genotype can not be part of a pathogenic compound. |
+| 0/1  0/1 | 2/2  0/0 | 0/0  0/1 | potential | Father has 2 affected alleles for one of the variants but of a different alternative allele than the alternative allele of the patient, we do not know if those alleles match in pathogenicity..              |
+| 0/1  0/1 | 0/1  0/. | 0/0  0/1 | potential | Since the father missing alleles can be anything; the alternative allele of mother genotype, the reference allele, or another alt allele, therefor the match is "potential".                                  |
+| 0/1  0/. | 1/1  0/0 | 0/0  0/1 | potential | Since the patient missing allele can be anything this is a possible match.                                                                                                                                    |
+| 0/.  0/. | 0/1  0/0 | 0/0  0/1 | potential | Since the patient missing alleles can be anything this is a possible match.                                                                                                                                   |
+| 0/1  0/1 | 0/.  0/0 | 0/0  0/1 | true      | Father can have one of the variants of the patient, therefor the missing allele can be anything while the autosomal recessive pattern still matches.                                                          |
+\*: every individual has 2 genotypes for 2 different variants in the same gene
+
 #### X-linked Dominant
 1) The variant is  on chromosome X.
 2) Affected members need to have at least one alternative allele.
@@ -152,8 +197,21 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 	- If affected members have one missing allele and one alternative allele, the pattern match will still be true.
 	- If affected members have one missing allele and one reference allele, or the genotype (either haploid or diploid) is missing, the inheritance match will be "potential".
 	- If unaffected members have one missing allele or the genotype (either haploid or diploid) is missing, the inheritance match will be "potential".
+##### Examples
+| Patient | Father | Mother | Result    | Explanation                                                                                                                                                                         |
+|---------|--------|--------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0/1     | 0      | 0/0    | true      | Patient is the only one with an alternative allele.                                                                                                                                 |
+| 0/1     | 0      | 0/1    | true      | Unaffected mother can have one alternative allele due to X-inactivation.                                                                                                            |
+| 0/1     | 1      | 0/0    | false     | Unaffected father has the same alternative allele.                                                                                                                                  |
+| 0/1     | 0      | 1/1    | false     | Unaffected individuals cannot have a genotype that is entirely made up of the alternative allele.                                                                                   |
+| 0/1     | 2      | 0/0    | potential | Father genotype also has an alternative allele, but for another one than the patient, this leads to a potential match since we do not know if those alleles match in pathogenicity. |
+| 0/1     | 0      | 0/.    | true      | Unaffected mother can have one alternative allele due to X-inactivation, therefor the missing allele in the mother genotype has no effect.                                          |
+| 0/.     | 0      | 0/0    | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                                                         |
+| 0/.     | 0      | 0/2    | potential | Patient missing allele can be anything; the alternative allele of mother genotype, the reference allele, or another alt allele, therefor the match is "potential".                  |
+| 0/1     | .      | 0/0    | potential | Father missing allele can be anything; same as the patient alternative, reference, other alternative allele, therefor the match is "potential".                                     |
+
 #### X-linked Recessive
-1) The variant is  on chromosome X.
+1) The variant is on chromosome X.
 2) Affected members cannot have a reference allele.
 3) Unaffected members cannot have a genotype of which all alleles are present in a affected member.
 ##### - Missing/partial genotypes:
@@ -163,6 +221,20 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 	- If affected members have one missing allele and one reference allele, the pattern match will be false.
 	- If unaffected members have one missing allele and one alternative allele, or the genotype (either haploid or diploid) is missing, the inheritance match will be potential.
 	- If unaffected members have one missing allele and one reference allele, the pattern match will be true.
+##### Examples
+| Patient | Father | Mother | Result    | Explanation                                                                                                                                                                            |
+|---------|--------|--------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1/1     | 0      | 0/1    | true      | Patient is the only one with a genotype with only alternative alleles.                                                                                                                 |
+| 1/2     | 0      | 0/1    | false     | Patient is the only one with a genotype with only alternative alleles.                                                                                                                 |
+| 0/1     | 0      | 0/0    | false     | Patient genotype is not homozygote alternative.                                                                                                                                        |
+| 1/1     | 1      | 1/0    | false     | Father has a genotypes that is entirely made up of the same alternative alleles as the patient.                                                                                        |
+| 1/2     | 2      | 1/1    | false     | Both father and mother genotypes are entirely made up of the same alternative alleles as the patient.                                                                                  |
+| 2/2     | 2      | 0/0    | potential | Father genotype also is homozygote alternative, but for another allele than the patient, this leads to a potential match since we do not know if those alleles match in pathogenicity. |
+| 1/.     | 0      | 0/1    | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                                                            |
+| 1/.     | 1      | 0/1    | false     | Patient missing allele can be anything, however the known alternative allele of the patient cannot be pathogenic since the unaffected father genotype contains it.                     |
+| 1/.     | 2      | 0/1    | potential | Patient missing allele can be anything; the missing allele from alternative allele of father genotype, the reference allele, or another alt allele, therefor the match is "potential". |
+| 1/1     | .      | 0/0    | potential | Father missing allele can be anything; same as the patient alternative, reference, other alternative allele, therefor the match is "potential".                                        |
+
 #### Y-linked
 1) The variant is  on chromosome Y.
 2) Only genotypes of male family members are taken into account.
@@ -172,6 +244,15 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 5) If based on other members the pattern does not match the result will stay false.
 6) If based on other members the pattern does match:
 	- If any members have a missing genotype the pattern match will be 'potential'.
+##### Examples
+| Patient | Father | Result    | Explanation                                                                                                                                      |
+|---------|--------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1       | 0      | true      | Patient is the only one with an alternative allele.                                                                                              |
+| 1       | 1      | false     | Unaffected father has the same genotype as the patient.                                                                                          |
+| 1       | 2      | potential | Unaffected father also has an alternative allele, but a different one than the patient, we do not know if those alleles match in pathogenicity.  |
+| .       | 1      | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                      |
+| 1       | .      | potential | Father missing allele can be anything; same as the patient alternative, reference, other alternative allele, therefor the result is "potential". |
+
 #### Mitochondrial
 1) The variant is  on chromosome Y.
 2) Affected members need to have an alternative allele.
@@ -180,7 +261,14 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 4) If based on other members the pattern does not match the result will stay false.
 5) If based on other members the pattern does match:
 	- If any members have a missing genotype the pattern match will be 'potential'.
-
+##### Examples
+| Patient | Father | Mother | Result    | Explanation                                                                                                                                      |
+|---------|--------|--------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1       | 0      | 0      | true      | Patient is the only one with an alternative allele.                                                                                              |
+| 1       | 0      | 1      | false     | Unaffected mother has the same genotype as the patient.                                                                                          |
+| 1       | 0      | 2      | potential | Unaffected mother also has an alternative allele, but a different one than the patient, we do not know if those alleles match in pathogenicity.  |
+| .       | 0      | 1      | potential | Patient missing allele can be anything, therefor the result is "potential".                                                                      |
+| 1       | 0      | .      | potential | Mother missing allele can be anything; same as the patient alternative, reference, other alternative allele, therefor the result is "potential". |
 
 ## Running without pedigree file
 If the tool runs without a ped file, all probands are assumed to be affected.
