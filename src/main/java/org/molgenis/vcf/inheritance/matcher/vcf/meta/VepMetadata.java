@@ -5,9 +5,12 @@ import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import java.util.Map;
 
 import lombok.Getter;
+import org.molgenis.vcf.utils.metadata.FieldIdentifier;
 import org.molgenis.vcf.utils.metadata.FieldMetadataService;
-import org.molgenis.vcf.utils.model.FieldMetadata;
-import org.molgenis.vcf.utils.model.NestedField;
+import org.molgenis.vcf.utils.metadata.NestedAttributes;
+import org.molgenis.vcf.utils.model.metadata.FieldMetadata;
+import org.molgenis.vcf.utils.model.metadata.FieldMetadatas;
+import org.molgenis.vcf.utils.model.metadata.NestedFieldMetadata;
 
 public class VepMetadata {
 
@@ -50,21 +53,28 @@ public class VepMetadata {
     for (VCFInfoHeaderLine vcfInfoHeaderLine : vcfHeader.getInfoHeaderLines()) {
       if (canMap(vcfInfoHeaderLine)) {
         this.vepFieldId = vcfInfoHeaderLine.getID();
-        FieldMetadata fieldMetadata = fieldMetadataService.load(
-            vcfInfoHeaderLine);
-        Map<String, NestedField> nestedFields = fieldMetadata.getNestedFields();
-        geneIndex = getIndex(nestedFields, GENE);
-        geneSourceIndex = getIndex(nestedFields, SYMBOL_SOURCE);
-        inheritanceIndex = getIndex(nestedFields, INHERITANCE);
-        alleleNumIndex = getIndex(nestedFields, ALLELE_NUM);
-        classIndex = getIndex(nestedFields, VIP_CLASS);
+        FieldMetadatas fieldMetadatas = fieldMetadataService.load(vcfHeader, Map.of(FieldIdentifier.builder()
+                .type(org.molgenis.vcf.utils.metadata.FieldType.INFO).name(vepFieldId).build(), NestedAttributes.builder().prefix(INFO_DESCRIPTION_PREFIX).seperator("|").build()));
+        FieldMetadata vepField = fieldMetadatas.getInfo().get(vepFieldId);
+        if (vepField == null) {
+          throw new MissingInfoException(vepFieldId);
+        }
+        Map<String, NestedFieldMetadata> nestedFieldsMeta = vepField.getNestedFields();
+        if (nestedFieldsMeta == null) {
+          throw new MissingVepMetadataException(vepFieldId);
+        }
+        geneIndex = getIndex(nestedFieldsMeta, GENE);
+        geneSourceIndex = getIndex(nestedFieldsMeta, SYMBOL_SOURCE);
+        inheritanceIndex = getIndex(nestedFieldsMeta, INHERITANCE);
+        alleleNumIndex = getIndex(nestedFieldsMeta, ALLELE_NUM);
+        classIndex = getIndex(nestedFieldsMeta, VIP_CLASS);
         return;
       }
     }
     throw new MissingInfoException("VEP");
   }
 
-  private static int getIndex(Map<String, NestedField> nestedFields, String fieldName) {
+  private static int getIndex(Map<String, NestedFieldMetadata> nestedFields, String fieldName) {
     return nestedFields.get(fieldName) != null ? nestedFields.get(fieldName).getIndex() : -1;
   }
 }
