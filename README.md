@@ -63,9 +63,10 @@ contain the following:
 
 ## Usage
 ```
-usage: java -jar vcf-inheritance-matcher.jar -i <arg> [-o <arg>] [-pd
+usage: java -jar vcf-inheritance-matcher.jar -i <arg> -m <arg> [-o <arg>] [-pd
        <arg>] [-pb <arg>] [-np <arg>] [-c] [-f] [-d]
  -i,--input <arg>            Input VCF file (.vcf or .vcf.gz).
+ -m,--metadata <arg>         VCF metadata file (.json).
  -o,--output <arg>           Output VCF file (.vcf or .vcf.gz).
  -pd,--pedigree <arg>        Comma-separated list of pedigree files
                              (.ped).

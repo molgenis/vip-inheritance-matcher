@@ -12,7 +12,7 @@
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance-matcher</artifactId>
-  <version>3.3.1</version>
+  <version>3.3.2</version>
 
   <name>vip-inheritance-matcher</name>
   <description>Annotates VCF samples with mendelian violation and possible compound flags and
