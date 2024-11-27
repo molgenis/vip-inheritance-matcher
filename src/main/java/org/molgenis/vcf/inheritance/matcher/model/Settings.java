@@ -13,6 +13,7 @@ public class Settings {
   Path inputVcfPath;
   List<Path> inputPedPaths;
   Path outputPath;
+  Path metadataPath;
   List<String> probands;
   Set<String> pathogenicClasses;
   boolean overwrite;
