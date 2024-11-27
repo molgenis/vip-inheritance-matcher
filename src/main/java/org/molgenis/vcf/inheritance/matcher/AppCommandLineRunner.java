@@ -76,6 +76,7 @@ class AppCommandLineRunner implements CommandLineRunner {
   private Settings mapSettings(CommandLine commandLine) {
     String inputPathValue = commandLine.getOptionValue(OPT_INPUT);
     Path inputPath = Path.of(inputPathValue);
+    Path metadataPath = Path.of(commandLine.getOptionValue(OPT_METADATA));
 
     Path outputPath;
     if (commandLine.hasOption(OPT_OUTPUT)) {
@@ -111,7 +112,7 @@ class AppCommandLineRunner implements CommandLineRunner {
 
     return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
         .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).
-            pathogenicClasses(pathogenicClasses).debug(debugMode)
+            pathogenicClasses(pathogenicClasses).metadataPath(metadataPath).debug(debugMode)
         .build();
   }
 

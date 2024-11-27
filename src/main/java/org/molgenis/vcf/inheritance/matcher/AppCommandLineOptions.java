@@ -14,6 +14,8 @@ class AppCommandLineOptions {
   static final String OPT_INPUT_LONG = "input";
   static final String OPT_OUTPUT = "o";
   static final String OPT_OUTPUT_LONG = "output";
+  static final String OPT_METADATA = "m";
+  static final String OPT_METADATA_LONG = "metadata";
   static final String OPT_PED = "pd";
   static final String OPT_PED_LONG = "pedigree";
   static final String OPT_PROBANDS = "pb";
@@ -43,6 +45,13 @@ class AppCommandLineOptions {
             .hasArg(true)
             .longOpt(OPT_OUTPUT_LONG)
             .desc("Output VCF file (.vcf or .vcf.gz).")
+            .build());
+    appOptions.addOption(
+        Option.builder(OPT_METADATA)
+            .hasArg(true)
+            .required()
+            .longOpt(OPT_METADATA_LONG)
+            .desc("VCF metadata file (.json).")
             .build());
     appOptions.addOption(
         Option.builder(OPT_PED)
@@ -97,6 +106,7 @@ class AppCommandLineOptions {
   static void validateCommandLine(CommandLine commandLine) {
     validateInput(commandLine);
     validateOutput(commandLine);
+    validateMetadata(commandLine);
   }
 
   private static void validateInput(CommandLine commandLine) {
@@ -130,6 +140,27 @@ class AppCommandLineOptions {
     if (!commandLine.hasOption(OPT_FORCE) && Files.exists(outputPath)) {
       throw new IllegalArgumentException(
           format("Output file '%s' already exists", outputPath));
+    }
+  }
+
+  private static void validateMetadata(CommandLine commandLine) {
+    Path metadataPath = Path.of(commandLine.getOptionValue(OPT_METADATA));
+    if (!Files.exists(metadataPath)) {
+      throw new IllegalArgumentException(
+              format("Metadata file '%s' does not exist.", metadataPath));
+    }
+    if (Files.isDirectory(metadataPath)) {
+      throw new IllegalArgumentException(
+              format("Metadata file '%s' is a directory.", metadataPath));
+    }
+    if (!Files.isReadable(metadataPath)) {
+      throw new IllegalArgumentException(
+              format("Metadata file '%s' is not readable.", metadataPath));
+    }
+    String inputPathStr = metadataPath.toString();
+    if (!inputPathStr.endsWith(".json")) {
+      throw new IllegalArgumentException(
+              format("Metadata file '%s' is not a .json file.", inputPathStr));
     }
   }
 }
