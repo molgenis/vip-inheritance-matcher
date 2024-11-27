@@ -32,7 +32,7 @@ public class VepMetadataServiceFactoryImpl implements VepMetadataServiceFactory 
         File json;
         try {
             Path path = Files.createTempFile("metadata", ".json");
-            byte[] buf = EMPTY_METADATA_JSON.getBytes();
+            byte[] buf = EMPTY_METADATA_JSON.getBytes(StandardCharsets.UTF_8);
             Files.write(path, buf);
             json = path.toFile();
             json.deleteOnExit();
