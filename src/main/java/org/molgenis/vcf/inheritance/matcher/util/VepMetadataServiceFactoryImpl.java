@@ -35,6 +35,7 @@ public class VepMetadataServiceFactoryImpl implements VepMetadataServiceFactory 
             byte[] buf = EMPTY_METADATA_JSON.getBytes();
             Files.write(path, buf);
             json = path.toFile();
+            json.deleteOnExit();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
