@@ -27,6 +27,7 @@ public class VepMetadataServiceFactoryImpl implements VepMetadataServiceFactory 
                 """;
 
     @Override
+    @SuppressWarnings("java:S5443")
     public FieldMetadataService create() {
         File json;
         try {
