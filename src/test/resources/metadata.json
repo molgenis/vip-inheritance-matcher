@@ -1,0 +1,794 @@
+{
+  "format": {
+    "ADFL": {
+      "label": "Flanking reads",
+      "description": "Number of flanking reads consistent with the allele",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "STRING"
+    },
+    "ADIR": {
+      "label": "In-repeat reads",
+      "description": "Number of in-repeat reads consistent with the allele",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "STRING"
+    },
+    "ADSP": {
+      "label": "Spanning reads",
+      "description": "Number of spanning reads consistent with the allele",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "STRING"
+    },
+    "LC": {
+      "label": "Coverage",
+      "description": "Locus coverage",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "FLOAT"
+    },
+    "REPCI": {
+      "label": "Repeat CI",
+      "description": "Confidence interval for the number of repeat units spanned by the allele",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "STRING"
+    },
+    "REPCN": {
+      "label": "Repeats",
+      "description": "Number of repeat units spanned by the allele",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "STRING"
+    },
+    "VI": {
+      "label": "Inheritance",
+      "description": "An enumeration of possible inheritance modes based on the pedigree of the sample. Potential values: AD, AD_IP, AR, AR_C, XLR, XLD, YL, MT",
+      "numberType": "OTHER",
+      "separator": ",",
+      "type": "CATEGORICAL",
+      "categories": {
+        "AD": {
+          "label": "AD",
+          "description": "Autosomal dominant"
+        },
+        "AD_IP": {
+          "label": "AD_IP",
+          "description": "Autosomal dominant incomplete penetrance"
+        },
+        "AR": {
+          "label": "AR",
+          "description": "Autosomal recessive"
+        },
+        "AR_C": {
+          "label": "AR_C",
+          "description": "Autosomal recessive compound hetrozygote"
+        },
+        "XLD": {
+          "label": "XLD",
+          "description": "X-linked dominant"
+        },
+        "XLR": {
+          "label": "XLR",
+          "description": "X-linked recessive"
+        },
+        "YL": {
+          "label": "YL",
+          "description": "Y-linked"
+        },
+        "MT": {
+          "label": "MT",
+          "description": "Mitochondrial"
+        }
+      }
+    },
+    "VIPC_S": {
+      "label": "VIP sample classification",
+      "numberType": "OTHER",
+      "type": "STRING",
+      "separator": ","
+    }
+  },
+  "info": {
+    "CSQ": {
+      "nestedFields": {
+        "ALLELE_NUM": {
+          "label": "Allele Nr.",
+          "description": "Allele nr within the VCF file.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "INTEGER"
+        },
+        "ALPHSCORE": {
+          "label": "AlphScore",
+          "description": "AlphScore pathogenicity score for missense variants",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "CAPICE_CL": {
+          "label": "CAPICE",
+          "description": "CAPICE classification",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "B": {
+              "label": "B",
+              "description": "Benign"
+            },
+            "LB": {
+              "label": "LB",
+              "description": "Likely benign"
+            },
+            "VUS": {
+              "label": "VUS",
+              "description": "Variant of uncertain significance"
+            },
+            "LP": {
+              "label": "LP",
+              "description": "Likely pathogenic"
+            },
+            "P": {
+              "label": "P",
+              "description": "Pathogenic"
+            }
+          }
+        },
+        "CAPICE_SC": {
+          "label": "CAPICE",
+          "description": "CAPICE pathogenicity score",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "cDNA_position": {
+          "label": "cDNA pos",
+          "description": "Position within the cDNA.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "STRING"
+        },
+        "CDS_position": {
+          "label": "CDS pos",
+          "description": "Position within the coding sequence.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "STRING"
+        },
+        "CLIN_SIG": {
+          "label": "ClinVar",
+          "description": "ClinVar classification(s)",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "STRING"
+        },
+        "clinVar": {
+          "label": "ClinVar ID",
+          "description": "ClinVar Variation ID",
+          "numberType": "OTHER",
+          "type": "INTEGER"
+        },
+        "clinVar_CLNID": {
+          "label": "ClinVar ID",
+          "description": "ClinVar Variation ID",
+          "numberType": "OTHER",
+          "type": "INTEGER"
+        },
+        "clinVar_CLNSIG": {
+          "label": "ClinVar",
+          "description": "Clinical significance for this single variant",
+          "numberType": "OTHER",
+          "separator": "/",
+          "type": "CATEGORICAL",
+          "categories": {
+            "Benign": {
+              "label": "B",
+              "description": "Benign"
+            },
+            "Likely_benign": {
+              "label": "LB",
+              "description": "Likely benign"
+            },
+            "Uncertain_significance": {
+              "label": "VUS",
+              "description": "Variant of uncertain significance"
+            },
+            "Likely_pathogenic": {
+              "label": "LP",
+              "description": "Likely pathogenic"
+            },
+            "Pathogenic": {
+              "label": "P",
+              "description": "Pathogenic"
+            },
+            "Conflicting_interpretations_of_pathogenicity": {
+              "label": "Conflict",
+              "description": "Conflicting interpretations of pathogenicity"
+            }
+          }
+        },
+        "clinVar_CLNSIGINCL": {
+          "label": "ClinVar variant combination",
+          "description": "Clinical significance for a haplotype or genotype that includes this variant",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "CATEGORICAL",
+          "categories": {
+            "Benign": {
+              "label": "B",
+              "description": "Benign"
+            },
+            "Likely_benign": {
+              "label": "LB",
+              "description": "Likely benign"
+            },
+            "Uncertain_significance": {
+              "label": "VUS",
+              "description": "Variant of uncertain significance"
+            },
+            "Likely_pathogenic": {
+              "label": "LP",
+              "description": "Likely pathogenic"
+            },
+            "Pathogenic": {
+              "label": "P",
+              "description": "Pathogenic"
+            },
+            "Conflicting_interpretations_of_pathogenicity": {
+              "label": "Conflict",
+              "description": "Conflicting interpretations of pathogenicity"
+            }
+          }
+        },
+        "clinVar_CLNREVSTAT": {
+          "label": "ClinVar status",
+          "description": "ClinVar review status",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "CATEGORICAL",
+          "categories": {
+            "practice_guideline": {
+              "label": "Practice guideline",
+              "description": "There is a submitted record with a classification from a practice guideline"
+            },
+            "reviewed_by_expert_panel": {
+              "label": "Reviewed by expert panel",
+              "description": "There is a submitted record with a classification from an expert panel"
+            },
+            "criteria_provided": {
+              "label": "Criteria provided",
+              "description": "Assertion criteria and evidence for the classification (or a public contact) were provided"
+            },
+            "_multiple_submitters": {
+              "label": "Multiple submitters",
+              "description": "There are multiple submitted records with a classification"
+            },
+            "_no_conflicts": {
+              "label": "No conflicts",
+              "description": "The classifications agree"
+            },
+            "_single_submitter": {
+              "label": "Single submitter",
+              "description": "There is a single submitted record with a classification"
+            },
+            "_conflicting_interpretations": {
+              "label": "Conflicting_interpretations",
+              "description": "There are conflicting classifications"
+            },
+            "no_assertion_criteria_provided": {
+              "label": "No assertion criteria provided",
+              "description": "There are one or more submitted records with a classification but without assertion criteria and evidence for the classification (or a public contact)"
+            },
+            "no_assertion_provided": {
+              "label": "No assertion provided"
+            }
+          }
+        },
+        "Consequence": {
+          "label": "Effect",
+          "description": "Effect(s) described as Sequence Ontology term(s)",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "STRING"
+        },
+        "Existing_variation": {
+          "label": "Ex. var.",
+          "description": "Existing variation.",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "STRING"
+        },
+        "FATHMM_MKL_NC": {
+          "label": "FATHMM-MKL-NC",
+          "description": "Predict the Functional Consequences of Non-Coding Single Nucleotide Variants (SNVs)",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "GDB_PRO": {
+          "label": "GDB_PRO",
+          "description": "Highest GREEN-DB constraint score for overlapping promotor regions.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "GDB_ENH": {
+          "label": "GDB_ENH",
+          "description": "Highest GREEN-DB constraint score for overlapping enhancer regions.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "GDB_BIV": {
+          "label": "GDB_BIV",
+          "description": "Highest GREEN-DB constraint score for overlapping bivalent regions.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "GDB_SIL": {
+          "label": "GDB_SIL",
+          "description": "Highest GREEN-DB constraint score for overlapping silencer regions.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "GDB_INS": {
+          "label": "GDB_INS",
+          "description": "Highest GREEN-DB constraint score for overlapping insulater regions.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "Feature_type": {
+          "label": "Feature Type.",
+          "description": "The VEP feature type",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "Transcript": {
+              "label": "Transcript",
+              "description": "Transcript"
+            },
+            "RegulatoryFeature": {
+              "label": "Regulatory",
+              "description": "Regulatory feature"
+            },
+            "MotifFeature": {
+              "label": "Motif",
+              "description": "Motif feature"
+            }
+          },
+          "required": true
+        },
+        "FLAGS": {
+          "label": "Flags",
+          "description": "Flags",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "STRING"
+        },
+        "GADO_PD": {
+          "label": "GADO_PD",
+          "description": "Gene-phenotypes association based on the GeneNetwork Assisted Diagnostic Optimization (GADO) gene prioritization Z-scores, see https://www.genenetwork.nl/gado and https://doi.org/10.1038/s41467-019-10649-4",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "HC": {
+              "label": "High confidence",
+              "description": "Gene phenotype relation predicted by GADO with high confidence; Z-Score greater than 5"
+            },
+            "LC": {
+              "label": "Low confidence",
+              "description": "Gene phenotype relation predicted by GADO with low confidence; Z-Score greater than 3 but below 5"
+            }
+          }
+        },
+        "GADO_SC": {
+          "label": "GADO_SC",
+          "description": "The combined prioritization GADO Z-score over the HPO of the proband(s) terms for this case.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "gnomAD_AF": {
+          "label": "gnomAD AF",
+          "description": "gnomAD allele frequency",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "gnomAD_COV": {
+          "label": "gnomAD COV",
+          "description": "gnomAD coverage (percent of individuals in gnomAD source)",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "gnomAD_FAF95": {
+          "label": "gnomAD FAF95",
+          "description": "gnomAD filter allele frequency (95% confidence)",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "gnomAD_FAF99": {
+          "label": "gnomAD FAF99",
+          "description": "gnomAD filter allele frequency (99% confidence)",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "gnomAD_HN": {
+          "label": "gnomAD HN",
+          "description": "gnomAD number of homozygotes",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "INTEGER"
+        },
+        "gnomAD_SRC": {
+          "label": "gnomAD SRC",
+          "description": "gnomAD source",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "E": {
+              "label": "Exomes"
+            },
+            "G": {
+              "label": "Genomes"
+            },
+            "T": {
+              "label": "Total",
+              "description": "Total: exomes & genomes"
+            }
+          }
+        },
+        "gnomAD_QC": {
+          "label": "gnomAD QC",
+          "description": "gnomAD quality control filters that failed",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "STRING"
+        },
+        "HGNC_ID": {
+          "label": "HGNC ID",
+          "description": "The HGNC gene ID",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "INTEGER"
+        },
+        "HGVSc": {
+          "label": "HGVS C",
+          "description": "HGVS nomenclature: coding DNA reference sequence",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "STRING"
+        },
+        "HGVSp": {
+          "label": "HGVS P",
+          "description": "HGVS nomenclature: protein reference sequence",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "STRING"
+        },
+        "HPO": {
+          "label": "HPO",
+          "description": "Human Phenotype Ontology (HPO) terms describing phenotypic abnormalities, see https://hpo.jax.org/ and https://doi.org/10.1093/nar/gkad1005",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "STRING"
+        },
+        "IMPACT": {
+          "label": "Impact",
+          "description": "The Impact as predicted by VEP",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "LOW": {
+              "label": "Low"
+            },
+            "MODERATE": {
+              "label": "Moderate"
+            },
+            "HIGH": {
+              "label": "High"
+            },
+            "MODIFIER": {
+              "label": "Modifier"
+            }
+          },
+          "required": true
+        },
+        "IncompletePenetrance": {
+          "label": "Gene: Inc.Pen.",
+          "description": "Is gene associated with incomplete penetrance?",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "1": {
+              "label": "True",
+              "description": "Gene is associated with incomplete penetrance"
+            }
+          },
+          "nullValue": {
+            "label": "False"
+          }
+        },
+        "InheritanceModesGene": {
+          "label": "Inh.Pat.",
+          "description": "Inheritance pattern",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "CATEGORICAL",
+          "categories": {
+            "AD": {
+              "label": "AD",
+              "description": "Autosomal dominant"
+            },
+            "AD_IP": {
+              "label": "AD_IP",
+              "description": "Autosomal dominant incomplete penetrance"
+            },
+            "AR": {
+              "label": "AR",
+              "description": "Autosomal recessive"
+            },
+            "AR_C": {
+              "label": "AR_C",
+              "description": "Autosomal recessive compound hetrozygote"
+            },
+            "XL": {
+              "label": "XL",
+              "description": "X-linked"
+            },
+            "XLD": {
+              "label": "XLD",
+              "description": "X-linked dominant"
+            },
+            "XLR": {
+              "label": "XLR",
+              "description": "X-linked recessive"
+            },
+            "YL": {
+              "label": "YL",
+              "description": "Y-linked"
+            },
+            "MT": {
+              "label": "MT",
+              "description": "Mitochondrial"
+            }
+          }
+        },
+        "ncER": {
+          "label": "ncER",
+          "description": "Non-coding essential regulation, from: 0(probably not essential for regulation) to 100 (probably essential for regulation).",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "PHENO": {
+          "label": "Pheno",
+          "description": "Phenotype match.",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "INTEGER"
+        },
+        "PICK": {
+          "label": "PICK",
+          "description": "Boolean indicating if this is the VEP picked transcript.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "INTEGER"
+        },
+        "PolyPhen": {
+          "label": "PolyPhen",
+          "description": "PolyPhen score.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "Protein_position": {
+          "label": "Protein pos",
+          "description": "Position within the protein.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "STRING"
+        },
+        "PUBMED": {
+          "label": "PubMed",
+          "description": "PubMed citations",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "INTEGER"
+        },
+        "ReMM": {
+          "label": "ReMM",
+          "description": "The Regulatory Mendelian Mutation (ReMM) score was created for relevance prediction of non-coding variations (SNVs and small InDels) in the human genome (hg19) in terms of Mendelian diseases.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "SIFT": {
+          "label": "SIFT",
+          "description": "SIFT score.",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "SOMATIC": {
+          "label": "Somatic",
+          "description": "Somatic.",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "INTEGER"
+        },
+        "SpliceAI_pred_DS_AG": {
+          "label": "SpliceAI AG",
+          "description": "SpliceAI Delta score (acceptor gain).",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "SpliceAI_pred_DS_AL": {
+          "label": "SpliceAI AL",
+          "description": "SpliceAI Delta score (acceptor loss).",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "SpliceAI_pred_DS_DG": {
+          "label": "SpliceAI DG",
+          "description": "SpliceAI Delta score (donor gain).",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "SpliceAI_pred_DS_DL": {
+          "label": "SpliceAI DL",
+          "description": "SpliceAI Delta score (donor loss).",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "FLOAT"
+        },
+        "STRAND": {
+          "label": "Strand",
+          "description": "The strand of the gene (0=- 1=+).",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "INTEGER"
+        },
+        "SYMBOL": {
+          "label": "Gene",
+          "description": "Gene symbol",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "STRING"
+        },
+        "VIPC": {
+          "label": "VIP classification",
+          "description": "Variant consequence classification predicted by the Variant Interpretation Pipeline (VIP), see https://vip.molgeniscloud.org/ and https://doi.org/10.1101/2024.04.11.24305656",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "STRING",
+          "required": true
+        },
+        "VIPP": {
+          "label": "VIP path",
+          "description": "VIP decision tree path",
+          "numberType": "OTHER",
+          "separator": "&",
+          "type": "STRING",
+          "required": true
+        },
+        "VKGL_CL": {
+          "label": "VKGL",
+          "description": "Variant consensus classification from the Vereniging Klinisch Genetische Laboratoriumdiagnostiek (VKGL) datashare database, see https://vkgl.nl/nl/diagnostiek/vkgl-datashare-database",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "B": {
+              "label": "B",
+              "description": "Benign"
+            },
+            "LB": {
+              "label": "LB",
+              "description": "Likely benign"
+            },
+            "VUS": {
+              "label": "VUS",
+              "description": "Variant of uncertain significance"
+            },
+            "LP": {
+              "label": "LP",
+              "description": "Likely pathogenic"
+            },
+            "P": {
+              "label": "P",
+              "description": "Pathogenic"
+            }
+          }
+        },
+        "VKGL_UMCG": {
+          "label": "MVL",
+          "description": "UMCG managed variant list classification",
+          "numberType": "NUMBER",
+          "numberCount": 1,
+          "type": "CATEGORICAL",
+          "categories": {
+            "B": {
+              "label": "B",
+              "description": "Benign"
+            },
+            "LB": {
+              "label": "LB",
+              "description": "Likely benign"
+            },
+            "VUS": {
+              "label": "VUS",
+              "description": "Variant of uncertain significance"
+            },
+            "LP": {
+              "label": "LP",
+              "description": "Likely pathogenic"
+            },
+            "P": {
+              "label": "P",
+              "description": "Pathogenic"
+            }
+          }
+        }
+      }
+    },
+    "STR_NORMAL_MAX": {
+      "label": "STR normal max",
+      "description": "Maximum number of repeats allowed to call as normal as defined in the Stranger catalogue",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "INTEGER"
+    },
+    "STR_PATHOLOGIC_MIN": {
+      "label": "STR pathologic min",
+      "description": "Mininum number of repeats required to call as pathologic as defined in the Stranger catalogue",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "INTEGER"
+    },
+    "STR_STATUS": {
+      "label": "STR status",
+      "description": "Repeat expansion status as decided by Stranger",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "CATEGORICAL",
+      "categories": {
+        "normal": {
+          "label": "normal",
+          "description": "Repeat count is smaller than or equal to the maximum number of repeats allowed to call as normal"
+        },
+        "pre_mutation": {
+          "label": "pre-mutation",
+          "description": "Repeat count is greater than the maximum number of repeats allowed to call as normal and smaller than the minimum number of repeats required to call as pathologic"
+        },
+        "full_mutation": {
+          "label": "full-mutation",
+          "description": "Repeat count is greater than or equal to the minimum number of repeats required to call as pathologic"
+        }
+      }
+    },
+    "SVTYPE": {
+      "label": "SV type",
+      "description": "Type of structural variant",
+      "numberType": "NUMBER",
+      "numberCount": 1,
+      "type": "STRING"
+    }
+  }
+}
