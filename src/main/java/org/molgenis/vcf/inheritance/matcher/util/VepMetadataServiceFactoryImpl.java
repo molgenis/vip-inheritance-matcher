@@ -5,6 +5,7 @@ import org.molgenis.vcf.utils.metadata.FieldMetadataServiceImpl;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
