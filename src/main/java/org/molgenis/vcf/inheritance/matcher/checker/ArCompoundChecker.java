@@ -151,7 +151,7 @@ public class ArCompoundChecker {
         } else if ((sampleGt == null || !sampleGt.hasReference()) || (sampleOtherGt == null || !sampleOtherGt.hasReference())) {
             matches.add(POTENTIAL);
         } else {
-            if (checkAffectedPhased(sampleGt, sampleOtherGt)) {
+            if (sampleGt.isPhased() && sampleOtherGt.isPhased() && !checkAffectedPhased(sampleGt, sampleOtherGt)) {
                 matches.add(FALSE);
             }
             matches.add(TRUE);
@@ -159,8 +159,7 @@ public class ArCompoundChecker {
     }
 
     private static boolean checkAffectedPhased(Genotype sampleGt, Genotype sampleOtherGt) {
-        return sampleGt.isPhased() && sampleOtherGt.isPhased() &&
-                (sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
-                (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference());
+        return !((sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
+                (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference()));
     }
 }
