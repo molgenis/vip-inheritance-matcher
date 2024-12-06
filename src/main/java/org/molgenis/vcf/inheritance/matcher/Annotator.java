@@ -71,7 +71,7 @@ public class Annotator {
         GenotypeBuilder genotypeBuilder = new GenotypeBuilder(genotype);
         Set<String> vig = new HashSet<>();
         Set<String> compounds = getCompoundStrings(inheritanceResult.getCompounds());
-        String vic = inheritanceResult.getCompounds().isEmpty() ? "" : String.join(",", compounds);
+        String vic = inheritanceResult.getCompounds().isEmpty() ? "" : String.join(",", compounds.stream().sorted().toList());
         MatchEnum match = getMatch(inheritanceResult, vcfRecord);
         Set<String> vi = mapInheritanceModes(inheritanceResult);
         String vim = mapInheritanceMatch(match);
@@ -88,7 +88,7 @@ public class Annotator {
     }
 
     private Set<String> getCompoundStrings(Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
-        Set<String> result = new HashSet<>();
+        Set<String> result = new LinkedHashSet<>();
         compounds.values().forEach(compoundsForGene -> compoundsForGene.forEach(compound -> result.add(createKey(compound))));
         return result;
     }

@@ -111,7 +111,10 @@ public class InheritanceService {
             inheritanceResult.setCompounds(compoundsMap);
             boolean isCertain = false;
             for (Set<CompoundCheckResult> compoundCheckResult : compoundsMap.values()) {
-                isCertain = compoundCheckResult.stream().anyMatch(CompoundCheckResult::isCertain);
+                if(compoundCheckResult.stream().anyMatch(CompoundCheckResult::isCertain)){
+                    isCertain = true;
+                    break;
+                }
             }
             Set<PedigreeInheritanceMatch> pedigreeInheritanceMatches = inheritanceResult.getPedigreeInheritanceMatches();
             pedigreeInheritanceMatches.add(new PedigreeInheritanceMatch(AR_C, !isCertain));
