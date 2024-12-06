@@ -36,7 +36,7 @@ public class ArCompoundChecker {
     private void checkForGene(Map<GeneInfo, Set<VcfRecord>> geneVariantMap,
                               VcfRecord vcfRecord, Pedigree family, Map<GeneInfo, Set<CompoundCheckResult>> compoundsMap, GeneInfo geneInfo) {
         Collection<VcfRecord> variantGeneRecords = geneVariantMap.get(geneInfo);
-        Set<CompoundCheckResult> compounds = new HashSet<>();
+        Set<CompoundCheckResult> compounds = new LinkedHashSet<>();
         if (variantGeneRecords != null) {
             for (VcfRecord otherRecord : variantGeneRecords) {
                 if (!otherRecord.equals(vcfRecord)) {

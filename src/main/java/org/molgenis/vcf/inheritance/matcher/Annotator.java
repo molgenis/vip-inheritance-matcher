@@ -88,7 +88,7 @@ public class Annotator {
     }
 
     private Set<String> getCompoundStrings(Map<GeneInfo, Set<CompoundCheckResult>> compounds) {
-        Set<String> result = new HashSet<>();
+        Set<String> result = new LinkedHashSet<>();
         compounds.values().forEach(compoundsForGene -> compoundsForGene.forEach(compound -> result.add(createKey(compound))));
         return result;
     }
