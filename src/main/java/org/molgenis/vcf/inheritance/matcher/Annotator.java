@@ -7,11 +7,7 @@ import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfFormatHeaderLines;
 import static org.molgenis.vcf.utils.utils.HeaderUtils.fixVcfInfoHeaderLines;
 
 import htsjdk.variant.variantcontext.*;
-import htsjdk.variant.vcf.VCFFormatHeaderLine;
-import htsjdk.variant.vcf.VCFHeader;
-import htsjdk.variant.vcf.VCFHeaderLine;
-import htsjdk.variant.vcf.VCFHeaderLineCount;
-import htsjdk.variant.vcf.VCFHeaderLineType;
+import htsjdk.variant.vcf.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,7 +67,7 @@ public class Annotator {
         GenotypeBuilder genotypeBuilder = new GenotypeBuilder(genotype);
         Set<String> vig = new HashSet<>();
         Set<String> compounds = getCompoundStrings(inheritanceResult.getCompounds());
-        String vic = inheritanceResult.getCompounds().isEmpty() ? "" : String.join(",", compounds.stream().sorted().toList());
+        String vic = inheritanceResult.getCompounds().isEmpty() ? VCFConstants.MISSING_VALUE_v4 : String.join(",", compounds.stream().sorted().toList());
         MatchEnum match = getMatch(inheritanceResult, vcfRecord);
         Set<String> vi = mapInheritanceModes(inheritanceResult);
         String vim = mapInheritanceMatch(match);
@@ -82,7 +78,7 @@ public class Annotator {
         genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", vi));
         genotypeBuilder.attribute(INHERITANCE_MATCH, vim);
         genotypeBuilder.attribute(POSSIBLE_COMPOUND, vic);
-        genotypeBuilder.attribute(MATCHING_GENES, vig.stream().sorted().collect(Collectors.joining(",")));
+        genotypeBuilder.attribute(MATCHING_GENES, vig.isEmpty() ? VCFConstants.MISSING_VALUE_v4 : vig.stream().sorted().collect(Collectors.joining(",")));
         genotypeBuilder.attribute(DENOVO, mapDenovoValue(inheritanceResult, sample));
         return genotypeBuilder.make();
     }
@@ -111,7 +107,7 @@ public class Annotator {
         return switch (inheritanceResult.getDenovo().get(sample)) {
             case TRUE -> "1";
             case FALSE -> "0";
-            case POTENTIAL -> "";
+            case POTENTIAL -> VCFConstants.MISSING_VALUE_v4;
         };
     }
 
@@ -120,7 +116,7 @@ public class Annotator {
         switch (match) {
             case TRUE -> inheritanceMatch = "1";
             case FALSE -> inheritanceMatch = "0";
-            case POTENTIAL -> inheritanceMatch = "";
+            case POTENTIAL -> inheritanceMatch = VCFConstants.MISSING_VALUE_v4;
             default -> throw new UnexpectedEnumException(match);
         }
         return inheritanceMatch;
