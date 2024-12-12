@@ -75,7 +75,7 @@ public class Annotator {
             vig = getMatchingGenes(inheritanceResult.getPedigreeInheritanceMatches(), vcfRecord.geneInfos(), inheritanceResult.getCompounds());
         }
 
-        genotypeBuilder.attribute(INHERITANCE_MODES, String.join(",", vi));
+        genotypeBuilder.attribute(INHERITANCE_MODES, vi.isEmpty() ? VCFConstants.MISSING_VALUE_v4 : String.join(",", vi));
         genotypeBuilder.attribute(INHERITANCE_MATCH, vim);
         genotypeBuilder.attribute(POSSIBLE_COMPOUND, vic);
         genotypeBuilder.attribute(MATCHING_GENES, vig.isEmpty() ? VCFConstants.MISSING_VALUE_v4 : vig.stream().sorted().collect(Collectors.joining(",")));
