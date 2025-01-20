@@ -91,13 +91,19 @@ public class ArCompoundChecker {
         //if the both variants are hetrozygous present in an unaffected sample in phased data, check if both are on the same allele.
         Genotype sampleGt = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
         Genotype sampleOtherGt = otherVariantGeneRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
-
-        if ((sampleGt != null && sampleOtherGt != null) && (sampleGt.isPhased() && sampleOtherGt.isPhased() &&
+        if ((sampleGt != null && sampleOtherGt != null) && isPhasedSameBlock(sampleGt, sampleOtherGt) && (
                 (sampleGt.getAllele(0).isReference() && sampleOtherGt.getAllele(0).isReference()) ||
-                (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference()))) {
+                        (sampleGt.getAllele(1).isReference() && sampleOtherGt.getAllele(1).isReference()))) {
             return TRUE;
         }
         return FALSE;
+    }
+
+    private static boolean isPhasedSameBlock(Genotype sampleGt, Genotype sampleOtherGt) {
+        String phasingBlock = sampleGt.getPhasingBlock();
+        String otherPhasingBlock = sampleOtherGt.getPhasingBlock();
+        return (sampleGt.isPhased() && sampleOtherGt.isPhased() &&
+                (phasingBlock != null && otherPhasingBlock != null) && phasingBlock.equals(otherPhasingBlock));
     }
 
     private static boolean isHomAlt(VcfRecord vcfRecord, Set<List<Allele>> affectedGenotypes, Sample unAffectedSample) {
@@ -151,7 +157,7 @@ public class ArCompoundChecker {
         } else if ((sampleGt == null || !sampleGt.hasReference()) || (sampleOtherGt == null || !sampleOtherGt.hasReference())) {
             matches.add(POTENTIAL);
         } else {
-            if (sampleGt.isPhased() && sampleOtherGt.isPhased() && !checkAffectedPhased(sampleGt, sampleOtherGt)) {
+            if (isPhasedSameBlock(sampleGt, sampleOtherGt) && !checkAffectedPhased(sampleGt, sampleOtherGt)) {
                 matches.add(FALSE);
             }
             matches.add(TRUE);
