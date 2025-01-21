@@ -32,3 +32,8 @@ regularBrotherMissingFromVcf_switched	1/0	1/0	AFFECTED	MALE	0/0	0/1	UNAFFECTED	0
 regular_switched	1/0	0/1	AFFECTED	MALE	0/0	1/0	UNAFFECTED	1/0	0/0	UNAFFECTED				true
 phasedFatherBothSameAlleleOtherBlock	1|0:block1	0|1:block2	AFFECTED	MALE	0|1:block1	0|1:block2	UNAFFECTED	0|1:block1	0|0:block2	UNAFFECTED				false
 phasedProbandBothSameAlleleOtherBlock	0|1:block1	0|1:block2	AFFECTED	MALE	0|0:block1	0|1:block2	UNAFFECTED	0|1:block1	0|0:block2	UNAFFECTED				true
+phasedFatherBothSameAlleleOtherBlock2	0|1:block1	0|1:block2	AFFECTED	MALE	1|0:block1	1|0:block2	UNAFFECTED	1|0:block1	0|0:block2	UNAFFECTED				false
+phasedProbandBothSameAlleleOtherBlock2	1|0:block1	0|1:block2	AFFECTED	MALE	0|0:block1	0|1:block2	UNAFFECTED	1|0:block1	0|0:block2	UNAFFECTED				true
+phasedFatherDifferentAlleles	1|0:block1	0|1:block1	AFFECTED	MALE	1|0:block1	0|1:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				false
+mixedPhased	1|0:block1	0/1:block1	AFFECTED	MALE	0/1:block1	0|0:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				true
+mixedPhased2	0|1:block1	0/1:block1	AFFECTED	MALE	0/1:block1	0|0:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				true
