@@ -37,3 +37,6 @@ phasedProbandBothSameAlleleOtherBlock2	1|0:block1	0|1:block2	AFFECTED	MALE	0|0:b
 phasedFatherDifferentAlleles	1|0:block1	0|1:block1	AFFECTED	MALE	1|0:block1	0|1:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				false
 mixedPhased	1|0:block1	0/1:block1	AFFECTED	MALE	0/1:block1	0|0:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				true
 mixedPhased2	0|1:block1	0/1:block1	AFFECTED	MALE	0/1:block1	0|0:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				true
+phasedFatherBothSameAlleleSwitched	0|1:block1	1|0:block1	AFFECTED	MALE	1|0:block1	1|0:block1	UNAFFECTED	1|0:block1	0|0:block1	UNAFFECTED				true
+phasedNull	0|1:block1		AFFECTED	MALE	1|0:block1	1|0:block1	UNAFFECTED	1|0:block1	0|0:block1	UNAFFECTED				possible
+phasedNull2		0|1:block1	AFFECTED	MALE	0|1:block1	0|1:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				possible
