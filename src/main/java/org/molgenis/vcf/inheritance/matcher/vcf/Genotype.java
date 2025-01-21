@@ -7,6 +7,7 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 
 public class Genotype {
+    public static final String PHASING_BLOCK = "PS";
     final htsjdk.variant.variantcontext.Genotype originalGenotype;
 
     public Genotype(htsjdk.variant.variantcontext.Genotype originalGenotype) {
@@ -68,5 +69,10 @@ public class Genotype {
 
     public boolean isHet() {
         return originalGenotype.isHet();
+    }
+
+    public String getPhasingBlock() {
+        return originalGenotype.getExtendedAttribute(PHASING_BLOCK) != null
+                ? originalGenotype.getExtendedAttribute(PHASING_BLOCK).toString(): null;
     }
 }

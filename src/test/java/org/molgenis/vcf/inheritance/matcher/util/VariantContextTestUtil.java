@@ -13,6 +13,7 @@ import java.util.*;
 import static htsjdk.variant.variantcontext.Allele.*;
 import static java.util.Collections.*;
 import static org.molgenis.vcf.inheritance.matcher.model.MatchEnum.*;
+import static org.molgenis.vcf.inheritance.matcher.vcf.Genotype.PHASING_BLOCK;
 
 public class VariantContextTestUtil {
 
@@ -34,9 +35,11 @@ public class VariantContextTestUtil {
         return new VcfRecord(builder.make(), Set.of(ALT_A,ALT_G,ALT_N), Set.of(new GeneInfo("GENE1", "SOURCE", emptySet())));
     }
 
-    public static Genotype createGenotype(String sample, String gt) {
+    public static Genotype createGenotype(String sample, String format) {
         boolean isPhased = false;
+        String[] formatSplit = format.split(":");
         String[] gtSplit;
+        String gt= formatSplit[0];
         if (gt.contains("|")) {
             isPhased = true;
             gtSplit = gt.split("\\|");
@@ -54,6 +57,9 @@ public class VariantContextTestUtil {
         genotypeBuilder.name(sample);
         genotypeBuilder.alleles(alleles);
         genotypeBuilder.phased(isPhased);
+        if(formatSplit.length > 1){
+            genotypeBuilder.attribute(PHASING_BLOCK, formatSplit[1]);
+        }
         return genotypeBuilder.make();
     }
 
