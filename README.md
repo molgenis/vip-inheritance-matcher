@@ -166,8 +166,9 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 1) Two variant are present in the same gene for all affected members.
 2) Both those variants are not matching the AR inheritance pattern.
 3) The variants are not on chromosome X,Y or MT.
-4) Affected members need to have at least one alternative allele in for both variants, if data is phased and both variants are in the same block, the alternative alleles have to be on different alleles.
-5) Unaffected members cannot have the same alternative alleles as an affected member for both variants, they can have the same alternative allele for one of the variants, if data is phased and both variants are in the same block, the unaffected sample can have both variants if they are on the same allele.
+4) Affected members need to have at least one variant in for both variants, if data is phased and both variants are in the same block, the variants have to be on different alleles.
+5) Unaffected members can have one or both the same variants as an affected member for both variants if data is unphased, if the member has both variants the match is "potential" since the match depends on the variants being on the smae allele or not.
+6) if data is phased and both variants are in the same block, the unaffected sample can have both variants if they are on the same allele.
 ##### - Missing/partial genotypes:
 6) If based on other members the pattern does not match the pattern match will stay false.
 7) If based on other members the pattern does match:
@@ -175,17 +176,20 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 	- If unaffected members have missing alleles in combination with an alternative allele, that has also been seen as a single alternative allele in genotypes of affected members, for both variants that this pattern does not match.
 	- Other combinations of genotypes with missing alleles will lead to a "potential" match.
 ##### Examples
-| Patient* | Father*  | Mother*  | Result    | Explanation                                                                                                                                                                                                   |
-|----------|----------|----------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0/1  0/1 | 0/1  0/0 | 0/0  0/1 | true      | Patient is the only one with 2 affected alleles in its genotype.                                                                                                                                              |
-| 0/1  0/1 | 0/1  0/1 | 0/0  0/1 | false     | Father also has 2 affected alleles in his genotype.                                                                                                                                                           |
-| 0/1  0/1 | 0/1  0/2 | 0/0  0/1 | potential | Father has 2 genotypes with an alternative allele, but one of those differs from the patients alternative allele, we do not know if those match in pathogenicity.                                             |
-| 0/1  0/1 | 1/1  0/0 | 0/0  0/1 | false     | Father has 2 affected alleles for one of the variants but since he is unaffected it cannot be pathogenic, therefor the hetrozygotic variant in the patient genotype can not be part of a pathogenic compound. |
-| 0/1  0/1 | 2/2  0/0 | 0/0  0/1 | potential | Father has 2 affected alleles for one of the variants but of a different alternative allele than the alternative allele of the patient, we do not know if those alleles match in pathogenicity..              |
-| 0/1  0/1 | 0/1  0/. | 0/0  0/1 | potential | Since the father missing alleles can be anything; the alternative allele of mother genotype, the reference allele, or another alt allele, therefor the match is "potential".                                  |
-| 0/1  0/. | 1/1  0/0 | 0/0  0/1 | potential | Since the patient missing allele can be anything this is a possible match.                                                                                                                                    |
-| 0/.  0/. | 0/1  0/0 | 0/0  0/1 | potential | Since the patient missing alleles can be anything this is a possible match.                                                                                                                                   |
-| 0/1  0/1 | 0/.  0/0 | 0/0  0/1 | true      | Father can have one of the variants of the patient, therefor the missing allele can be anything while the autosomal recessive pattern still matches.                                                          |
+| Patient*   | Father*    | Mother*    | Result    | Explanation                                                                                                                                                                                                      |
+|------------|------------|------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0/1  0/1   | 0/1  0/0   | 0/0  0/1   | true      | Patient is the only one with 2 variants in its genotypes.                                                                                                                                                        |
+| 0/1  0/1   | 0/1  0/1   | 0/0  0/1   | potential | Father also has 2 variants in his genotypes, but data is unphased therefor it is unclear if those are on the same allele.                                                                                        |
+| 0\|1  1\|0 | 0\|1  0\|1 | 0\|0  0\|1 | true      | Father also has 2 variants in his genotypes, but they both affect the same allele.                                                                                                                               |
+| 0\|1  1\|0 | 0\|1  1\|0 | 0\|0  0\|1 | false     | Father also has 2 variants in his genotypes, and they affect both alleles.                                                                                                                                       |
+| 0\|1  0\|1 | 0\|1  0\|0 | 0\|0  0\|1 | false     | The variants for the patient are on the same allele and therefor no compound.                                                                                                                                    |
+| 0/1  0/1   | 0/1  0/2   | 0/0  0/1   | potential | Father has 2 genotypes with a variant, but one of those differs from the patients alternative allele, we do not know if those match in pathogenicity.                                                            |
+| 0/1  0/1   | 1/1  0/0   | 0/0  0/1   | false     | Father has 2 alternative alleles for one of the variants but since he is unaffected it cannot be pathogenic, therefor the hetrozygotic variant in the patient genotype can not be part of a pathogenic compound. |
+| 0/1  0/1   | 2/2  0/0   | 0/0  0/1   | potential | Father has 2 alternative alleles for one of the variants but of a different alternative allele than the alternative allele of the patient, we do not know if those alleles match in pathogenicity..              |
+| 0/1  0/1   | 0/1  0/.   | 0/0  0/1   | potential | Since the father missing alleles can be anything; the alternative allele of mother genotype, the reference allele, or another alt allele, therefor the match is "potential".                                     |
+| 0/1  0/.   | 1/1  0/0   | 0/0  0/1   | potential | Since the patient missing allele can be anything this is a possible match.                                                                                                                                       |
+| 0/.  0/.   | 0/1  0/0   | 0/0  0/1   | potential | Since the patient missing alleles can be anything this is a possible match.                                                                                                                                      |
+| 0/1  0/1   | 0/.  0/0   | 0/0  0/1   | true      | Father can have one of the variants of the patient, therefor the missing allele can be anything while the autosomal recessive pattern still matches.                                                             |
 \*: every individual has 2 genotypes for 2 different variants in the same gene
 
 #### X-linked Dominant

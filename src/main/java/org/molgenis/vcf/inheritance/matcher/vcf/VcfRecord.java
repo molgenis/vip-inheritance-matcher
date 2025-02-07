@@ -32,4 +32,8 @@ public record VcfRecord(VariantContext variantContext, Set<Allele> pathogenicAll
     public Allele getReference() {
         return variantContext.getReference();
     }
+
+    public int getAlleleIndex(Allele allele){
+        return variantContext.getAlleleIndex(allele);
+    }
 }

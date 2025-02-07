@@ -89,7 +89,7 @@ public class DeNovoChecker {
         } else if (probandGt.hasAltAllele()) {
             if (motherGt != null && hasSameAltAlleles(probandGt, motherGt) && !motherGt.hasReference()) {
                 return FALSE;
-            } else if (motherGt != null && !hasSameAltAlleles(probandGt, motherGt) && motherGt.isCalled() && !motherGt.isMixed()) {
+            } else if (motherGt != null && !hasSameAltAlleles(probandGt, motherGt) && motherGt.isCalled() && !motherGt.isMixedOrHet()) {
                 return TRUE;
             } else {
                 return POTENTIAL;

@@ -35,7 +35,7 @@ public class AdNonPenetranceChecker {
             case AFFECTED -> {
                 if (sampleGt != null && sampleGt.isHomRef()) {
                     return FALSE;
-                } else if (sampleGt != null && sampleGt.isMixed()) {
+                } else if (sampleGt != null && sampleGt.isMixedOrHet()) {
                     return sampleGt.hasAltAllele() ? TRUE : POTENTIAL;
                 } else {
                     return sampleGt == null ? POTENTIAL : TRUE;

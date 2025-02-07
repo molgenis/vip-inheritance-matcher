@@ -19,9 +19,14 @@ public class Genotype {
     }
 
     //combination of no_call/call or fully called gt with single VUS allele
-    public boolean isMixed() {
+    public boolean isMixedOrHet() {
         return originalGenotype.isMixed() || (!originalGenotype.isHom());
     }
+
+    public boolean isMixed() {
+        return originalGenotype.isMixed();
+    }
+
 
     public int getPloidy() {
         return originalGenotype.getPloidy();

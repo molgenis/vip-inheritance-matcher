@@ -34,7 +34,9 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
             String geneId = vepSplit[vepMetadata.getGeneIndex()];
             String symbolSource = vepSplit[vepMetadata.getGeneSourceIndex()];
             Set<InheritanceMode> inheritanceModes = vepMetadata.getInheritanceIndex() != -1 ? mapGeneInheritance(vepSplit[vepMetadata.getInheritanceIndex()]) : emptySet();
-            result.add(new GeneInfo(geneId, symbolSource, inheritanceModes));
+            if(!geneId.isEmpty()) {
+                result.add(new GeneInfo(geneId, symbolSource, inheritanceModes));
+            }
         }
         return result;
     }
