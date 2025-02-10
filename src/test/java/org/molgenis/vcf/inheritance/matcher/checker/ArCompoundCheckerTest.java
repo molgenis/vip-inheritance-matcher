@@ -78,27 +78,27 @@ class ArCompoundCheckerTest {
 
         return lines.stream().skip(1).map(line -> {
             String testName = line[0];
-            String probandGt = line[2];
-            String probandOtherGt = line[3];
-            AffectedStatus probandAffectedStatus = AffectedStatus.valueOf(line[4]);
-            Sex probandSex = Sex.valueOf(line[5]);
-            String fatherGt = line[6];
-            String fatherOtherGt = line[7];
+            String probandGt = line[1];
+            String probandOtherGt = line[2];
+            AffectedStatus probandAffectedStatus = AffectedStatus.valueOf(line[3]);
+            Sex probandSex = Sex.valueOf(line[4]);
+            String fatherGt = line[5];
+            String fatherOtherGt = line[6];
             AffectedStatus fatherAffectedStatus = null;
-            if (!line[8].isEmpty()) {
-                fatherAffectedStatus = AffectedStatus.valueOf(line[8]);
+            if (!line[7].isEmpty()) {
+                fatherAffectedStatus = AffectedStatus.valueOf(line[7]);
             }
-            String motherGt = line[9];
-            String motherOtherGt = line[10];
+            String motherGt = line[8];
+            String motherOtherGt = line[9];
             AffectedStatus motherAffectedStatus = null;
-            if (!line[11].isEmpty()) {
-                motherAffectedStatus = AffectedStatus.valueOf(line[11]);
+            if (!line[10].isEmpty()) {
+                motherAffectedStatus = AffectedStatus.valueOf(line[10]);
             }
-            String brotherGt = line[12];
-            String brotherOtherGt = line[13];
+            String brotherGt = line[11];
+            String brotherOtherGt = line[12];
             AffectedStatus brotherAffectedStatus =
-                    line[14].isEmpty() ? null : AffectedStatus.valueOf(line[14]);
-            String expected = line[15];
+                    line[13].isEmpty() ? null : AffectedStatus.valueOf(line[13]);
+            String expected = line[14];
 
             Pedigree family = PedigreeTestUtil
                     .createFamily(probandSex, probandAffectedStatus, fatherAffectedStatus,

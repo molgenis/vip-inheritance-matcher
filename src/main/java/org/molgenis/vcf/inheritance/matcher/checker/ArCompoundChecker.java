@@ -19,7 +19,7 @@ import org.molgenis.vcf.utils.sample.model.Pedigree;
 import org.molgenis.vcf.utils.sample.model.Sample;
 
 public class ArCompoundChecker {
-    enum Classification {PATHOGENIC, UNKNOWN, BENIGN, CONFLICT}
+    enum Classification {PATHOGENIC, UNKNOWN, BENIGN}
 
     public Map<GeneInfo, Set<CompoundCheckResult>> check(
             Map<GeneInfo, Set<VcfRecord>> geneVariantMap,
@@ -60,50 +60,12 @@ public class ArCompoundChecker {
         Map<Allele, Classification> otherAlleleClassificationMap = new HashMap<>();
         calculateAlleleClasses(membersByStatus, otherVariantGeneRecord, otherAlleleClassificationMap);
         Set<MatchEnum> matches = new HashSet<>();
-        if (alleleClassificationMap.containsValue(Classification.CONFLICT) || otherAlleleClassificationMap.containsValue(Classification.CONFLICT)) {
-            return FALSE;
-        }
         matches.add(checkAffected(vcfRecord, otherVariantGeneRecord, membersByStatus, alleleClassificationMap, otherAlleleClassificationMap));
         matches.add(checkUnaffected(vcfRecord, otherVariantGeneRecord, membersByStatus, alleleClassificationMap, otherAlleleClassificationMap));
         if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
             matches.add(POTENTIAL);
         }
-        MatchEnum mergedResult = merge(matches);
-        if (!checkHomozygoteVariants(vcfRecord, otherVariantGeneRecord, membersByStatus)) {
-            return FALSE;
-        }
-        return mergedResult;
-    }
-
-    //check if for any genotype of an affected sample both alleles are present as homozygote variant in unaffected members
-    private boolean checkHomozygoteVariants(VcfRecord vcfRecord, VcfRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus) {
-        return checkRecord(vcfRecord, membersByStatus) && checkRecord(otherVariantGeneRecord, membersByStatus);
-    }
-
-    //if both alleles of the genotype of an affected sample are seen as homozygote in an unaffected member
-    //therefor it can not be a match.
-    private boolean checkRecord(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus) {
-        Set<Genotype> affectedGenotypes = new HashSet<>();
-        for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
-            Genotype sampleGt = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
-            affectedGenotypes.add(sampleGt);
-        }
-        for (Genotype genotype : affectedGenotypes) {
-            for (Allele allele : genotype.getAlleles()) {
-                boolean isSeenHom = false;
-                for (Sample unaffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
-                    Genotype sampleGt = vcfRecord.getGenotype(unaffectedSample.getPerson().getIndividualId());
-                    if (allele.isCalled() && allele.isNonReference() && sampleGt != null && sampleGt.isCalled() && !sampleGt.isMixed() && sampleGt.isHom(allele)) {
-                        isSeenHom = true;
-                        break;
-                    }
-                }
-                if (!isSeenHom) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return merge(matches);
     }
 
     //determine based on affected samples which alleles have to be pathogenic for this variant to be a possible compound
@@ -118,26 +80,38 @@ public class ArCompoundChecker {
             for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
                 Genotype sampleGt = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
                 if (sampleGt != null) {
-                    processAlleleClassifications(alleleClassificationMap, sampleGt);
+                    processAlleleClassificationsAffected(alleleClassificationMap, sampleGt);
+                }
+            }
+            for (Sample unaffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
+                Genotype sampleGt = vcfRecord.getGenotype(unaffectedSample.getPerson().getIndividualId());
+                if (sampleGt != null) {
+                    processAlleleClassificationsUnaffected(alleleClassificationMap, sampleGt);
                 }
             }
             reprocessAlleleClassifications(membersByStatus, vcfRecord, alleleClassificationMap);
         }
     }
 
-    private static void processAlleleClassifications(Map<Allele, Classification> alleleClassificationMap, Genotype sampleGt) {
+    private static void processAlleleClassificationsAffected(Map<Allele, Classification> alleleClassificationMap, Genotype sampleGt) {
         if (sampleGt.isHet() && sampleGt.hasReference()) {
             sampleGt.getAlleles().forEach(allele -> {
                 if (!allele.isReference() && allele.isCalled()) {
-                    if ((alleleClassificationMap.get(allele) == Classification.BENIGN || alleleClassificationMap.get(allele) == Classification.CONFLICT)) {
-                        alleleClassificationMap.put(allele, Classification.CONFLICT);
-                    } else {
+                    if (alleleClassificationMap.get(allele) != Classification.BENIGN) {
                         alleleClassificationMap.put(allele, Classification.PATHOGENIC);
                     }
                 }
             });
         } else {
             addMissingAlleleClassification(alleleClassificationMap, sampleGt);
+        }
+    }
+
+    private static void processAlleleClassificationsUnaffected(Map<Allele, Classification> alleleClassificationMap, Genotype sampleGt) {
+        if (sampleGt.isHom() && !sampleGt.hasReference()) {
+            //if unaffected sample is HOM_ALT the allele cannot be pathogenic
+            Allele allele = sampleGt.getAlleles().getFirst();
+            alleleClassificationMap.put(allele, Classification.BENIGN);
         }
     }
 
@@ -160,8 +134,6 @@ public class ArCompoundChecker {
                 Classification allele2Class = alleleClassificationMap.get(allele2);
                 //re-evaluate the UNKNOWN Alleles
                 //For a part of a compound it is not possible for both alleles to be benign or both alleles to be pathogenic
-                reevaluateClass(allele1Class, allele2Class, alleleClassificationMap, allele1);
-                reevaluateClass(allele2Class, allele1Class, alleleClassificationMap, allele2);
                 reevaluateClass(allele1Class, allele2Class, alleleClassificationMap, allele1);
                 reevaluateClass(allele2Class, allele1Class, alleleClassificationMap, allele2);
             }
@@ -267,6 +239,9 @@ public class ArCompoundChecker {
         if ((hasPathogenic(sampleGt, alleleClassificationMap) && hasPathogenic(sampleOtherGt, otherAlleleClassificationMap)) &&
                 (hasBenign(sampleGt, alleleClassificationMap) && hasBenign(sampleOtherGt, otherAlleleClassificationMap))) {
             return TRUE;
+        } else if(isFullyPathogenic(sampleGt, alleleClassificationMap) || isFullyPathogenic(sampleOtherGt, otherAlleleClassificationMap)
+        || isFullyBenign(sampleGt, alleleClassificationMap) || isFullyBenign(sampleOtherGt, otherAlleleClassificationMap)) {
+            return FALSE;
         }
         return POTENTIAL;
     }
@@ -314,6 +289,16 @@ public class ArCompoundChecker {
     private static boolean hasPathogenic(Genotype gt, Map<Allele, Classification> alleleClassificationMap) {
         return gt.getAlleles().stream().anyMatch(allele -> alleleClassificationMap.containsKey(allele)
                 && alleleClassificationMap.get(allele) == Classification.PATHOGENIC);
+    }
+
+    private static boolean isFullyPathogenic(Genotype gt, Map<Allele, Classification> alleleClassificationMap) {
+        return gt.getAlleles().stream().allMatch(allele -> alleleClassificationMap.containsKey(allele)
+                && alleleClassificationMap.get(allele) == Classification.PATHOGENIC);
+    }
+
+    private static boolean isFullyBenign(Genotype gt, Map<Allele, Classification> alleleClassificationMap) {
+        return gt.getAlleles().stream().allMatch(allele -> alleleClassificationMap.containsKey(allele)
+                && alleleClassificationMap.get(allele) == Classification.BENIGN);
     }
 
     private static boolean isPhasedSameBlock(Genotype sampleGt, Genotype sampleOtherGt) {
