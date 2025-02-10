@@ -72,6 +72,10 @@ public class Genotype {
         return originalGenotype.isHom();
     }
 
+    public boolean isHom(Allele allele) {
+        return originalGenotype.isCalled() && originalGenotype.isHom() && allele.equals(originalGenotype.getAllele(0));
+    }
+
     public boolean isHet() {
         return originalGenotype.isHet();
     }

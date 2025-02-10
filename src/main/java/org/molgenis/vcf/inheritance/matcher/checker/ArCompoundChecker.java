@@ -68,7 +68,42 @@ public class ArCompoundChecker {
         if (!membersByStatus.get(AffectedStatus.MISSING).isEmpty()) {
             matches.add(POTENTIAL);
         }
-        return merge(matches);
+        MatchEnum mergedResult = merge(matches);
+        if (!checkHomozygoteVariants(vcfRecord, otherVariantGeneRecord, membersByStatus)) {
+            return FALSE;
+        }
+        return mergedResult;
+    }
+
+    //check if for any genotype of an affected sample both alleles are present as homozygote variant in unaffected members
+    private boolean checkHomozygoteVariants(VcfRecord vcfRecord, VcfRecord otherVariantGeneRecord, Map<AffectedStatus, Set<Sample>> membersByStatus) {
+        return checkRecord(vcfRecord, membersByStatus) && checkRecord(otherVariantGeneRecord, membersByStatus);
+    }
+
+    //if both alleles of the genotype of an affected sample are seen as homozygote in an unaffected member
+    //therefor it can not be a match.
+    private boolean checkRecord(VcfRecord vcfRecord, Map<AffectedStatus, Set<Sample>> membersByStatus) {
+        Set<Genotype> affectedGenotypes = new HashSet<>();
+        for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
+            Genotype sampleGt = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
+            affectedGenotypes.add(sampleGt);
+        }
+        for (Genotype genotype : affectedGenotypes) {
+            for (Allele allele : genotype.getAlleles()) {
+                boolean isSeenHom = false;
+                for (Sample unaffectedSample : membersByStatus.get(AffectedStatus.UNAFFECTED)) {
+                    Genotype sampleGt = vcfRecord.getGenotype(unaffectedSample.getPerson().getIndividualId());
+                    if (allele.isCalled() && allele.isNonReference() && sampleGt != null && sampleGt.isCalled() && !sampleGt.isMixed() && sampleGt.isHom(allele)) {
+                        isSeenHom = true;
+                        break;
+                    }
+                }
+                if (!isSeenHom) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     //determine based on affected samples which alleles have to be pathogenic for this variant to be a possible compound
