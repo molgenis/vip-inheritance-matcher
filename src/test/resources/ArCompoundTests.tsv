@@ -2,17 +2,17 @@ name	probandGt	probandOtherGt	probandAffectedStatus	probandSex	fatherGt	fatherOt
 regular	0/1	0/1	AFFECTED	MALE	0/0	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED				true
 regularBrotherMissingFromVcf	0/1	0/1	AFFECTED	MALE	0/0	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED			UNAFFECTED	possible
 regularPhased	1|0	0|1	AFFECTED	MALE	0|0	0|1	UNAFFECTED	0|1	0|0	UNAFFECTED				true
-FatherUnaffectedHasBoth	1/0	0/1	AFFECTED	MALE	0/1	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED				false
+FatherUnaffectedHasBoth	1/0	0/1	AFFECTED	MALE	0/1	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED				possible
 phasedFatherBothSameAllele	1|0:block1	0|1:block1	AFFECTED	MALE	0|1:block1	0|1:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				true
 phasedProbandBothSameAllele	0|1:block1	0|1:block1	AFFECTED	MALE	0|0:block1	0|1:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				false
 BrotherUnaffectedHasOne	1/0	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED	true
-BrotherUnaffectedHasBoth	1/0	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED	0/1	0/1	UNAFFECTED	false
+BrotherUnaffectedHasBoth	1/0	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED	0/1	0/1	UNAFFECTED	possible
 BrotherAffectedHasOne	1/0	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED	0/1	0/0	AFFECTED	false
 BrotherAffectedHasBoth	1/0	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED	0/1	0/1	AFFECTED	true
-mixed1	1/0	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	./1	0/0	UNAFFECTED	0/0	0/1	UNAFFECTED	true
+mixed1	1/0	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	./1	0/0	UNAFFECTED	0/0	0/1	UNAFFECTED	possible
 mixed2	1/0	0/.	AFFECTED	MALE	0/0	0/1	UNAFFECTED	0/1	0/.	UNAFFECTED	0/1	0/.	UNAFFECTED	possible
 mixed3	./0	0/.	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/1	./0	UNAFFECTED	0/1	0/1	UNAFFECTED	possible
-missing1	1/0	0/1	AFFECTED	MALE	0/0	./.	UNAFFECTED	./.	0/0	UNAFFECTED	0/0	0/0	UNAFFECTED	true
+missing1	1/0	0/1	AFFECTED	MALE	0/0	./.	UNAFFECTED	./.	0/0	UNAFFECTED	0/0	0/0	UNAFFECTED	possible
 missing2	1/0	0/1	AFFECTED	MALE	1/0	./.	UNAFFECTED	./.	1/0	UNAFFECTED	0/0	0/0	UNAFFECTED	possible
 missing3	1/0	0/1	AFFECTED	MALE	1/0	./.	UNAFFECTED	./.	0/0	UNAFFECTED	0/0	0/0	UNAFFECTED	possible
 missing4	0/0	./.	AFFECTED	MALE	1/0	./.	UNAFFECTED	./.	0/0	UNAFFECTED	0/0	0/0	UNAFFECTED	false
@@ -20,7 +20,7 @@ missing5	1/1	./.	AFFECTED	MALE	1/0	./.	UNAFFECTED	./.	0/0	UNAFFECTED	0/0	0/0	UNA
 missing6	./.	./.	AFFECTED	MALE	1/0	./.	UNAFFECTED	./.	0/0	UNAFFECTED	0/0	0/0	UNAFFECTED	possible
 Unknown1	1/0	0/1	AFFECTED	MALE	0/1	0/1	MISSING	0/1	0/0	UNAFFECTED	0/0	0/1	UNAFFECTED	possible
 Unknown2	1/0	0/1	AFFECTED	MALE	0/0	0/1	MISSING	0/0	0/1	UNAFFECTED	0/1	0/.	UNAFFECTED	possible
-Unknown3	1/0	0/1	AFFECTED	MALE	0/1	0/0	MISSING	0/1	1/0	UNAFFECTED	0/1	0/1	UNAFFECTED	false
+Unknown3	1/0	0/1	AFFECTED	MALE	0/1	0/0	MISSING	0/1	1/0	UNAFFECTED	0/1	0/1	UNAFFECTED	possible
 multiallelic1	1/2	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/0	1/0	UNAFFECTED	0/0	0/0	UNAFFECTED	possible
 multiallelic2	2/2	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/0	1/0	UNAFFECTED	0/0	0/0	UNAFFECTED	false
 multiallelic3	2/4	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/0	1/0	UNAFFECTED	0/0	0/0	UNAFFECTED	possible
@@ -30,9 +30,9 @@ FatherIsHom2	1/0	0/1	AFFECTED	MALE	1/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED				fals
 regular_switched	1/0	1/0	AFFECTED	MALE	0/0	1/0	UNAFFECTED	1/0	0/0	UNAFFECTED				true
 regularBrotherMissingFromVcf_switched	1/0	1/0	AFFECTED	MALE	0/0	0/1	UNAFFECTED	0/1	0/0	UNAFFECTED			UNAFFECTED	possible
 regular_switched	1/0	0/1	AFFECTED	MALE	0/0	1/0	UNAFFECTED	1/0	0/0	UNAFFECTED				true
-phasedFatherBothSameAlleleOtherBlock	1|0:block1	0|1:block2	AFFECTED	MALE	0|1:block1	0|1:block2	UNAFFECTED	0|1:block1	0|0:block2	UNAFFECTED				false
+phasedFatherBothSameAlleleOtherBlock	1|0:block1	0|1:block2	AFFECTED	MALE	0|1:block1	0|1:block2	UNAFFECTED	0|1:block1	0|0:block2	UNAFFECTED				possible
 phasedProbandBothSameAlleleOtherBlock	0|1:block1	0|1:block2	AFFECTED	MALE	0|0:block1	0|1:block2	UNAFFECTED	0|1:block1	0|0:block2	UNAFFECTED				true
-phasedFatherBothSameAlleleOtherBlock2	0|1:block1	0|1:block2	AFFECTED	MALE	1|0:block1	1|0:block2	UNAFFECTED	1|0:block1	0|0:block2	UNAFFECTED				false
+phasedFatherBothSameAlleleOtherBlock2	0|1:block1	0|1:block2	AFFECTED	MALE	1|0:block1	1|0:block2	UNAFFECTED	1|0:block1	0|0:block2	UNAFFECTED				possible
 phasedProbandBothSameAlleleOtherBlock2	1|0:block1	0|1:block2	AFFECTED	MALE	0|0:block1	0|1:block2	UNAFFECTED	1|0:block1	0|0:block2	UNAFFECTED				true
 phasedFatherDifferentAlleles	1|0:block1	0|1:block1	AFFECTED	MALE	1|0:block1	0|1:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				false
 mixedPhased	1|0:block1	0/1:block1	AFFECTED	MALE	0/1:block1	0|0:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				true
@@ -40,3 +40,16 @@ mixedPhased2	0|1:block1	0/1:block1	AFFECTED	MALE	0/1:block1	0|0:block1	UNAFFECTE
 phasedFatherBothSameAlleleSwitched	0|1:block1	1|0:block1	AFFECTED	MALE	1|0:block1	1|0:block1	UNAFFECTED	1|0:block1	0|0:block1	UNAFFECTED				true
 phasedNull	0|1:block1		AFFECTED	MALE	1|0:block1	1|0:block1	UNAFFECTED	1|0:block1	0|0:block1	UNAFFECTED				possible
 phasedNull2		0|1:block1	AFFECTED	MALE	0|1:block1	0|1:block1	UNAFFECTED	0|1:block1	0|0:block1	UNAFFECTED				possible
+multiallelic5	2/1	1/0	AFFECTED	MALE	2/0	1/0	AFFECTED	1/0	1/0	UNAFFECTED				true
+multiallelic6	2/1	1/0	AFFECTED	MALE	2/0	1/0	AFFECTED	2/2	1/0	UNAFFECTED				false
+multiallelic7	2/1	1/0	AFFECTED	MALE	2/0	1/0	AFFECTED	1/1	1/0	UNAFFECTED				true
+multiallelicPhased	2|1:block1	0|1:block1	AFFECTED	MALE	2|0:block1	0|1:block1	AFFECTED	0|1:block1	0|1:block1	UNAFFECTED				true
+multiallelicPhased2	2|1:block1	0|1:block1	AFFECTED	MALE	2|0:block1	0|1:block1	AFFECTED	1|1:block1	0|1:block1	UNAFFECTED				true
+multiallelicPhased3	2|1:block1	0|1:block1	AFFECTED	MALE	2|0:block1	0|1:block1	AFFECTED	2|2:block1	0|1:block1	UNAFFECTED				false
+multiallelic8	2/1	2/3	AFFECTED	MALE	2/2	0/0	UNAFFECTED	1/0	3/3	UNAFFECTED				true
+multiallelic9	2/1	3/4	AFFECTED	MALE	0/0	3/3	UNAFFECTED	2/2	1/0	UNAFFECTED				true
+multiallelic10	2/1	1/3	AFFECTED	MALE	2/0	0/3	UNAFFECTED	1/0	1/0	UNAFFECTED				possible
+multiallelicPhased4	2|1:block1	2|3:block1	AFFECTED	MALE	2|2:block1	0|1:block1	UNAFFECTED	0|1:block1	3|3:block1	UNAFFECTED				true
+multiallelicPhased5	2|1:block1	3|4:block1	AFFECTED	MALE	0|1:block1	3|3:block1	UNAFFECTED	2|2:block1	4|4:block1	UNAFFECTED				false
+multiallelicPhased6	2|1:block1	1|3:block1	AFFECTED	MALE	2|0:block1	0|3:block1	UNAFFECTED	1|0:block1	1|0:block1	UNAFFECTED				possible
+multiallelic7	1/2	0/1	AFFECTED	MALE	0/1	0/0	UNAFFECTED	0/1	0/0	UNAFFECTED	0/2	0/1	AFFECTED	true

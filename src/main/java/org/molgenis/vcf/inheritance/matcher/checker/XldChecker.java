@@ -31,7 +31,7 @@ public class XldChecker extends DominantChecker  {
             if(genotype == null){
                 matches.add(POTENTIAL);
             }
-            else if(!genotype.hasAltAllele() && !genotype.isMixed() || (genotype.hasReference() && genotype.getPloidy() == 2)){
+            else if(!genotype.hasAltAllele() && !genotype.isMixedOrHet() || (genotype.hasReference() && genotype.getPloidy() == 2)){
                 matches.add(TRUE);
             }
             else {
@@ -46,7 +46,7 @@ public class XldChecker extends DominantChecker  {
         for (Sample affectedSample : membersByStatus.get(AffectedStatus.AFFECTED)) {
             Genotype genotype = vcfRecord.getGenotype(affectedSample.getPerson().getIndividualId());
             affectedGenotypes.add(genotype);
-            if (genotype != null && !genotype.hasAltAllele() && !genotype.isMixed()) {
+            if (genotype != null && !genotype.hasAltAllele() && !genotype.isMixedOrHet()) {
                 return FALSE;
             } else if (genotype == null || (genotype.hasMissingAllele() && genotype.hasReference()) || genotype.isNoCall()) {
                 matches.add(POTENTIAL);

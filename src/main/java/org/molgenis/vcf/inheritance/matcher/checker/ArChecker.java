@@ -52,7 +52,7 @@ public class ArChecker extends InheritanceChecker {
             affectedGenotypes.add(genotype);
             if (genotype!= null && genotype.hasReference()) {
                 return FALSE;
-            } else if (genotype == null || genotype.isMixed() || genotype.isNoCall()) {
+            } else if (genotype == null || genotype.isMixedOrHet() || genotype.isNoCall()) {
                 matches.add(POTENTIAL);
             } else {
                 matches.add(TRUE);

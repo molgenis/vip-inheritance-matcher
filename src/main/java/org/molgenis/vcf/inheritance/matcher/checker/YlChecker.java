@@ -62,7 +62,7 @@ public class YlChecker extends InheritanceChecker {
             affectedGenotypes.add(genotype);
             if (genotype != null && !genotype.hasAltAllele() && genotype.isCalled()) {
                 return FALSE;
-            } else if (genotype == null || genotype.isNoCall() || genotype.isMixed() || genotype.isHet()) {
+            } else if (genotype == null || genotype.isNoCall() || genotype.isMixedOrHet() || genotype.isHet()) {
                 matches.add(POTENTIAL);
             } else {
                 matches.add(TRUE);
