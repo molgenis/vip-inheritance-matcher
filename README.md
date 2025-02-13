@@ -167,7 +167,7 @@ The list of supported contigs to determine if a variant is on X,Y,MT or an autos
 2) Both those variants are not matching the AR inheritance pattern.
 3) The variants are not on chromosome X,Y or MT.
 4) Affected members need to have at least one variant in for both variants, if data is phased and both variants are in the same block, the variants have to be on different alleles.
-5) Unaffected members can have one or both the same variants as an affected member for both variants if data is unphased, if the member has both variants the match is "potential" since the match depends on the variants being on the smae allele or not.
+5) Unaffected members can have one or both the same variants as an affected member for both variants if data is unphased, if the member has both variants the match is "potential" since the match depends on the variants being on the same allele or not.
 6) if data is phased and both variants are in the same block, the unaffected sample can have both variants if they are on the same allele.
 ##### - Missing/partial genotypes:
 6) If based on other members the pattern does not match the pattern match will stay false.

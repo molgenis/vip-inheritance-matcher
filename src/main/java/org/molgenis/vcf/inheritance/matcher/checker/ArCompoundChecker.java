@@ -71,7 +71,7 @@ public class ArCompoundChecker {
     //determine based on affected samples which alleles have to be pathogenic for this variant to be a possible compound
     //alleles are considered pathogenic if the other allele of the same GT is reference or if the GT has 2 alternative alleles of which one has to be benign based on other samples
     //alternative alleles are considered benign if the GT has 2 alternative alleles of which one has to be benign based on other samples
-    //if based on these rules a conflict arises, a variant that has to be bot benign and pathogenic this variant cannot be a compound hetrozygote
+    //if based on these rules a conflict arises, a variant that has to be not benign and pathogenic this variant cannot be a compound hetrozygote
     private void calculateAlleleClasses(Map<AffectedStatus, Set<Sample>> membersByStatus, VcfRecord vcfRecord, Map<Allele, Classification> alleleClassificationMap) {
         alleleClassificationMap.put(vcfRecord.getReference(), Classification.BENIGN);
         if (vcfRecord.getAlternateAlleles().size() == 1) {
@@ -96,10 +96,8 @@ public class ArCompoundChecker {
     private static void processAlleleClassificationsAffected(Map<Allele, Classification> alleleClassificationMap, Genotype sampleGt) {
         if (sampleGt.isHet() && sampleGt.hasReference()) {
             sampleGt.getAlleles().forEach(allele -> {
-                if (!allele.isReference() && allele.isCalled()) {
-                    if (alleleClassificationMap.get(allele) != Classification.BENIGN) {
+                if (!allele.isReference() && allele.isCalled() && alleleClassificationMap.get(allele) != Classification.BENIGN) {
                         alleleClassificationMap.put(allele, Classification.PATHOGENIC);
-                    }
                 }
             });
         } else {
