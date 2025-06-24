@@ -1,5 +1,4 @@
 [![Build Status](https://app.travis-ci.com/molgenis/vip-inheritance-matcher.svg?branch=main)](https://app.travis-ci.com/molgenis/vip-inheritance-matcher)
-[![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_vip-inheritance-matcher&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_vip-inheritance-matcher)
 # Variant Interpretation Pipeline - Inheritance Matcher
 annotates VCF samples with denovo and possible compound flags and matching inheritance modes and genes.
 
