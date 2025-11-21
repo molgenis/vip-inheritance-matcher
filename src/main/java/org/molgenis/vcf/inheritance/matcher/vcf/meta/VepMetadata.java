@@ -53,8 +53,7 @@ public class VepMetadata {
     for (VCFInfoHeaderLine vcfInfoHeaderLine : vcfHeader.getInfoHeaderLines()) {
       if (canMap(vcfInfoHeaderLine)) {
         this.vepFieldId = vcfInfoHeaderLine.getID();
-        FieldMetadatas fieldMetadatas = fieldMetadataService.load(vcfHeader, Map.of(FieldIdentifier.builder()
-                .type(org.molgenis.vcf.utils.metadata.FieldType.INFO).name(vepFieldId).build(), NestedAttributes.builder().prefix(INFO_DESCRIPTION_PREFIX).seperator("|").build()));
+        FieldMetadatas fieldMetadatas = fieldMetadataService.load(vcfHeader);
         FieldMetadata vepField = fieldMetadatas.getInfo().get(vepFieldId);
         if (vepField == null) {
           throw new MissingInfoException(vepFieldId);
