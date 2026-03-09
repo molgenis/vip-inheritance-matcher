@@ -24,31 +24,44 @@ import org.molgenis.vcf.utils.model.metadata.NestedFieldMetadata;
 @ExtendWith(MockitoExtension.class)
 class VepMetadataTest {
 
-  @Mock
-  VCFHeader vcfHeader;
-  @Mock
-  FieldMetadataService fieldMetadataService;
+  @Mock VCFHeader vcfHeader;
+  @Mock FieldMetadataService fieldMetadataService;
 
   @Test
   void getVepFieldId() {
     VCFInfoHeaderLine csqInfoHeaderLine = mock(VCFInfoHeaderLine.class);
     when(csqInfoHeaderLine.getID()).thenReturn("CSQ");
-    when(csqInfoHeaderLine.getDescription()).thenReturn(
-        "Consequence annotations from Ensembl VEP. Format: Test|VIPC");
+    when(csqInfoHeaderLine.getDescription())
+        .thenReturn("Consequence annotations from Ensembl VEP. Format: Test|VIPC");
     when(vcfHeader.getInfoHeaderLines()).thenReturn(Set.of(csqInfoHeaderLine));
-    NestedFieldMetadata nestedStrandMeta = NestedFieldMetadata.builder().index(0)
-        .label("STRAND").description("STRAND")
-        .type(ValueType.INTEGER).numberType(FIXED).numberCount(1).build();
-    NestedFieldMetadata nestedTestMeta = NestedFieldMetadata.builder().index(1)
-        .label("TEST label").description("TEST desc").type(ValueType.INTEGER)
-        .numberType(ValueCount.Type.R).build();
-    FieldMetadata csqMeta = FieldMetadata.builder().label("CSQ")
-        .description("Consequence annotations from Ensembl VEP. Format: STRAND|VIPC")
-        .numberType(ValueCount.Type.VARIABLE).type(ValueType.STRING)
-        .numberType(ValueCount.Type.VARIABLE)
-        .nestedFields(Map.of("STRAND", nestedStrandMeta, "VIPC", nestedTestMeta)).build();
-    when(fieldMetadataService.load(vcfHeader)).thenReturn(
-        FieldMetadatas.builder().format(Map.of()).info(Map.of("CSQ", csqMeta)).build());
+    NestedFieldMetadata nestedStrandMeta =
+        NestedFieldMetadata.builder()
+            .index(0)
+            .label("STRAND")
+            .description("STRAND")
+            .type(ValueType.INTEGER)
+            .numberType(FIXED)
+            .numberCount(1)
+            .build();
+    NestedFieldMetadata nestedTestMeta =
+        NestedFieldMetadata.builder()
+            .index(1)
+            .label("TEST label")
+            .description("TEST desc")
+            .type(ValueType.INTEGER)
+            .numberType(ValueCount.Type.R)
+            .build();
+    FieldMetadata csqMeta =
+        FieldMetadata.builder()
+            .label("CSQ")
+            .description("Consequence annotations from Ensembl VEP. Format: STRAND|VIPC")
+            .numberType(ValueCount.Type.VARIABLE)
+            .type(ValueType.STRING)
+            .numberType(ValueCount.Type.VARIABLE)
+            .nestedFields(Map.of("STRAND", nestedStrandMeta, "VIPC", nestedTestMeta))
+            .build();
+    when(fieldMetadataService.load(vcfHeader))
+        .thenReturn(FieldMetadatas.builder().format(Map.of()).info(Map.of("CSQ", csqMeta)).build());
     VepMetadata vepMetadata = new VepMetadata(vcfHeader, fieldMetadataService);
 
     assertEquals(1, vepMetadata.getClassIndex());
@@ -60,7 +73,7 @@ class VepMetadataTest {
     when(csqInfoHeaderLine.getDescription()).thenReturn("NonVepDesc: Test|VIPC");
     when(vcfHeader.getInfoHeaderLines()).thenReturn(Set.of(csqInfoHeaderLine));
 
-    assertThrows(MissingInfoException.class,
-        () -> new VepMetadata(vcfHeader, fieldMetadataService));
+    assertThrows(
+        MissingInfoException.class, () -> new VepMetadata(vcfHeader, fieldMetadataService));
   }
 }

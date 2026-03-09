@@ -51,7 +51,8 @@ class ContigUtilsTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"1", "chr1", "chr1_xxxxx", "X", "chrX", "chrX_xxxxx", "Y", "chrY", "chrY_xxxxx"})
+  @ValueSource(
+      strings = {"1", "chr1", "chr1_xxxxx", "X", "chrX", "chrX_xxxxx", "Y", "chrY", "chrY_xxxxx"})
   void isChromosomeMtFalse(String contigId) {
     assertFalse(ContigUtils.isChromosomeMt(contigId));
   }

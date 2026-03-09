@@ -14,8 +14,7 @@ import org.molgenis.vcf.inheritance.matcher.vcf.VcfRecord;
 @ExtendWith(MockitoExtension.class)
 class VariantContextUtilsTest {
 
-  @Mock
-  private VcfRecord variantContext;
+  @Mock private VcfRecord variantContext;
 
   @Test
   void onAutosomeTrue() {

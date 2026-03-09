@@ -2,38 +2,39 @@ package org.molgenis.vcf.inheritance.matcher.vcf;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
-
 import java.util.List;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
+import org.molgenis.vcf.inheritance.matcher.model.GeneInfo;
 
-public record VcfRecord(VariantContext variantContext, Set<Allele> pathogenicAlleles, Set<GeneInfo> geneInfos) {
+public record VcfRecord(
+    VariantContext variantContext, Set<Allele> pathogenicAlleles, Set<GeneInfo> geneInfos) {
 
-    public Genotype getGenotype(String sampleId) {
-        htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotype(sampleId);
-        if (gt == null) {
-            return null;
-        }
-        return new Genotype(gt);
+  public @Nullable Genotype getGenotype(String sampleId) {
+    htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotype(sampleId);
+    if (gt == null) {
+      return null;
     }
+    return new Genotype(gt);
+  }
 
-    public List<Allele> getAlternateAlleles() {
-        return variantContext.getAlternateAlleles();
-    }
+  public List<Allele> getAlternateAlleles() {
+    return variantContext.getAlternateAlleles();
+  }
 
-    public String getContig() {
-        return variantContext.getContig();
-    }
+  public String getContig() {
+    return variantContext.getContig();
+  }
 
-    public int getStart() {
-        return variantContext.getStart();
-    }
+  public int getStart() {
+    return variantContext.getStart();
+  }
 
-    public Allele getReference() {
-        return variantContext.getReference();
-    }
+  public Allele getReference() {
+    return variantContext.getReference();
+  }
 
-    public int getAlleleIndex(Allele allele){
-        return variantContext.getAlleleIndex(allele);
-    }
+  public int getAlleleIndex(Allele allele) {
+    return variantContext.getAlleleIndex(allele);
+  }
 }

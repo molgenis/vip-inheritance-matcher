@@ -66,11 +66,12 @@ class AppCommandLineOptions {
             .desc("Comma-separated list of proband sample identifiers.")
             .build());
     appOptions.addOption(
-            Option.builder(OPT_CLASSES)
-                    .hasArg(true)
-                    .longOpt(OPT_CLASSES_LONG)
-                    .desc("Comma-separated list of values in the INFO/CSQ VIPC subfield to be used in inheritance calculation.")
-                    .build());
+        Option.builder(OPT_CLASSES)
+            .hasArg(true)
+            .longOpt(OPT_CLASSES_LONG)
+            .desc(
+                "Comma-separated list of values in the INFO/CSQ VIPC subfield to be used in inheritance calculation.")
+            .build());
     appOptions.addOption(
         Option.builder(OPT_FORCE)
             .longOpt(OPT_FORCE_LONG)
@@ -92,8 +93,7 @@ class AppCommandLineOptions {
     APP_VERSION_OPTIONS = appVersionOptions;
   }
 
-  private AppCommandLineOptions() {
-  }
+  private AppCommandLineOptions() {}
 
   static Options getAppOptions() {
     return APP_OPTIONS;
@@ -112,16 +112,13 @@ class AppCommandLineOptions {
   private static void validateInput(CommandLine commandLine) {
     Path inputPath = Path.of(commandLine.getOptionValue(OPT_INPUT));
     if (!Files.exists(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input file '%s' does not exist.", inputPath));
+      throw new IllegalArgumentException(format("Input file '%s' does not exist.", inputPath));
     }
     if (Files.isDirectory(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input file '%s' is a directory.", inputPath));
+      throw new IllegalArgumentException(format("Input file '%s' is a directory.", inputPath));
     }
     if (!Files.isReadable(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input file '%s' is not readable.", inputPath));
+      throw new IllegalArgumentException(format("Input file '%s' is not readable.", inputPath));
     }
     String inputPathStr = inputPath.toString();
     if (!inputPathStr.endsWith(".vcf") && !inputPathStr.endsWith(".vcf.gz")) {
@@ -138,8 +135,7 @@ class AppCommandLineOptions {
     Path outputPath = Path.of(commandLine.getOptionValue(OPT_OUTPUT));
 
     if (!commandLine.hasOption(OPT_FORCE) && Files.exists(outputPath)) {
-      throw new IllegalArgumentException(
-          format("Output file '%s' already exists", outputPath));
+      throw new IllegalArgumentException(format("Output file '%s' already exists", outputPath));
     }
   }
 
@@ -147,20 +143,20 @@ class AppCommandLineOptions {
     Path metadataPath = Path.of(commandLine.getOptionValue(OPT_METADATA));
     if (!Files.exists(metadataPath)) {
       throw new IllegalArgumentException(
-              format("Metadata file '%s' does not exist.", metadataPath));
+          format("Metadata file '%s' does not exist.", metadataPath));
     }
     if (Files.isDirectory(metadataPath)) {
       throw new IllegalArgumentException(
-              format("Metadata file '%s' is a directory.", metadataPath));
+          format("Metadata file '%s' is a directory.", metadataPath));
     }
     if (!Files.isReadable(metadataPath)) {
       throw new IllegalArgumentException(
-              format("Metadata file '%s' is not readable.", metadataPath));
+          format("Metadata file '%s' is not readable.", metadataPath));
     }
     String inputPathStr = metadataPath.toString();
     if (!inputPathStr.endsWith(".json")) {
       throw new IllegalArgumentException(
-              format("Metadata file '%s' is not a .json file.", inputPathStr));
+          format("Metadata file '%s' is not a .json file.", inputPathStr));
     }
   }
 }

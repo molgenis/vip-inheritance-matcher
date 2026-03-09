@@ -1,6 +1,12 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static java.util.Objects.requireNonNull;
+import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.*;
+import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
+
 import ch.qos.logback.classic.Level;
+import java.nio.file.Path;
+import java.util.*;
 import org.apache.commons.cli.*;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.slf4j.Logger;
@@ -8,13 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.nio.file.Path;
-import java.util.*;
-
-import static java.util.Objects.requireNonNull;
-import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.*;
-import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
 
 @Component
 class AppCommandLineRunner implements CommandLineRunner {
@@ -30,8 +29,9 @@ class AppCommandLineRunner implements CommandLineRunner {
   private final AppRunnerFactoryImpl appRunnerFactoryImpl;
 
   AppCommandLineRunner(
-          @Value("${app.name}") String appName,
-          @Value("${app.version}") String appVersion, AppRunnerFactoryImpl appRunnerFactoryImpl) {
+      @Value("${app.name}") String appName,
+      @Value("${app.version}") String appVersion,
+      AppRunnerFactoryImpl appRunnerFactoryImpl) {
     this.appName = requireNonNull(appName);
     this.appVersion = requireNonNull(appVersion);
     this.appRunnerFactoryImpl = requireNonNull(appRunnerFactoryImpl);
@@ -41,10 +41,12 @@ class AppCommandLineRunner implements CommandLineRunner {
   @Override
   public void run(String... args) {
     if (args.length == 1
-        && (
-        args[0].equals("-" + org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_VERSION)
+        && (args[0].equals(
+                "-" + org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_VERSION)
             || args[0].equals(
-            "--" + org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_VERSION_LONG))) {
+                "--"
+                    + org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions
+                        .OPT_VERSION_LONG))) {
       LOGGER.info("{} {}", appName, appVersion);
       return;
     }
@@ -52,7 +54,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     for (String arg : args) {
       if (arg.equals('-' + OPT_DEBUG)
           || arg.equals(
-          '-' + org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_DEBUG_LONG)) {
+              '-' + org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_DEBUG_LONG)) {
         Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (!(rootLogger instanceof ch.qos.logback.classic.Logger)) {
           throw new ClassCastException("Expected root logger to be a logback logger");
@@ -65,7 +67,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     CommandLine commandLine = getCommandLine(args);
     org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.validateCommandLine(commandLine);
     Settings settings = mapSettings(commandLine);
-    try(AppRunner appRunner = appRunnerFactoryImpl.create(settings)){
+    try (AppRunner appRunner = appRunnerFactoryImpl.create(settings)) {
       appRunner.run();
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
@@ -110,9 +112,15 @@ class AppCommandLineRunner implements CommandLineRunner {
 
     boolean debugMode = commandLine.hasOption(OPT_DEBUG);
 
-    return Settings.builder().inputVcfPath(inputPath).inputPedPaths(pedPaths)
-        .outputPath(outputPath).probands(probandNames).overwrite(overwriteOutput).
-            pathogenicClasses(pathogenicClasses).metadataPath(metadataPath).debug(debugMode)
+    return Settings.builder()
+        .inputVcfPath(inputPath)
+        .inputPedPaths(pedPaths)
+        .outputPath(outputPath)
+        .probands(probandNames)
+        .overwrite(overwriteOutput)
+        .pathogenicClasses(pathogenicClasses)
+        .metadataPath(metadataPath)
+        .debug(debugMode)
         .build();
   }
 
@@ -120,11 +128,13 @@ class AppCommandLineRunner implements CommandLineRunner {
     return Set.of(optionValue.split(",", -1));
   }
 
+  @SuppressWarnings("NullAway")
   private CommandLine getCommandLine(String[] args) {
     CommandLine commandLine = null;
     try {
-      commandLine = commandLineParser.parse(
-          org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppOptions(), args);
+      commandLine =
+          commandLineParser.parse(
+              org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppOptions(), args);
     } catch (ParseException e) {
       logException(e);
       System.exit(STATUS_COMMAND_LINE_USAGE_ERROR);
@@ -141,10 +151,14 @@ class AppCommandLineRunner implements CommandLineRunner {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setOptionComparator(null);
     String cmdLineSyntax = "java -jar " + appName + ".jar";
-    formatter.printHelp(cmdLineSyntax, org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions
-        .getAppOptions(), true);
+    formatter.printHelp(
+        cmdLineSyntax,
+        org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppOptions(),
+        true);
     System.out.println();
-    formatter.printHelp(cmdLineSyntax, org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions
-        .getAppVersionOptions(), true);
+    formatter.printHelp(
+        cmdLineSyntax,
+        org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppVersionOptions(),
+        true);
   }
 }
