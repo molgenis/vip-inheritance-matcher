@@ -45,7 +45,7 @@
     <java.version>25</java.version>
     <commons.cli.version>1.9.0</commons.cli.version>
     <!-- [WARNING] Plugin validation issues were detected, see https://github.com/jacoco/jacoco/issues/1435 -->
-    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
     <samtools.htsjdk.version>4.1.3</samtools.htsjdk.version>
     <vip.utils.version>4.0.0</vip.utils.version>
     <errorprone.version>2.48.0</errorprone.version>
