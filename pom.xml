@@ -61,26 +61,26 @@
 
   <profiles>
     <profile>
+      <id>coverage</id>
       <build>
         <plugins>
+
           <plugin>
-            <groupId>com.diffplug.spotless</groupId>
-            <artifactId>spotless-maven-plugin</artifactId>
-          </plugin>
-          <plugin>
+            <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
             <executions>
               <execution>
+                <id>prepare-agent</id>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
-                <id>prepare-agent</id>
               </execution>
               <execution>
+                <id>report</id>
                 <goals>
                   <goal>report</goal>
                 </goals>
-                <id>report</id>
               </execution>
               <execution>
                 <id>check</id>
@@ -104,12 +104,9 @@
                 </configuration>
               </execution>
             </executions>
-            <groupId>org.jacoco</groupId>
-            <version>${jacoco-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
-      <id>coverage</id>
     </profile>
   </profiles>
 
