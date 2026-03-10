@@ -26,6 +26,7 @@ public class MtChecker extends InheritanceChecker {
     return checkFamily(vcfRecord, family);
   }
 
+  @Override
   protected MatchEnum checkUnaffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,
@@ -50,6 +51,7 @@ public class MtChecker extends InheritanceChecker {
     return merge(matches);
   }
 
+  @Override
   protected MatchEnum checkAffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,
@@ -62,7 +64,7 @@ public class MtChecker extends InheritanceChecker {
         affectedGenotypes.add(genotype);
         if (genotype != null && !genotype.hasAltAllele() && genotype.isCalled()) {
           return FALSE;
-        } else if (genotype == null || genotype.isNoCall() || (genotype.isMixedOrHet())) {
+        } else if (genotype == null || genotype.isNoCall() || genotype.isMixedOrHet()) {
           matches.add(POTENTIAL);
         } else {
           matches.add(TRUE);

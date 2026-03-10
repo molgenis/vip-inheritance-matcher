@@ -95,7 +95,7 @@ public class VcfRecordFactoryImpl implements VcfRecordFactory {
 
   private Set<InheritanceMode> mapGeneInheritance(String inheritanceString) {
     Set<InheritanceMode> modes = new HashSet<>();
-    String[] inheritanceModes = inheritanceString.split("&");
+    String[] inheritanceModes = inheritanceString.split("&", -1);
     for (String mode : inheritanceModes) {
       switch (mode) {
         case "AR" -> modes.add(InheritanceMode.AR);

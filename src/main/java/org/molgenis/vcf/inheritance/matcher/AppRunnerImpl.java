@@ -22,6 +22,7 @@ class AppRunnerImpl implements AppRunner {
     this.inheritanceService = inheritanceService;
   }
 
+  @Override
   public void run() {
     LOGGER.info("Matching inheritance ...");
     inheritanceService.run(vcfReader, recordWriter);

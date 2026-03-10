@@ -150,11 +150,11 @@ public class Annotator {
     Set<String> results = new HashSet<>();
     for (PedigreeInheritanceMatch pedigreeInheritanceMatch : pedigreeInheritanceMatches) {
       for (GeneInfo geneInfo : geneInfos) {
-        if (geneInfo.inheritanceModes().stream()
+        if ((geneInfo.inheritanceModes().stream()
                     .anyMatch(
                         geneMode -> isMatch(geneMode, pedigreeInheritanceMatch.inheritanceMode()))
-                && pedigreeInheritanceMatch.inheritanceMode() != AR_C
-            || compounds.get(geneInfo) != null && !compounds.get(geneInfo).isEmpty()) {
+                && pedigreeInheritanceMatch.inheritanceMode() != AR_C)
+            || (compounds.get(geneInfo) != null && !compounds.get(geneInfo).isEmpty())) {
           results.add(geneInfo.geneId());
         }
       }

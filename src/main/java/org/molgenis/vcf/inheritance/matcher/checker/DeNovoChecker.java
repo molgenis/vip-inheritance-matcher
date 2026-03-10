@@ -147,10 +147,10 @@ public class DeNovoChecker {
     } else if ((containsAlleleOrRef(motherGt, allele1) && containsAlleleOrRef(fatherGt, allele2))
         || (containsAlleleOrRef(motherGt, allele2) && containsAlleleOrRef(fatherGt, allele1))) {
       return FALSE;
-    } else if (containsAlleleOrNoCall(motherGt, allele1)
-            && (containsAlleleOrNoCall(fatherGt, allele2))
-        || containsAlleleOrNoCall(motherGt, allele2)
-            && (containsAlleleOrNoCall(fatherGt, allele1))) {
+    } else if ((containsAlleleOrNoCall(motherGt, allele1)
+            && containsAlleleOrNoCall(fatherGt, allele2))
+        || (containsAlleleOrNoCall(motherGt, allele2)
+            && containsAlleleOrNoCall(fatherGt, allele1))) {
       return POTENTIAL;
     }
     return TRUE;

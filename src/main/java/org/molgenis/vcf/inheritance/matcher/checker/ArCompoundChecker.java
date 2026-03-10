@@ -32,7 +32,7 @@ public class ArCompoundChecker {
       }
       return compounds;
     }
-    return Collections.emptyMap();
+    return new HashMap<>();
   }
 
   private void checkForGene(

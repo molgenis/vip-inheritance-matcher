@@ -25,6 +25,7 @@ public class AdChecker extends DominantChecker {
     return checkFamily(vcfRecord, family);
   }
 
+  @Override
   public MatchEnum checkUnaffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,
@@ -46,6 +47,7 @@ public class AdChecker extends DominantChecker {
     return merge(matches);
   }
 
+  @Override
   public MatchEnum checkAffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,

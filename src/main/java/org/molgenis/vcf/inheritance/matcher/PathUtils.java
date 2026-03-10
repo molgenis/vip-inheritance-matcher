@@ -10,7 +10,7 @@ public class PathUtils {
 
   public static List<Path> parsePaths(String optionValue) {
     List<Path> result = new ArrayList<>();
-    String[] paths = optionValue.split(",");
+    String[] paths = optionValue.split(",", -1);
     for (String path : paths) {
       result.add(Path.of(path));
     }

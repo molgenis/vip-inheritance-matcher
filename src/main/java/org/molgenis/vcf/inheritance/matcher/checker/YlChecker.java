@@ -28,6 +28,7 @@ public class YlChecker extends InheritanceChecker {
     return checkFamily(vcfRecord, family);
   }
 
+  @Override
   protected MatchEnum checkUnaffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,
@@ -56,6 +57,7 @@ public class YlChecker extends InheritanceChecker {
     return merge(matches);
   }
 
+  @Override
   protected MatchEnum checkAffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,

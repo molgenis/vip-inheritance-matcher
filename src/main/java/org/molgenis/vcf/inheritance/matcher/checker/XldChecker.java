@@ -23,6 +23,7 @@ public class XldChecker extends DominantChecker {
     return checkFamily(vcfRecord, family);
   }
 
+  @Override
   public MatchEnum checkUnaffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,
@@ -34,7 +35,7 @@ public class XldChecker extends DominantChecker {
         Genotype genotype = vcfRecord.getGenotype(unAffectedSample.getPerson().getIndividualId());
         if (genotype == null) {
           matches.add(POTENTIAL);
-        } else if (!genotype.hasAltAllele() && !genotype.isMixedOrHet()
+        } else if ((!genotype.hasAltAllele() && !genotype.isMixedOrHet())
             || (genotype.hasReference() && genotype.getPloidy() == 2)) {
           matches.add(TRUE);
         } else {
@@ -45,6 +46,7 @@ public class XldChecker extends DominantChecker {
     return merge(matches);
   }
 
+  @Override
   public MatchEnum checkAffected(
       VcfRecord vcfRecord,
       Map<AffectedStatus, Set<Sample>> membersByStatus,

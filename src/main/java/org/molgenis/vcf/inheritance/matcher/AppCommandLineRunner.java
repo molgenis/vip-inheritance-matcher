@@ -56,10 +56,11 @@ class AppCommandLineRunner implements CommandLineRunner {
           || arg.equals(
               '-' + org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.OPT_DEBUG_LONG)) {
         Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        if (!(rootLogger instanceof ch.qos.logback.classic.Logger)) {
+        if ((rootLogger instanceof ch.qos.logback.classic.Logger logger)) {
+          logger.setLevel(Level.DEBUG);
+        } else {
           throw new ClassCastException("Expected root logger to be a logback logger");
         }
-        ((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.DEBUG);
         break;
       }
     }
@@ -69,6 +70,10 @@ class AppCommandLineRunner implements CommandLineRunner {
     Settings settings = mapSettings(commandLine);
     try (AppRunner appRunner = appRunnerFactoryImpl.create(settings)) {
       appRunner.run();
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      LOGGER.error(ie.getLocalizedMessage(), ie);
+      System.exit(STATUS_MISC_ERROR);
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       System.exit(STATUS_MISC_ERROR);
