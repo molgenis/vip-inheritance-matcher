@@ -70,11 +70,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     Settings settings = mapSettings(commandLine);
     try (AppRunner appRunner = appRunnerFactoryImpl.create(settings)) {
       appRunner.run();
-    } catch (InterruptedException ie) {
-      Thread.currentThread().interrupt();
-      LOGGER.error(ie.getLocalizedMessage(), ie);
-      System.exit(STATUS_MISC_ERROR);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       System.exit(STATUS_MISC_ERROR);
     }
