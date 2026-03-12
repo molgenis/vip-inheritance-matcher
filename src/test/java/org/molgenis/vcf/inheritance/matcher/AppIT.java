@@ -12,12 +12,12 @@ import org.springframework.util.ResourceUtils;
 
 class AppIT {
 
-  @TempDir
-  Path sharedTempDir;
+  @TempDir Path sharedTempDir;
 
   @Test
   void testNoVep() throws IOException {
-    String inputFile = ResourceUtils.getFile("classpath:integration_noVEPinheritance.vcf").toString();
+    String inputFile =
+        ResourceUtils.getFile("classpath:integration_noVEPinheritance.vcf").toString();
     String metadataFile = ResourceUtils.getFile("classpath:metadata.json").toString();
     String pedigree = ResourceUtils.getFile("classpath:pedigree_complex.ped").toString();
     String outputFile = sharedTempDir.resolve("actual.vcf").toString();
@@ -27,7 +27,8 @@ class AppIT {
 
     String outputVcf = Files.readString(Path.of(outputFile));
 
-    Path expectedOutputFile = ResourceUtils.getFile("classpath:expected_noVEPinheritance.vcf").toPath();
+    Path expectedOutputFile =
+        ResourceUtils.getFile("classpath:expected_noVEPinheritance.vcf").toPath();
     String expectedOutputVcf = Files.readString(expectedOutputFile).replaceAll("\\R", "\n");
 
     assertEquals(expectedOutputVcf, outputVcf);
@@ -57,7 +58,21 @@ class AppIT {
     String pedigree = ResourceUtils.getFile("classpath:pedigree_complex.ped").toString();
     String outputFile = sharedTempDir.resolve("actual.vcf").toString();
 
-    String[] args = {"-i", inputFile, "-o", outputFile, "-pd", pedigree, "-pb", "Patient,Patient2", "--force" ,"-c","P,B", "-m", metadataFile};
+    String[] args = {
+      "-i",
+      inputFile,
+      "-o",
+      outputFile,
+      "-pd",
+      pedigree,
+      "-pb",
+      "Patient,Patient2",
+      "--force",
+      "-c",
+      "P,B",
+      "-m",
+      metadataFile
+    };
     SpringApplication.run(App.class, args);
 
     String outputVcf = Files.readString(Path.of(outputFile));
@@ -75,7 +90,19 @@ class AppIT {
     String pedigree = ResourceUtils.getFile("classpath:pedigree_fam_no_parents.ped").toString();
     String outputFile = sharedTempDir.resolve("actual.vcf").toString();
 
-    String[] args = {"-i", inputFile, "-o", outputFile, "-pd", pedigree, "-pb", "Patient,Patient2", "--force", "-m", metadataFile};
+    String[] args = {
+      "-i",
+      inputFile,
+      "-o",
+      outputFile,
+      "-pd",
+      pedigree,
+      "-pb",
+      "Patient,Patient2",
+      "--force",
+      "-m",
+      metadataFile
+    };
     SpringApplication.run(App.class, args);
 
     String outputVcf = Files.readString(Path.of(outputFile));

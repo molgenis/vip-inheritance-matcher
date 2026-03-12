@@ -10,7 +10,6 @@ class MissingInfoExceptionTest {
   @Test
   void getMessage() {
     assertEquals(
-        "Input is missing INFO field 'VEP'.",
-        new MissingInfoException("VEP").getMessage());
+        "Input is missing INFO field 'VEP'.", new MissingInfoException("VEP").getMessage());
   }
 }

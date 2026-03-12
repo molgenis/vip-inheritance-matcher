@@ -1,16 +1,14 @@
 package org.molgenis.vcf.inheritance.matcher.vcf;
 
 import htsjdk.variant.variantcontext.Allele;
+import java.util.HashSet;
+import java.util.Set;
 import org.molgenis.vcf.inheritance.matcher.ContigUtils;
 import org.molgenis.vcf.utils.sample.model.Pedigree;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class VariantContextUtils {
 
-  private VariantContextUtils() {
-  }
+  private VariantContextUtils() {}
 
   public static boolean onAutosome(VcfRecord variantGeneRecord) {
     String contigId = variantGeneRecord.getContig();
@@ -32,15 +30,16 @@ public class VariantContextUtils {
     return contigId != null && ContigUtils.isChromosomeY(contigId);
   }
 
-  public static Set<Allele> getAltAlleles(VcfRecord variantGeneRecord, Pedigree pedigree){
+  public static Set<Allele> getAltAlleles(VcfRecord variantGeneRecord, Pedigree pedigree) {
     Set<Allele> altAlleles = new HashSet<>();
-    for(String sample : pedigree.getMembers().keySet()){
+    for (String sample : pedigree.getMembers().keySet()) {
       Genotype genotype = variantGeneRecord.getGenotype(sample);
-      if(genotype != null) {
-        genotype.unwrap().getAlleles().stream().filter(Allele::isNonReference).forEach(altAlleles::add);
+      if (genotype != null) {
+        genotype.unwrap().getAlleles().stream()
+            .filter(Allele::isNonReference)
+            .forEach(altAlleles::add);
       }
     }
     return altAlleles;
   }
-
 }

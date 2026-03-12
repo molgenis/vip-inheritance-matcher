@@ -22,15 +22,12 @@ public class ContigUtils {
     CHROMOSOME_X,
     CHROMOSOME_Y,
     CHROMOSOME_MT,
-    /**
-     * known contig types other than chromosomes such as decoys
-     */
+    /** known contig types other than chromosomes such as decoys */
     OTHER,
     UNKNOWN
   }
 
-  private ContigUtils() {
-  }
+  private ContigUtils() {}
 
   public static boolean isAutosome(String contigId) {
     ContigType contigType = CONTIG_TYPE_MAP.get(contigId);

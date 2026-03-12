@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.4</version>
+    <version>4.0.3</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -42,32 +42,45 @@
   </issueManagement>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
     <commons.cli.version>1.9.0</commons.cli.version>
     <!-- [WARNING] Plugin validation issues were detected, see https://github.com/jacoco/jacoco/issues/1435 -->
-    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-    <samtools.htsjdk.version>4.1.1</samtools.htsjdk.version>
+    <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+    <samtools.htsjdk.version>4.1.3</samtools.htsjdk.version>
     <vip.utils.version>4.0.0</vip.utils.version>
+    <errorprone.version>2.48.0</errorprone.version>
+    <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
+    <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
+    <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
+    <nullaway.version>0.12.15</nullaway.version>
+    <maven.spotless.plugin.version>3.0.0</maven.spotless.plugin.version>
+    <mockito.version>5.22.0</mockito.version>
+    <jspecify.version>1.0.0</jspecify.version>
+    <lombok.version>1.18.42</lombok.version>
   </properties>
 
   <profiles>
     <profile>
+      <id>coverage</id>
       <build>
         <plugins>
+
           <plugin>
+            <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
             <executions>
               <execution>
+                <id>prepare-agent</id>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
-                <id>prepare-agent</id>
               </execution>
               <execution>
+                <id>report</id>
                 <goals>
                   <goal>report</goal>
                 </goals>
-                <id>report</id>
               </execution>
               <execution>
                 <id>check</id>
@@ -91,12 +104,9 @@
                 </configuration>
               </execution>
             </executions>
-            <groupId>org.jacoco</groupId>
-            <version>${jacoco-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
-      <id>coverage</id>
     </profile>
   </profiles>
 
@@ -106,12 +116,55 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${maven.spotless.plugin.version}</version>
+          <configuration>
+            <java>
+              <googleJavaFormat/>
+            </java>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.plugin.version}</version>
           <configuration>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_core</artifactId>
+                <version>${errorprone.version}</version>
+              </path>
+              <path>
+                <groupId>com.uber.nullaway</groupId>
+                <artifactId>nullaway</artifactId>
+                <version>${nullaway.version}</version>
+              </path>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+              </path>
+            </annotationProcessorPaths>
             <compilerArgs>
               <arg>-Xlint</arg>
-              <arg>-Xlint:-processing</arg><!-- disable: perfectly normal for annotations to not have a processor -->
+              <arg>-Xlint:-processing</arg>
+              <arg>-Xlint:-restricted</arg>
+              <arg>-XDcompilePolicy=simple</arg>
+              <arg>--should-stop=ifError=FLOW</arg>
+              <arg>-Xplugin:ErrorProne -XepOpt:NullAway:AnnotatedPackages=org.molgenis
+                -XepOpt:NullAway:ExcludedFieldAnnotations=org.mockito.Mock -Xep:NullAway:ERROR
+                -XepExcludedPaths:.*/src/test/java/.*
+              </arg>
             </compilerArgs>
           </configuration>
         </plugin>
@@ -119,6 +172,10 @@
     </pluginManagement>
 
     <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <groupId>org.springframework.boot</groupId>
@@ -164,6 +221,21 @@
         <groupId>com.github.samtools</groupId>
         <version>${samtools.htsjdk.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.jspecify</groupId>
+        <artifactId>jspecify</artifactId>
+        <version>${jspecify.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -186,12 +258,26 @@
       <groupId>commons-cli</groupId>
     </dependency>
     <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+    </dependency>
+    <dependency>
       <artifactId>htsjdk</artifactId>
       <groupId>com.github.samtools</groupId>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
       <groupId>org.springframework.boot</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

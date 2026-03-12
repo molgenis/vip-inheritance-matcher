@@ -1,11 +1,11 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static java.util.Objects.requireNonNull;
+
 import org.molgenis.vcf.inheritance.matcher.vcf.RecordWriter;
 import org.molgenis.vcf.inheritance.matcher.vcf.VcfReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Objects.requireNonNull;
 
 class AppRunnerImpl implements AppRunner {
 
@@ -13,14 +13,16 @@ class AppRunnerImpl implements AppRunner {
 
   private final VcfReader vcfReader;
   private final RecordWriter recordWriter;
-    private final InheritanceService inheritanceService;
+  private final InheritanceService inheritanceService;
 
-    AppRunnerImpl(VcfReader vcfReader, RecordWriter recordWriter, InheritanceService inheritanceService) {
-      this.vcfReader = requireNonNull(vcfReader);
-      this.recordWriter = requireNonNull(recordWriter);
-      this.inheritanceService = inheritanceService;
-    }
+  AppRunnerImpl(
+      VcfReader vcfReader, RecordWriter recordWriter, InheritanceService inheritanceService) {
+    this.vcfReader = requireNonNull(vcfReader);
+    this.recordWriter = requireNonNull(recordWriter);
+    this.inheritanceService = inheritanceService;
+  }
 
+  @Override
   public void run() {
     LOGGER.info("Matching inheritance ...");
     inheritanceService.run(vcfReader, recordWriter);

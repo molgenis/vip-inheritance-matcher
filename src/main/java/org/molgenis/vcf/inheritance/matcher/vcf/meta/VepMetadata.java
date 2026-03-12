@@ -3,11 +3,9 @@ package org.molgenis.vcf.inheritance.matcher.vcf.meta;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import java.util.Map;
-
 import lombok.Getter;
-import org.molgenis.vcf.utils.metadata.FieldIdentifier;
+import org.jspecify.annotations.Nullable;
 import org.molgenis.vcf.utils.metadata.FieldMetadataService;
-import org.molgenis.vcf.utils.metadata.NestedAttributes;
 import org.molgenis.vcf.utils.model.metadata.FieldMetadata;
 import org.molgenis.vcf.utils.model.metadata.FieldMetadatas;
 import org.molgenis.vcf.utils.model.metadata.NestedFieldMetadata;
@@ -23,24 +21,18 @@ public class VepMetadata {
   private static final String INHERITANCE = "InheritanceModesGene";
   private final VCFHeader vcfHeader;
   private final FieldMetadataService fieldMetadataService;
-  @Getter
-  private String vepFieldId = null;
-  @Getter
-  private int geneIndex = -1;
-  @Getter
-  private int geneSourceIndex = -1;
-  @Getter
-  private int inheritanceIndex = -1;
-  @Getter
-  private int alleleNumIndex = -1;
-  @Getter
-  private int classIndex = -1;
+  @Getter @Nullable private String vepFieldId = null;
+  @Getter private int geneIndex = -1;
+  @Getter private int geneSourceIndex = -1;
+  @Getter private int inheritanceIndex = -1;
+  @Getter private int alleleNumIndex = -1;
+  @Getter private int classIndex = -1;
 
   public VepMetadata(VCFHeader vcfHeader, FieldMetadataService fieldMetadataService) {
-      this.vcfHeader = vcfHeader;
-      this.fieldMetadataService = fieldMetadataService;
+    this.vcfHeader = vcfHeader;
+    this.fieldMetadataService = fieldMetadataService;
 
-      init();
+    init();
   }
 
   private static boolean canMap(VCFInfoHeaderLine vcfInfoHeaderLine) {

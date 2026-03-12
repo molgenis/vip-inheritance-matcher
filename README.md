@@ -3,7 +3,7 @@
 annotates VCF samples with denovo and possible compound flags and matching inheritance modes and genes.
 
 ## Requirements
-- Java 21
+- Java 25
 
 Input VCF file should contain single ALT alleles per line and be annotated VEP.
 Input should be annotated with [VIP inheritance VEP plugin](https://github.com/molgenis/vip/blob/master/resources/vep/plugins/Inheritance.pm) For full functionality.

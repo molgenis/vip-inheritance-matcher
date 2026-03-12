@@ -1,5 +1,7 @@
 package org.molgenis.vcf.inheritance.matcher;
 
+import static java.util.Objects.requireNonNull;
+
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.molgenis.vcf.inheritance.matcher.util.InheritanceServiceFactory;
 import org.molgenis.vcf.inheritance.matcher.vcf.RecordWriter;
@@ -9,8 +11,6 @@ import org.molgenis.vcf.inheritance.matcher.vcf.VcfReaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import static java.util.Objects.requireNonNull;
 
 @Component
 class AppRunnerFactoryImpl implements AppRunnerFactory {
@@ -22,9 +22,9 @@ class AppRunnerFactoryImpl implements AppRunnerFactory {
   private final InheritanceServiceFactory inheritanceServiceFactory;
 
   AppRunnerFactoryImpl(
-          VcfReaderFactory vcfReaderFactory,
-          RecordWriterFactory recordWriterFactory,
-          InheritanceServiceFactory inheritanceServiceFactory) {
+      VcfReaderFactory vcfReaderFactory,
+      RecordWriterFactory recordWriterFactory,
+      InheritanceServiceFactory inheritanceServiceFactory) {
     this.vcfReaderFactory = requireNonNull(vcfReaderFactory);
     this.recordWriterFactory = requireNonNull(recordWriterFactory);
     this.inheritanceServiceFactory = inheritanceServiceFactory;

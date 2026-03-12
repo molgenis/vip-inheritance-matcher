@@ -4,5 +4,5 @@ import org.molgenis.vcf.inheritance.matcher.InheritanceService;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 
 public interface InheritanceServiceFactory {
-    InheritanceService create(Settings settings);
+  InheritanceService create(Settings settings);
 }
