@@ -5,9 +5,17 @@ import static org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.*;
 import static org.molgenis.vcf.inheritance.matcher.PathUtils.parsePaths;
 
 import ch.qos.logback.classic.Level;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
-import org.apache.commons.cli.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.molgenis.vcf.inheritance.matcher.model.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,17 +157,25 @@ class AppCommandLineRunner implements CommandLineRunner {
 
     // following information is only logged to system out
     System.out.println();
-    HelpFormatter formatter = new HelpFormatter();
-    formatter.setOptionComparator(null);
+    org.apache.commons.cli.help.HelpFormatter formatter =
+        HelpFormatter.builder().setComparator(null).get();
     String cmdLineSyntax = "java -jar " + appName + ".jar";
-    formatter.printHelp(
-        cmdLineSyntax,
-        org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppOptions(),
-        true);
-    System.out.println();
-    formatter.printHelp(
-        cmdLineSyntax,
-        org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppVersionOptions(),
-        true);
+    try {
+      formatter.printHelp(
+          cmdLineSyntax,
+          "",
+          org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppOptions(),
+          "",
+          true);
+      System.out.println();
+      formatter.printHelp(
+          cmdLineSyntax,
+          "",
+          org.molgenis.vcf.inheritance.matcher.AppCommandLineOptions.getAppVersionOptions(),
+          "",
+          true);
+    } catch (IOException ex) {
+      LOGGER.error("failed to log exception");
+    }
   }
 }

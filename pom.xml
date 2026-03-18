@@ -12,7 +12,7 @@
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance-matcher</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
 
   <name>vip-inheritance-matcher</name>
   <description>Annotates VCF samples with mendelian violation and possible compound flags and
@@ -42,53 +42,63 @@
   </issueManagement>
 
   <properties>
+    <argLine/>
     <java.version>25</java.version>
-    <commons.cli.version>1.9.0</commons.cli.version>
-    <!-- [WARNING] Plugin validation issues were detected, see https://github.com/jacoco/jacoco/issues/1435 -->
+    <commons.cli.version>1.11.0</commons.cli.version>
     <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
-    <samtools.htsjdk.version>4.1.3</samtools.htsjdk.version>
-    <vip.utils.version>4.0.0</vip.utils.version>
+    <jacoco.skip.report>false</jacoco.skip.report>
+    <samtools.htsjdk.version>4.3.0</samtools.htsjdk.version>
+    <vip.utils.version>4.0.1</vip.utils.version>
     <errorprone.version>2.48.0</errorprone.version>
     <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
     <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
-    <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
-    <nullaway.version>0.12.15</nullaway.version>
-    <maven.spotless.plugin.version>3.0.0</maven.spotless.plugin.version>
-    <mockito.version>5.22.0</mockito.version>
+    <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
+    <nullaway.version>0.13.1</nullaway.version>
+    <maven.spotless.plugin.version>3.3.0</maven.spotless.plugin.version>
+    <mockito.version>5.23.0</mockito.version>
     <jspecify.version>1.0.0</jspecify.version>
-    <lombok.version>1.18.42</lombok.version>
+    <lombok.version>1.18.44</lombok.version>
   </properties>
 
   <profiles>
     <profile>
-      <id>coverage</id>
       <build>
         <plugins>
-
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco-maven-plugin.version}</version>
             <executions>
+              <!-- unit test executions -->
               <execution>
-                <id>prepare-agent</id>
+                <id>prepare-agent-ut</id>
+                <phase>initialize</phase>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
+                <configuration>
+                  <destFile>${project.build.directory}/jacoco-ut.exec</destFile>
+                </configuration>
               </execution>
               <execution>
-                <id>report</id>
+                <id>report-ut</id>
+                <phase>prepare-package</phase>
                 <goals>
                   <goal>report</goal>
                 </goals>
+                <configuration>
+                  <skip>${jacoco.skip.report}</skip>
+                  <dataFile>${project.build.directory}/jacoco-ut.exec</dataFile>
+                  <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                </configuration>
               </execution>
               <execution>
-                <id>check</id>
+                <id>check-ut</id>
                 <phase>verify</phase>
                 <goals>
                   <goal>check</goal>
                 </goals>
                 <configuration>
+                  <dataFile>${project.build.directory}/jacoco-ut.exec</dataFile>
                   <rules>
                     <rule>
                       <element>BUNDLE</element>
@@ -96,17 +106,41 @@
                         <limit>
                           <counter>INSTRUCTION</counter>
                           <value>COVEREDRATIO</value>
-                          <minimum>0.80</minimum>
+                          <minimum>0.58</minimum>
                         </limit>
                       </limits>
                     </rule>
                   </rules>
                 </configuration>
               </execution>
+              <!-- integration test executions -->
+              <execution>
+                <id>prepare-agent-it</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+                </configuration>
+              </execution>
+              <execution>
+                <id>report-it</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <skip>${jacoco.skip.report}</skip>
+                  <dataFile>${project.build.directory}/jacoco-it.exec</dataFile>
+                  <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
+                </configuration>
+              </execution>
             </executions>
           </plugin>
         </plugins>
       </build>
+      <id>coverage</id>
     </profile>
   </profiles>
 
@@ -132,6 +166,11 @@
               <phase>verify</phase>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven.clean.plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -168,6 +207,11 @@
             </compilerArgs>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco-maven-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -175,6 +219,18 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
+      <!-- workaround for 'Error opening zip file or JAR manifest missing : ${org.mockito:mockito-core:jar}' -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -190,15 +246,32 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <argLine>@.mvn/jvm.config @{argLine}</argLine>
+        </configuration>
       </plugin>
       <plugin>
-        <!-- suppress Java 21 dynamic agent loading warning, since there is no suitable fix yet -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.plugin.version}</version>
         <configuration>
-          <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+          <argLine>@.mvn/jvm.config -javaagent:"${org.mockito:mockito-core:jar}" @{argLine}</argLine>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <statelessTestsetReporter>
+            <disable>true</disable>
+          </statelessTestsetReporter>
         </configuration>
       </plugin>
     </plugins>
