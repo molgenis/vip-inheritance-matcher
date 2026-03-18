@@ -167,6 +167,7 @@ public class Annotator {
       case TRUE -> "1";
       case FALSE -> "0";
       case POTENTIAL -> VCFConstants.MISSING_VALUE_v4;
+      case null -> throw new NoSuchElementException(sample.toString());
     };
   }
 

@@ -39,49 +39,49 @@ class AppCommandLineOptions {
             .required()
             .longOpt(OPT_INPUT_LONG)
             .desc("Input VCF file (.vcf or .vcf.gz).")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
             .hasArg(true)
             .longOpt(OPT_OUTPUT_LONG)
             .desc("Output VCF file (.vcf or .vcf.gz).")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_METADATA)
             .hasArg(true)
             .required()
             .longOpt(OPT_METADATA_LONG)
             .desc("VCF metadata file (.json).")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_PED)
             .hasArg(true)
             .longOpt(OPT_PED_LONG)
             .desc("Comma-separated list of pedigree files (.ped).")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_PROBANDS)
             .hasArg(true)
             .longOpt(OPT_PROBANDS_LONG)
             .desc("Comma-separated list of proband sample identifiers.")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_CLASSES)
             .hasArg(true)
             .longOpt(OPT_CLASSES_LONG)
             .desc(
                 "Comma-separated list of values in the INFO/CSQ VIPC subfield to be used in inheritance calculation.")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_FORCE)
             .longOpt(OPT_FORCE_LONG)
             .desc("Override the output file if it already exists.")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_DEBUG)
             .longOpt(OPT_DEBUG_LONG)
             .desc("Enable debug mode (additional logging).")
-            .build());
+            .get());
     APP_OPTIONS = appOptions;
     Options appVersionOptions = new Options();
     appVersionOptions.addOption(
@@ -89,7 +89,7 @@ class AppCommandLineOptions {
             .required()
             .longOpt(OPT_VERSION_LONG)
             .desc("Print version.")
-            .build());
+            .get());
     APP_VERSION_OPTIONS = appVersionOptions;
   }
 
