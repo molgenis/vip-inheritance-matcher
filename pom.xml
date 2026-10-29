@@ -6,13 +6,13 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.3</version>
+    <version>4.1.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance-matcher</artifactId>
-  <version>4.0.1</version>
+  <version>4.0.4</version>
 
   <name>vip-inheritance-matcher</name>
   <description>Annotates VCF samples with mendelian violation and possible compound flags and
@@ -45,18 +45,18 @@
     <argLine/>
     <java.version>25</java.version>
     <commons.cli.version>1.11.0</commons.cli.version>
-    <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
     <jacoco.skip.report>false</jacoco.skip.report>
     <samtools.htsjdk.version>4.3.0</samtools.htsjdk.version>
-    <vip.utils.version>4.0.1</vip.utils.version>
+    <vip.utils.version>4.0.3</vip.utils.version>
     <errorprone.version>2.48.0</errorprone.version>
-    <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
+    <maven.compiler.plugin.version>3.16.0</maven.compiler.plugin.version>
     <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
-    <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
+    <maven.surefire.plugin.version>3.6.1</maven.surefire.plugin.version>
     <nullaway.version>0.13.1</nullaway.version>
-    <maven.spotless.plugin.version>3.3.0</maven.spotless.plugin.version>
-    <mockito.version>5.23.0</mockito.version>
-    <jspecify.version>1.0.0</jspecify.version>
+    <maven.spotless.plugin.version>3.10.4</maven.spotless.plugin.version>
+    <mockito.version>5.24.0</mockito.version>
+    <jspecify.version>1.0.1</jspecify.version>
     <lombok.version>1.18.44</lombok.version>
   </properties>
 
