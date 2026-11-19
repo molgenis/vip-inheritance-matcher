@@ -17,18 +17,18 @@ before_install:
   - |
     if [ ! -f "$HOME/jdk/bin/java" ]; then
       curl --fail --silent --show-error --location --output "$HOME/jdk.tar.gz" \
-        https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jdk_x64_linux_hotspot_25.0.5_8.tar.gz
-      echo "68982529869257d0ee6b824ec5aa270ff8b118bb438670da0b97ebdab178d7fb  $HOME/jdk.tar.gz" | sha256sum --check          
+        https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5.1%2B2/OpenJDK25U-jdk_x64_linux_hotspot_25.0.5.1_2.tar.gz      
+      echo "sha256:760f91b22c3efc9bd1b64ff950598231be82928cc807e30691a0e7a2995a62c0  $HOME/jdk.tar.gz" | sha256sum --check          
       tar --extract --gunzip --strip-components=1 --directory="$HOME/jdk" -f "$HOME/jdk.tar.gz"
       rm "$HOME/jdk.tar.gz"
     fi
-  # install maven 3.10.0
+  # install maven 3.10.1
   # important: drop cache on change, see https://app.travis-ci.com/github/molgenis/vip-inheritance-matcher/caches
   - |
     if [ ! -f "$HOME/mvn/bin/mvn" ]; then
       curl --fail --silent --show-error --location --output "$HOME/mvn.tar.gz" \
-        https://archive.apache.org/dist/maven/maven-3/3.10.0/binaries/apache-maven-3.10.0-bin.tar.gz
-      echo "a46cc51bc74fa23fd267c7a0b9132b146dcf526da60d31aa5174e565632e9e0e  $HOME/mvn.tar.gz" | sha256sum --check
+        https://archive.apache.org/dist/maven/maven-3/3.10.1/binaries/apache-maven-3.10.1-bin.tar.gz
+      echo "810b8348f0a40f9116c202093fae007ebeabf67699bf34d81ee7e272289e085a  $HOME/mvn.tar.gz" | sha256sum --check
       tar --extract --gunzip --strip-components=1 --directory="$HOME/mvn" -f "$HOME/mvn.tar.gz"
       rm "$HOME/mvn.tar.gz"
     fi
