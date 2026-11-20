@@ -18,7 +18,7 @@ before_install:
     if [ ! -f "$HOME/jdk/bin/java" ]; then
       curl --fail --silent --show-error --location --output "$HOME/jdk.tar.gz" \
         https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5.1%2B2/OpenJDK25U-jdk_x64_linux_hotspot_25.0.5.1_2.tar.gz      
-      echo "sha256:760f91b22c3efc9bd1b64ff950598231be82928cc807e30691a0e7a2995a62c0  $HOME/jdk.tar.gz" | sha256sum --check          
+      echo "760f91b22c3efc9bd1b64ff950598231be82928cc807e30691a0e7a2995a62c0  $HOME/jdk.tar.gz" | sha256sum --check          
       tar --extract --gunzip --strip-components=1 --directory="$HOME/jdk" -f "$HOME/jdk.tar.gz"
       rm "$HOME/jdk.tar.gz"
     fi
